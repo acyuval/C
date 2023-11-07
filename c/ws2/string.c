@@ -5,8 +5,7 @@
 ******************************************************************************/
 
 
-#include <stdio.h>
-#include <stdlib.h>
+
 
 unsigned int StrLen(char *p)
 {

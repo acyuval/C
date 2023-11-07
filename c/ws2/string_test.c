@@ -6,9 +6,9 @@
 
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>  /* printf()            */
+
+#include <string.h> /* strcmp() , strlen() */
 #include "string.h"
 
 
