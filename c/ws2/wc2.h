@@ -3,18 +3,10 @@ void SwapInt (int *, int *);
 
 void SwapSizeT (size_t*, size_t*);
 
-void SwapSizeTPtr (size_t *, size_t *);
+void SwapSizeTPtr (size_t **, size_t **);
 
 int *CopyIntArr(int, int *);
 
-int CheckMemoryloc();
+void SwapPtrWithSwapSize_T (size_t **, size_t **);
 
-int TestSwapInt();
 
-int TestSwapSizeT();
-
-int TestSwapSizeTPtr();
-
-int TestCopyIntArr();
-
-int CheckMemoryloc();

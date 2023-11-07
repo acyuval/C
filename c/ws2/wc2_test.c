@@ -1,84 +1,190 @@
-#include <stdio.h>
-#include <stdlib.h>
+/******************************************************************************
+*	Author:    Yuval 
+*	Reviewer : Dvir
+*	Date:      7/12/23     
+******************************************************************************/
+#include <stdio.h> /* printf() */
+#include <stdlib.h> /* malloc(), free() */
 #include "wc2.h"
 
 
 int TestSwapInt()
 {
-	int one = 4; 
-	int two = 12; 
-	printf("\nbefore:%d::::%d\n" , one , two);
-	SwapInt(&one, &two);
-	printf("\nafter:%d::::%d\n" , one , two);
+	int input1[] = {4,6,7,4}; 
+	int input2[] = {12,2,6,4}; 
+	int number_of_tests = sizeof(input1)/sizeof(int);
+	int i = 0;
+	int temp_res1 = 0;
+    	int temp_res2 = 0;
+    	printf("----------------------------------------\n");
+	printf("TestSwapInt:\n");
+	
+	for(i = 1; i < number_of_tests; i++)
+    	{
+		temp_res1 = input1[i];
+		temp_res2 = input2[i];
+		SwapInt(&input1[i], &input2[i]);
+		
+		if(input1[i] != temp_res2 || input2[i] != temp_res1)
+		{
+		    break;
+		}
+    	}
+	if(i != number_of_tests)
+	{
+		printf("swap int failed in itr no. %d \n", (i));
+	}
+	else
+	{
+		printf("swap int sucsess!\n");
+	}
+	
 	return 0;
 }
 
 int TestSwapSizeT()
 {
-	size_t one = 4; 
-	size_t two = 12; 
+	size_t input1[] = {4,6,7,4}; 
+	size_t input2[] = {12,2,6,4}; 
+	int number_of_tests = sizeof(input1)/sizeof(size_t);
+	int i = 0;
+	size_t temp_res1 = 0;
+    	size_t temp_res2 = 0;
+    	printf("----------------------------------------\n");
+	printf("TestSwapSizeT:\n");
 	
-	size_t *one_ptr = &one; 
-	size_t *two_ptr = &two; 
+	for(i = 1; i < number_of_tests; i++)
+    	{
+		temp_res1 = input1[i];
+		temp_res2 = input2[i];
+		SwapSizeT(&input1[i], &input2[i]);
+		if(input1[i] != temp_res2 || input2[i] != temp_res1)
+		{
+		    break;
+		}
+    	}
+	if(i != number_of_tests)
+	{
+		printf("swap size_t failed in itr no. %d \n", (i));
+	}
+	else
+	{
+		printf("swap size_t sucsess!\n");
+	}
 	
-	printf("\nbefore:%lu::::%lu\n" , one , two);
-	SwapSizeT(&one, &two);
-	printf("\nafter:%lu::::%lu\n" , one , two);
-	printf("\nbefore:%lu::::%lu\n" ,*one_ptr, *two_ptr);
-	SwapSizeT(one_ptr, two_ptr);
-	printf("\nafter:%lu::::%lu\n" ,*one_ptr, *two_ptr);
-	
-	return 0;
+	return (0);
+
 }
 int TestSwapSizeTPtr()
 {
-	size_t one = 4; 
-	size_t two = 12; 
+	size_t input1[] = {4,6,7,4}; 
+	size_t input2[] = {12,2,15,9}; 
+	size_t *first_ptr = NULL;
+	size_t *second_ptr = NULL;
 	
-	size_t *one_ptr = &one; 
-	size_t *two_ptr = &two; 
+	int number_of_tests = sizeof(input1)/sizeof(size_t);
+	int i = 0;
+
+    	printf("----------------------------------------\n");
+	printf("TestSwapSizeTPtr:\n");
 	
-	printf("\nbefore:%lu::::%lu\n" ,*one_ptr, *two_ptr);
-	SwapSizeT(one_ptr, two_ptr);
-	printf("\nafter:%lu::::%lu\n" ,*one_ptr, *two_ptr);
-	
-	return 0;
+	for(i = 1; i < number_of_tests; i++)
+    	{
+		first_ptr = &input1[i]; 
+		second_ptr = &input2[i]; 
+		SwapSizeTPtr(&first_ptr, &second_ptr);
+		if(input1[i] == *first_ptr || input2[i] == *second_ptr)
+		{
+		    break;
+		}
+    	}
+	if(i != number_of_tests)
+	{
+		printf("TestSwapSizeTPtr failed in itr no. %d\n", (i));
+	}
+	else
+	{
+		printf("TestSwapSizeTPtrtests sucsess!\n");
+	}
+
+	return (0);
 }
+
+int TestSwapPtrWithSwapSize_T()
+{
+	size_t input1[] = {4,6,7,4}; 
+	size_t input2[] = {12,2,15,9}; 
+	size_t *first_ptr = NULL;
+	size_t *second_ptr = NULL;
+	
+	int number_of_tests = sizeof(input1)/sizeof(size_t);
+	int i = 0;
+
+    	printf("----------------------------------------\n");
+	printf("TestSwapPtrWithSwapSize_T:\n");
+	
+	for(i = 1; i < number_of_tests; i++)
+    	{
+		first_ptr = &input1[i]; 
+		second_ptr = &input2[i]; 
+		SwapPtrWithSwapSize_T(&first_ptr, &second_ptr);
+		if(input1[i] == *first_ptr || input2[i] == *second_ptr)
+		{
+		    break;
+		}
+    	}
+	if(i != number_of_tests)
+	{
+		printf("TestSwapSizeTPtr failed in itr no. %d\n", (i));
+	}
+	else
+	{
+		printf("TestSwapSizeTPtrtests sucsess!\n");
+	}
+
+	return (0);
+}
+
 
 int TestCopyIntArr()
 {
-
-	int arr[] = {5 , 6 ,7 ,9 ,10};
+	
+	int arr[] = {5, 12 , 6 ,7 ,9 ,10};
 	int size_arr = sizeof(arr)/sizeof(int);
-	int *cp_arr = CopyIntArr(5 , arr);	
+	int *cp_arr = CopyIntArr(size_arr , arr);	
 	int i = 0;
-	printf("array copy is: ");
-	for(i=0;i<size_arr;i++)
+    	printf("----------------------------------------\n");
+	printf("TestCopyIntArr:\n");
+	for(i = 1; i < size_arr; i++)
+    	{
+		if(*(cp_arr+i) != arr[i])
+		{
+		    break;
+		}
+    	}
+    	
+	if(i != size_arr)
 	{
-		
-		printf("%d, " , *(cp_arr+i));
+		printf("TestCopyIntArr failed in itr no. %d \n", (i));
 	}
+	else
+	{
+		printf("TestCopyIntArr sucsess!\n");
+	}
+
 	free(cp_arr);
 	return (0);
 }
 
 int main()
 {
-	printf("\nswap int : \n");
+	
 	TestSwapInt();
-	printf("\n----------------------------------------------");
-	printf("\nswap Size_t : \n");
 	TestSwapSizeT();
-	printf("\n----------------------------------------------");
-	printf("\nswap ptr Size_t : \n");
 	TestSwapSizeTPtr();
-	printf("\n----------------------------------------------");
-	printf("\ntest copy arr : \n");
 	TestCopyIntArr();
-	printf("\n----------------------------------------------");
-	printf("\nmemory map : \n");
-	CheckMemoryloc();
-	return 0;
+	TestSwapPtrWithSwapSize_T();
+	return (0);
 }
 
 
