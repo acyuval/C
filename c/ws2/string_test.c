@@ -8,7 +8,7 @@
 
 #include <stdio.h>  /* printf()            */
 
-#include <string.h> /* strcmp() , strlen() */
+#include <string.h> /* strcmp() , strlen() ,strncmp()  */
 #include "string.h"
 
 
@@ -18,8 +18,8 @@ void TestStrCmp()
 	int i = 0;
 	size_t test_res = 0;
     	size_t expected_res = 0;
-    	char inputs1[4][20] = {"a", "Hallo", "Hallo World!", "12"};
-    	char inputs2[4][20] = {"a", "Hallo4", "Hallo World!", "122"};		
+    	char inputs1[4][20] = {"a", "Hello", "Hello World!", "12"};
+    	char inputs2[4][20] = {"a", "Hello4", "Hello World!", "122"};		
     	
     	printf("----------------------------------------\n");
 	printf("Test my StrCmp:\n");
@@ -50,7 +50,7 @@ void TestStrLen()
 	size_t test_res = 0;
     	size_t expected_res = 0;
 
-    	char inputs[3][20] = {"", "Hallo", "Hallo World!"};	
+    	char inputs[3][20] = {"", "Hello", "Hello World!"};	
     	int num_tests = sizeof(inputs)/sizeof(char);	
 	printf("----------------------------------------\n");
 	printf("Test my StrLen:\n");
@@ -65,7 +65,7 @@ void TestStrLen()
     	}
 	    if(i != num_tests)
 	    {
-		printf("str nu. %d, failed. Output %lu, should be %lu\n", (i), test_res, expected_res);
+		printf("str no. %d, failed. Output %lu, should be %lu\n", (i), test_res, expected_res);
 	    }
 	    else
 	    {
@@ -74,12 +74,46 @@ void TestStrLen()
 }
 
 
+void TestStrNCmp()
+{
+	const int number_of_tests = 4;
+	int i = 0;
+	size_t test_res = 0;
+    	size_t expected_res = 0;
+    	char inputs1[4][20] = {"a", "H2ello", "Hello World!", "1122"};
+    	char inputs2[4][20] = {"a", "Hello4", "Hello World!", "122"};
+    	size_t n_values[] =   {3 , 3 , 4 , 12};		
+    	
+    	printf("----------------------------------------\n");
+	printf("Test my StrNCmp:\n");
+	for(i = 1; i < number_of_tests; i++)
+    	{
+		test_res = StrNCmp(inputs1[i], inputs2[i] , n_values[i]);
+		expected_res = strncmp(inputs1[i], inputs2[i], n_values[i]);
+		if(test_res != expected_res)
+		{
+		    break;
+		}
+    	}
+
+	if(i != number_of_tests)
+	{
+	printf("str no. %d, failed. Output %lu, should be %lu\n", (i), test_res, expected_res);
+	}
+	else
+	{
+	printf("StrNCmp--sucsess\n");
+	}
+	
+}
 
 
 int main()
 {
 	TestStrCmp();
+	TestStrNCmp();
 	TestStrLen();
+
 	return 0;
 }
 
