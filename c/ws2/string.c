@@ -6,8 +6,8 @@
  
  
  #include <stdlib.h>  /* malloc() */
-
-
+ #include <stdio.h>  
+ #include <ctype.h>
 
 unsigned int StrLen(char *str)
 {
@@ -21,18 +21,7 @@ unsigned int StrLen(char *str)
     return counter;
 }
 
-int StrCmp(const char* str1, const char* str2)
-{
-	do
-    {
-    	if (*str1 != *str2) 
-    	{
-    		return (*str1 - *str2);	
-    	}    	
-    	str1++; str2++;
-    }while(*str1 != '\0' || *str2 != '\0');
- 	return 0;
-}
+
 
 
 /* StrCpy gets pre-allocated char pointer destination that is large enough to store the copied string  */ 
@@ -64,9 +53,14 @@ char* StrNCpy(char* destination, const char* source, size_t n)
 		destination++;
 		source++;
 		counter++;
-		counter++; 
 	}
 	*destination = '\0';
+	while (counter < n)
+	{
+		*destination = '\0';
+		destination++;
+		counter++;
+	}	
 	 return (ptr_to_start);
 }
  
@@ -74,16 +68,51 @@ int StrNCmp(const char *str1, const char *str2, size_t n)
 {	
 	size_t counter = 0; 
 	
-	while((*str1 != '\0' || *str2 != '\0') && counter < n)
+	while(*str1 != '\0' && (*str1 == *str2) && (counter < n))
 	{
-		if (*str1 != *str2) 
-		{
-			return(*str1 - *str2);	
-		}
-    	counter++;     	
+    	counter++;
+    	str1++;
+    	str2++;     	
 	}
-	return 0;
 	
+	return (*str1-*str2);
 } 
 
+int StrCmp(const char* str1, const char* str2)
+{
+	while(*(str1) == *(str2) && *(str1) !='\0' )
+	{ 
+	    str1++;
+    	str2++;     	
+	}
+	return (*str1-*str2);
+ 	
+}
+
+int StrCaseCmp(const char* str1, const char* str2)
+{
+
+	while(tolower(*(str1)) == tolower(*(str2)) && *(str1) !='\0' )
+	{    	
+		
+		str1++;
+    	str2++;  
+	}
+	return (*str1-*str2);
+ 	
+}
+
+char *StrChr(const char *str, int c)
+{
+	char * ptr = (char *)str;
+	while(*ptr != '\0')
+	{
+		if (*ptr == (char)c) 
+		{
+			return ptr;
+		}
+		ptr++;
+	}
+	return (Null);
+}
 
