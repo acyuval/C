@@ -1,6 +1,6 @@
 /******************************************************************************
 *	Author:    Yuval 
-*	Reviewer : Dvir
+*	Reviewer : Bar
 *	Date:      7/12/23     
 ******************************************************************************/
 #include <stdio.h> /* printf() */
@@ -175,6 +175,36 @@ int TestCopyIntArr()
 	free(cp_arr);
 	return (0);
 }
+int TestCheckForPalindrome()
+{
+	
+	char str[4][20] = {"rotator", "mum", "kayak", "kadilac"};
+	int expected_results[] = {0 , 0 , 0 , 1};
+	int test_res = 0; 	
+	int i = 0;
+	int number_of_tests = 4;
+    	printf("----------------------------------------\n");
+	printf("TestCheckForPalindrome:\n");
+	for(i = 0; i < number_of_tests; i++)
+    	{
+    		test_res = CheckForPalindrome(str[i]);
+		if(test_res != expected_results[i])
+		{
+		    break;
+		}
+    	}
+    	
+	if(i != number_of_tests)
+	{
+		printf("TestCheckForPalindrome failed in itr no. %d \n", (i));
+	}
+	else
+	{
+		printf("TestCheckForPalindrome sucsess!\n");
+	}
+
+	return (0);
+}
 
 int main()
 {
@@ -184,6 +214,7 @@ int main()
 	TestSwapSizeTPtr();
 	TestCopyIntArr();
 	TestSwapPtrWithSwapSize_T();
+	TestCheckForPalindrome();
 	return (0);
 }
 

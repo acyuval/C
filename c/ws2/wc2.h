@@ -9,4 +9,6 @@ int *CopyIntArr(int, int *);
 
 void SwapPtrWithSwapSize_T (size_t **, size_t **);
 
+int CheckForPalindrome(char * str);
+
 
