@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ws3.h"
-
+extern const char **environ;
 #define ARRAYSIZE(x) (sizeof x/sizeof x[0])
 
 
@@ -42,11 +42,11 @@ void TestGetArrOfPtrs(void)
 }
 
 
-int main(int argc, char **argv, char **envp)
+int main()
 {
 	TestGetArrOfPtrs();
 	ListOfDataTypes();
-	PrintAllEnvp(envp);
+	PrintAllEnvp(environ);
 	Jusephus(100);
 
 	return (0);

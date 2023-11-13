@@ -10,6 +10,7 @@
 #define ARRAYSIZE(x) (sizeof x/sizeof x[0])
 
 
+
 void Sum2DArr(int (*arr)[3], int *result, size_t row_no, size_t col_no)
 {
 	size_t i = 0;
@@ -146,12 +147,13 @@ int Jusephus(int group_size)
 	{
         	if(isPowerOf2(group_size-(i/2)))
         	{
-        		printf("\nthe last remain is : %d \n" , i);
-        		return i+2;
+        		printf("\nthe last soldier remain is : %d \n" , i+1); 
+        		return i+1;
         	}
-        	i++;       
+        	i++; 
+        	   
         }
-        
+          
 	return 0;
 }
 

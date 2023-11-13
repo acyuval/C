@@ -18,7 +18,7 @@ int GetPtrOfPtrs(int **arr);
 void ListOfDataTypes(void);
 
 /* this function will recive envirment variables and print them in lower case */
-void PrintAllEnvp(char ** env);
+void PrintAllEnvp(const char ** env);
 
 
 int Jusephus();
