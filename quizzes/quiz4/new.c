@@ -5,59 +5,38 @@
 ******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#define ARRAYSIZE(x) (sizeof x/sizeof x[0])
 
-void TF(int num)
+void foo(int arr[], int sum, int size)
 {
-	if(!(num%5) && !(num%3))
-	{
-		printf("TF\n");
-	}
-	else if(!(num%3))
-	{
-		printf("T\n");
-	}
+	int i = 0;
+	int * low = &arr[0];
+	int * max = &arr[size-1];
 	
-	else if(!(num%5))
+	while (i<size)
 	{
-		printf("F\n");
+		while ((*max+*low) < sum) 
+		{
+			low++;
+			i++; 
+		}
+		if((*max+*low) == sum)
+		{
+			printf("\nmax:%d low:%d in itr: %d \n", *max, *low, i);
+			return;
+		}
+		max--;
+		i++;
 	}
-	
-
-	else 
-	{
-		printf("%d\n", num);
-	}
-
-}
-
-char * Reverse(char str[],int str_len)
-{
-	
-	char * reversed_str = malloc(str_len*sizeof(char));
-	char * ptr_to_start = reversed_str;
-	printf("\n");
-	while(str_len--)
-	{
-		
-		*reversed_str = tolower(str[str_len]); 
-		printf("%c", *reversed_str);
-		reversed_str++;
-	}
-	printf("\n");
-	return (ptr_to_start);
+	printf("\nsum not found\n");
 }
 
 
 int main()
 {
-	char * new_str = NULL;
-	
-	char str[] = "HelLo";
-	new_str = Reverse(str, 6);
-	TF(10);
-	free(new_str);
-	return 0;
+	int arr[] = {3 , 9 ,23 ,41 , 100, 300, 450, 650};
+	int sum = 1100;
+	foo(arr, sum, 8);
+	return (0);
 }
 

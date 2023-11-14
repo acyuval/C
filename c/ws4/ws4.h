@@ -4,18 +4,19 @@
 *	Date:      
 ******************************************************************************/
 
-#ifndef __ws4_h__
-#define __ws4_h__
+#ifndef __WS4_H__
+#define __WS4_H__
 
-
+/*	check user input (A/T) ecs to quit      	*/
 int CheckInputSwitch();
 
+/*	check user input (A/T) ecs to quit      	*/
 int CheckInputIf();
 
+/*	check user input (A/T) ecs to quit      	*/
 int CheckInputLOT();
 
-void NoAction();
 
 
-#endif
-/*	WS4_H        	*/
+
+#endif /*	WS4_H        	*/

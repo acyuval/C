@@ -13,27 +13,42 @@ typedef void (*ptr_to_func)();
 
 int CheckInputSwitch()
 {
-	char input = 0;
+	int input = 0;
+	int return_value  = 0 ;
+	const int esc = 27;
 	
 	printf("--------------------------------\n");
 	printf("CheckInputSwitch: \n");
-	system("stty -icanon -echo");
-	while(1){
+	return_value = system("stty -icanon -echo");
+	if (0 != return_value)
+	{
+		exit(return_value);
+	}
+	
+	while(esc != input)
+	{
 		printf("Enter one char\n");
-		scanf("\n%c" , &input);
+		input = getchar();
 	
 		switch (input)
 		{
 		case 'A': 
 			printf("A pressed\n");
-			return(0);
+			break;
 		case 'T': 
-			printf("T pressed\n");
-			return(0);
-		case 27: 
-			return (0);
+			printf("T pressed\n");	
+			break;
 		}
+		
 	}
+	
+	return_value = system("stty icanon echo");
+	if (0 != return_value)
+	{
+		exit(return_value);
+	}
+	
+	
 	return (1);
 }
 
@@ -55,9 +70,10 @@ void NoAction()
 
 int CheckInputLOT()
 {
-	char input = 0;
+	int input = 0;
 	int i = 0 ;
 	const int esc = 27;
+	int return_value  = 0 ;
 	ptr_to_func LOT[128] = {NULL};
 
 	printf("--------------------------------\n");
@@ -70,16 +86,27 @@ int CheckInputLOT()
 	LOT['A'] = A;
 	LOT['T'] = T;
 	
-	system("stty -icanon -echo");
-	printf("Enter one char:\n");
-	scanf("\n%c" , &input);
+	return_value = system("stty -icanon -echo");
+	if (0 != return_value)
+	{
+		exit(return_value);
+	}
+	
+	
 	
 	while(esc != input) 
 	{
-		LOT[(int)input]();
-		printf("Enter one char\n");
-		scanf("\n%c" , &input);		
+		printf("Enter one char:\n");
+		input = getchar();
+		LOT[(int)input]();	
 	}
+	
+	return_value = system("stty icanon echo");
+	if (0 != return_value)
+	{
+		exit(return_value);
+	}
+	
 	
 	return (0);
 }
@@ -87,35 +114,44 @@ int CheckInputLOT()
 
 int CheckInputIf()
 {
-	char input = 0;
+	int input = 0;
 	const int esc = 27;
+	int return_value  = 0 ;
+	
 	printf("--------------------------------\n");
 	printf("CheckInputIf:  \n");
-	system("stty -icanon -echo");
-	while(1)
+	return_value = system("stty -icanon -echo");
+	if (0 != return_value)
 	{
-		
+		exit(return_value);
+	}
+	
+	
+	while(input != esc)
+	{	
 		printf("Enter one char\n");
-		scanf("\n%c" , &input);
+		input = getchar();
 			
 		if ('A' == input)
 		{
 			printf("A pressed\n");
-			return(0);
+			
 		}
 		if ('T' == input)
 		{
 			printf("T pressed\n");
-			return(0);
-		}
-		if (esc == input)
-		{
-			printf("esc!!\n");
-			return(0);
+			
 		}
 		
 	}
-
+	
+	return_value = system("stty icanon echo");
+	if (0 != return_value)
+	{
+		exit(return_value);
+	}
+	
+	
 	return (1);
 }
 
