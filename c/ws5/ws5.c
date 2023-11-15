@@ -10,7 +10,8 @@
 enum fun_stat 
 {
   failed,
-  success
+  success, 
+  noMatch
 }; 
 
 typedef void (*ptr_to_func)(char[]);
@@ -74,7 +75,6 @@ enum fun_stat add_(char* string)
 			savePos = ftell(file);
 		}
 	}
-	
 	else
 	{
 		ret = fputs(string, file);
@@ -85,7 +85,6 @@ enum fun_stat add_(char* string)
 			return(failed);
 		}
 	}
-
 	return(success);
 }
 
@@ -93,10 +92,7 @@ enum fun_stat Remove_(char* string)
 {
 	int ret = 0; 
 	
-	if (NULL == string)
-	{
-		return(failed);
-	}
+	(void)string;
 	
 	if (remove((const char*)file_name) == 0)
 	{
@@ -127,11 +123,7 @@ enum fun_stat Count_(char* string)
 	
 	
 	rewind(file);
-	if (string == NULL) 
-	{
-		return(failed);
-	}
-  
+	(void)string;
 	lines++;
 	while ((ch = fgetc(file)) != EOF)
 	{
@@ -169,7 +161,7 @@ int Comperssion(struct operation this_struct, char * str_to_cmp)
 	}
 	else 
 	{
-		return failed;
+		return noMatch;
 	} 
 }
 
@@ -190,14 +182,13 @@ int InitStruct()
 		void (*ptr_func)(int);	
 	};
 	struct print_me arr_of_struct[10] = {0};
-	printf("----------------------------\n start of InitStruct");	
+	printf("----------------------------\nstart of InitStruct: \n");	
 	while(i < 10)
 	{
 		arr_of_struct[i].num = i;
 		arr_of_struct[i].ptr_func = print;
 		arr_of_struct[i].ptr_func(arr_of_struct[i].num);	
 		i++;
-
 	}
 	
 	return 0;
@@ -213,11 +204,11 @@ int notepad_sim(char name[])
 	struct operation arr_of_struct[5] = {{"-remove" , Comperssion ,Remove_},{"-count" , Comperssion ,Count_},
 					     {"-exit" , Comperssion ,Exit_}}; 					     
 	
-	printf("----------------------------\n start of phase 2\n\n");				     
+	printf("----------------------------\nstart of phase 2\n\n");				     
 	file_name = name;
 	file = OpenFile(file_name); 	
 	printf("please enter text to write[100 chars max] or use command (remove/count/exit/<*):\n");
-	while(1)
+	while(status != failed)
 	{
 		i = scanf("%s", str_to_cmp);
 		if(i)
@@ -231,7 +222,7 @@ int notepad_sim(char name[])
 					break;
 				}	
 			}
-			if (status == failed) 
+			if (status == noMatch) 
 			{
 				add_(str_to_cmp);
 			}
