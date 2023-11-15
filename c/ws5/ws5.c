@@ -165,11 +165,11 @@ int Comperssion(struct operation this_struct, char * str_to_cmp)
 	if(!(strcmp(str_to_cmp, this_struct.string)))	
 	{
 		this_struct.operation(str_to_cmp);
-		return 0;
+		return success;
 	}
 	else 
 	{
-		return 1;
+		return failed;
 	} 
 }
 
@@ -226,12 +226,12 @@ int notepad_sim(char name[])
 			{
 				
 				status = arr_of_struct[i].comperssion(arr_of_struct[i], str_to_cmp);
-				if (!status) 
+				if (status == success) 
 				{
 					break;
 				}	
 			}
-			if (status) 
+			if (status == failed) 
 			{
 				add_(str_to_cmp);
 			}
