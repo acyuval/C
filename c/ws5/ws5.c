@@ -3,9 +3,10 @@
 *	Reviewer : Igal
 *	Date:      
 ******************************************************************************/
-#include <stdio.h>	/*	printf() ,scanf() 	*/
-#include <stdlib.h>	/*	calloc()		*/ 
-#include <string.h>	/*	strncmp() ,strcmp()	*/
+#include <stdio.h>	/*	printf() ,scanf() , fopen(), fseek()..	*/
+#include <stdlib.h>	/*	calloc()								*/ 
+#include <string.h>	/*	strncmp() ,strcmp()						*/
+#include "ws5.h"
 
 enum fun_stat 
 {
@@ -17,33 +18,12 @@ enum fun_stat
 typedef void (*ptr_to_func)(char[]);
 
 
-char * file_name = NULL;
-char * io_str = NULL;
-
-
 struct operation 
 {
 	char * string;
 	int (*comperssion)(struct operation, char *,char *);
 	enum fun_stat (*operation)(char*, char *);	
-};
-
-
-
-FILE *OpenFile(char str[], char* type)
-{
-	FILE * file = NULL;
-
-	file = fopen(str, type);
-	if(NULL == file) 
-	{
-		printf("failed to open file - exit!!\n");
-		exit(0);
-	}	
-
-	return (file);
-}
-	
+};	
 
 enum fun_stat add_(char* string, char * file_name)
 {
@@ -59,14 +39,14 @@ enum fun_stat add_(char* string, char * file_name)
 
 	FILE * file = NULL;
 	
-		
 	flag_type_of_add = strncmp(string, "<", 1);
 	
 	if (!flag_type_of_add)				/* write to start of file */
 	{
-		file = OpenFile(file_name, "r"); 
+		file = fopen(file_name, "r"); 
 		if (NULL == file)
 		{
+			printf("\nfailed to open file!\n");
 			return failed;
 		}
 		fseek(file, 0, SEEK_END);		
@@ -76,15 +56,16 @@ enum fun_stat add_(char* string, char * file_name)
 		
 		ret = fread(buffer_for_file, 1, size_of_buffer, file);
 		
-		if (NULL == file)
+		fseek(file, 0, SEEK_SET);		
+		
+		if(fclose(file))
 		{
-			return failed;
+			printf("\nfailed to close file!\n");
+			return (failed);
 		}
 		
-		fseek(file, 0, SEEK_SET);		
-		fclose(file);
 		
-		file = OpenFile(file_name, "w"); 
+		file = fopen(file_name, "w+"); 
 		if (NULL == file)
 		{
 			return failed;
@@ -92,19 +73,27 @@ enum fun_stat add_(char* string, char * file_name)
 		
 		fputs((string + 1), file);
 		ret = fputs("\n", file);
+		
 		fseek(file, 0, SEEK_END);
 		fputs(buffer_for_file, file);		
 		free(buffer_for_file);
-		fclose(file);
+		
+		if(fclose(file))
+		{
+			printf("\nfailed to close file!\n");
+			return (failed);
+		}
+		
 		  
 	}
 	else 						/* write to end of file */
 	{
-		file = OpenFile(file_name, "a+"); 
+	
+		file = fopen(file_name, "a+"); 
 		if (NULL == file)
 		{
 			return failed;
-		}				
+		}
 		ret = fputs(string, file);
 		ret = fputs("\n", file);
 		if (!ret)
@@ -112,37 +101,30 @@ enum fun_stat add_(char* string, char * file_name)
 			printf("couldnt write to file!\n");
 			return(failed);
 		}
-		fclose(file);
+		
+		if(fclose(file))
+		{
+			printf("\nfailed to close file!\n");
+			return (failed);
+		}
 	}
 	return(success);
 }
 
 enum fun_stat Remove_(char* string, char * file_name)
 {
-	int ret = 0; 
-	FILE * file = NULL;
 	(void)string;
 
 	if (remove((const char*)file_name) == 0)
 	{
 		printf("Deleted successfully \n");
-		printf("New file name: \n");
-		ret = scanf("%s", file_name);
-		if (ret)
-		{
-			file = OpenFile(file_name, "w+");
-			printf("New file opend...: \n");
-			printf("please enter text to write[100 chars max] or use command (remove/count/exit/<*):\n");
-			fclose(file);
-		}
+		return(success);
 	}
 	else
 	{
 		printf("Unable to delete the file \n");
 		return(failed);
  	}
- 	
- 	return(success);
 }
 
 
@@ -154,10 +136,12 @@ enum fun_stat Count_(char* string, char * file_name)
 	
 	(void)string;
 	
-	file = OpenFile(file_name, "r"); 
-	rewind(file);
 	
-	lines++;
+	file = fopen(file_name, "r"); 
+	if (NULL == file)
+	{
+		return failed;
+	}
 	while ((ch = fgetc(file)) != EOF)
 	{
 		if (ch == '\n')
@@ -166,8 +150,13 @@ enum fun_stat Count_(char* string, char * file_name)
 		}
 	}
 	
-	printf("number of lines is: %d \n" , (lines-1));
-	fclose(file);
+	printf("number of lines is: %d \n" , (lines));
+	if(fclose(file))
+	{
+		printf("\nfailed to close file!\n");
+		return (failed);
+	}
+	
 	return(success);
 
 }
@@ -176,24 +165,17 @@ enum fun_stat Exit_(char* string, char * file_name)
 {
 	(void)file_name;
 	(void)string;
-	if (string != NULL)
-	{
-		printf("---EXIT---\n");
-		exit(0);
-	}
-	else
-	{
-		return(failed);
-	}
+	printf("---EXIT---\n");
+	return(failed);
 }
 
-int Comperssion(struct operation this_struct, char * str_to_cmp , char * file_name)
+int Comperssion(struct operation this_struct, char * input , char * file_name)
 {
-	
-	if(!(strcmp(str_to_cmp, this_struct.string)))	
+	int status = 0 ;
+	if(!(strcmp(input, this_struct.string)))	
 	{
-		this_struct.operation(str_to_cmp,file_name);
-		return success;
+		status = this_struct.operation(input,file_name);
+		return status;
 	}
 	else 
 	{
@@ -233,35 +215,39 @@ int InitStruct()
 
 int notepad_sim(char name[])
 { 
-	int i = 0; 
+	int ret = 0; 
+	int i = 0;
 	int number_of_commands = 3;
-	char str_to_cmp[100] = {0};
+	char input[100] = {0};
 	int status = success;
-	FILE * file = NULL;
-	struct operation arr_of_struct[3] = {{"-remove" , Comperssion ,Remove_},{"-count" , Comperssion ,Count_},
-					     {"-exit" , Comperssion ,Exit_}}; 					     
+	char * file_name = NULL;
+	struct operation arr_of_struct[3] = {{"-remove" , Comperssion ,Remove_},
+										  {"-count" , Comperssion ,Count_},
+					     					{"-exit" , Comperssion ,Exit_}}; 					     
 	
 	printf("----------------------------\nstart of phase 2\n\n");				     
+	
 	file_name = name;
-	file = OpenFile(file_name, "w+");
-	fclose(file); 	
-	printf("please enter text to write[100 chars max] or use command (remove/count/exit/<*):\n");
+	printf("start notepad:\n");
 	while(status != failed)
 	{
-		i = scanf("%s", str_to_cmp);
-		if(i)
+		ret = scanf("%s", input);
+		if(ret)
 		{
 			for(i=0; i< number_of_commands ; i++)
 			{
-				status = arr_of_struct[i].comperssion(arr_of_struct[i], str_to_cmp , file_name);
+				status = arr_of_struct[i].comperssion(arr_of_struct[i],
+												 input , file_name);
 				if (status == success) 
 				{
 					break;
-				}	
+				}
+					
 			}
+			
 			if (status == noMatch) 
 			{
-				add_(str_to_cmp ,file_name);
+				add_(input ,file_name);
 			}
 		}	
 	}

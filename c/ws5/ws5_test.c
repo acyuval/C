@@ -12,8 +12,9 @@
 
 int main(int argc, char *argv[])
 {
-	if (argc == 0)
+	if (argc < 2)
 	{
+		printf("please enter file name as argument!");
 		return 0;
 	}
 	
