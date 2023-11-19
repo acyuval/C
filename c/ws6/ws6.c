@@ -3,10 +3,15 @@
 *	Reviewer : Igal
 *	Date:      
 ******************************************************************************/
-#include <stdio.h>	/*	printf() ,scanf() , fopen(), fseek()..	*/
-#include <stdlib.h>	/*	calloc()				*/ 
-#include <string.h>	/*	strncmp() ,strcmp()			*/
+#include <stdio.h>	/*	printf()  				*/
+
 #include "ws6.h"
+
+
+union FloatUnion {
+    float f;
+    int i;
+};
 
 
 long pow2(unsigned int x, unsigned int y)
@@ -118,9 +123,93 @@ int check2and6BitsAnd(unsigned char ch)
 	return ((ch & 34) == 34);
 }
 
+
 unsigned char check2and6BitsOr(unsigned char ch)
 {
-	unsigned char cmp = 34; /* in 34 only 6th and 2nd bits are on */
-	return ((cmp & ch)| cmp);
+	/* in 34 only 6th and 2nd bits are on - 00100010 */
+	return ((34 & ch));
 } 
+
+
+unsigned char Swap3and6Bits(unsigned char ch)
+{
+	/* 235 11101011 ,  20 00010100 */
+	return ((235 & ch) ^ 20);
+} 
+
+unsigned int checkDevisionBy16(unsigned int num)
+{
+	while(num & 15)
+	{
+		num -= 1;
+	}
+
+	return (num);
+} 
+
+unsigned int SwapTwoVarNoTemp(unsigned int A ,unsigned int B)
+{
+	A = A ^ B;
+	 
+	B = A ^ B;
+	
+	A = A ^ B;
+	
+	return (A);
+} 
+
+
+
+int CountNumberOfSetBitsLoop(int number)
+{
+	int j = 0; 
+	int bit_counter = 0;
+
+	for(j = 0 ; j < 32 ; j++)
+	{
+
+		if ((number & 1) == 1)
+		{
+			bit_counter++;
+		}
+		number = number >> 1 ;			
+	}
+
+	return bit_counter;
+}
+
+
+
+int CountNumberOfSetBitsBitWise(int number)
+{
+
+	number = number - ((number >> 1) & 1431655765);
+	number = (number & 858993459) + ((number >> 2) & 858993459);
+	number = (number + (number >> 4)) & 252645135;
+	number = number + (number >> 8);
+	number = number + (number >> 16);
+	number = number & 63;
+	return number;
+}
+
+
+
+void PrintFloatToBinary(float number)
+{
+	int j = 0; 
+	union FloatUnion print_bits = {0};
+	int binaryRepresentation = 0;
+	print_bits.f = number; 
+	binaryRepresentation = print_bits.i;
+	
+	for(j = 0 ; j < 32 ; j++) 
+	{
+  		printf("%d", (binaryRepresentation >> j) & 1);
+	}
+		
+}
+
+		
+
+
 

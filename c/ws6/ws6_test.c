@@ -177,9 +177,172 @@ void Testcheck2and6BitsAnd()
 }
 
 
+
+void TestSwap3and6Bits()
+{
+
+	unsigned char arr[4] =  { 19, 37, 132, 228};
+	int expected_results[4] = {7, 49 , 144, 240};
+	int size = 4;
+	int i = 0;
+	printf("\n----------------------\nTestSwap3and6Bits:\n");
+	while (i<size)
+	{ 
+		if ((expected_results[i]) != Swap3and6Bits(arr[i]))
+		{
+			break;
+		}
+		i++;
+	}
+	if (i != size-1)
+	{
+		printf("\n OK\n");
+	}
+	else
+	{
+		printf("\n failed\n");
+	}
+}
+
+
+void TestcheckDevisionBy16()
+{
+
+	unsigned int arr[6] =  { 19, 16, 48, 80, 85, 2450};
+	int size = 6;
+	int i = 0;	
+	int this_result = 0;
+	printf("\n----------------------\nTestcheckDevisionBy16:\n");
+	while (i<size)
+	{ 
+		this_result = checkDevisionBy16(arr[i]);
+		if ((this_result % 16) !=  0)
+		{
+			break;
+		}
+		i++;
+	}
+	if (i != size-1)
+	{
+		printf("\n OK\n");
+	}
+	else
+	{
+		printf("\n failed\n");
+	}
+}
+
+
+void TestSwapTwoVarNoTemp()
+{
+
+	unsigned int A[6] =  { 19, 16, 48, 80, 85, 2450};
+	unsigned int B[6] =  { 30, 15, 23, 49, 22, 1100};
+	int size = 6;
+	int i = 0;	
+	unsigned int A_after_swap = 0;
+	printf("\n----------------------\nTestSwapTwoVarNoTemp:\n");
+	while (i<size)
+	{ 
+		A_after_swap = SwapTwoVarNoTemp(A[i], B[i]);
+		if (A_after_swap !=  B[i])
+		{
+			break;
+		}
+		i++;
+	}
+	if (i != size-1)
+	{
+		printf("\n OK\n");
+	}
+	else
+	{
+		printf("\n failed\n");
+	}
+}
+
+
+void TestCountNumberOfSetBitsLoop()
+{
+
+	unsigned int arr[6] =  { 19, 16, 48, 80, 85, 2450};
+	int expected_results[6] = {3, 1 , 2, 2, 4, 5};
+	int size = 6;
+	int i = 0;	
+	printf("\n----------------------\nTestCountNumberOfSetBitsLoop:\n");
+	while (i<size)
+	{ 
+		
+		if (expected_results[i] !=  CountNumberOfSetBitsLoop(arr[i]))
+		{
+			break;
+		}
+		i++;
+	}
+	if (i != size-1)
+	{
+		printf("\n OK\n");
+	}
+	else
+	{
+		printf("\n failed\n");
+	}
+}
+
+
+void TestCountNumberOfSetBitsBitWise()
+{
+
+	unsigned int arr[6] =  { 19, 16, 48, 80, 85, 2450};
+
+	int size = 6;
+	int i = 0;	
+	printf("\n----------------------\nTestCountNumberOfSetBitsBitWise:\n");
+	while (i<size)
+	{ 
+		
+		if (CountNumberOfSetBitsBitWise(arr[i]) !=  CountNumberOfSetBitsLoop(arr[i]))
+		{
+			break;
+		}
+		i++;
+	}
+	if (i != size-1)
+	{
+		printf("\n OK\n");
+	}
+	else
+	{
+		printf("\n failed\n");
+	}
+}
+
+void TestPrintFloatToBinary()
+{
+
+	float arr[7] =  {1 ,19, 16, 48, 80.2, 85.78, 2.23};
+
+	int size = 7;
+	int i = 0;	
+	printf("\n----------------------\nTestPrintFloatToBinary:\n");
+	
+	while (i<size)
+	{ 
+		printf("%f:\t", arr[i]);
+		PrintFloatToBinary(arr[i]);
+		printf("\n");
+		i++;
+	}
+}
+
+
+
+
+
+
 int main()
 {
-	/*
+	
 	TestcheckPower2BitWise();
 	TestcheckPower2Loop();
 	TestaddOne();
@@ -187,8 +350,23 @@ int main()
 	TestcheckArrayFor3Bits();
 	
 	TestbyteMiror();
-	*/
+	
 	Testcheck2and6BitsAnd();
+	
+	TestSwap3and6Bits();
+
+	TestcheckDevisionBy16();
+	
+	TestSwapTwoVarNoTemp();
+
+	TestCountNumberOfSetBitsLoop();
+	
+	
+	TestCountNumberOfSetBitsBitWise();
+	
+	TestPrintFloatToBinary();
+	
+	
 	return 0;
 }
 
