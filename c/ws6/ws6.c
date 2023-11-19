@@ -8,12 +8,6 @@
 #include "ws6.h"
 
 
-union FloatUnion {
-    float f;
-    int i;
-};
-
-
 long pow2(unsigned int x, unsigned int y)
 {
 	unsigned int result = x * (2 << (y-1));
@@ -32,8 +26,6 @@ unsigned int checkPower2Loop(unsigned int n)
 	}
 	
 	return 1;
-	
-
 }
 
 
@@ -46,10 +38,18 @@ unsigned int checkPower2BitWise(unsigned int n)
 
 
 
-unsigned int  addOne(int n)
+unsigned int addOne(int n)
 {
-	unsigned int  result = (-(~n));
-	return result;
+	int temp = 1;
+	
+	while (temp == (temp & n))
+	{
+		n = n ^ temp;
+		temp = temp << 1;
+	}
+	n = n ^ temp;
+	
+	return n;
 
 }
 
@@ -131,20 +131,21 @@ unsigned char check2and6BitsOr(unsigned char ch)
 } 
 
 
-unsigned char Swap3and6Bits(unsigned char ch)
+unsigned char Swap3and5Bits(unsigned char ch)
 {
-	/* 235 11101011 ,  20 00010100 */
-	return ((235 & ch) ^ 20);
+	
+	char bit_3_flag = (ch & 4);
+	char bit_5_flag = (ch & 16);
+	
+	ch = ch + ((bit_3_flag == 4) - (bit_5_flag == 16)) * (12);
+	return ch;
 } 
 
 unsigned int checkDevisionBy16(unsigned int num)
 {
-	while(num & 15)
-	{
-		num -= 1;
-	}
 
-	return (num);
+
+	return ((num >> 4) << 4);
 } 
 
 unsigned int SwapTwoVarNoTemp(unsigned int A ,unsigned int B)
@@ -164,7 +165,14 @@ int CountNumberOfSetBitsLoop(int number)
 {
 	int j = 0; 
 	int bit_counter = 0;
-
+	
+	if (number < 0)
+	{
+		bit_counter++;
+		number = number ^ -2147483648;  /* int min  -2147483648 */
+	}
+	
+	
 	for(j = 0 ; j < 32 ; j++)
 	{
 
@@ -176,9 +184,8 @@ int CountNumberOfSetBitsLoop(int number)
 	}
 
 	return bit_counter;
+
 }
-
-
 
 int CountNumberOfSetBitsBitWise(int number)
 {
@@ -196,15 +203,14 @@ int CountNumberOfSetBitsBitWise(int number)
 
 void PrintFloatToBinary(float number)
 {
-	int j = 0; 
-	union FloatUnion print_bits = {0};
-	int binaryRepresentation = 0;
-	print_bits.f = number; 
-	binaryRepresentation = print_bits.i;
-	
-	for(j = 0 ; j < 32 ; j++) 
+	int i = 0;
+	float float_num = number;
+	unsigned int *to_int = (unsigned int *)&float_num;
+	int mask = 1 << 31 ;  /* 10000000.... */
+	for(i = 0 ; i < 32 ; i++) 
 	{
-  		printf("%d", (binaryRepresentation >> j) & 1);
+  		printf("%d", (*to_int & mask)? 1: 0);
+  		*to_int = *to_int << 1;
 	}
 		
 }

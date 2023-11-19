@@ -20,13 +20,13 @@ void Testpow2()
 	while (i<size)
 	{ 
 	
-		if ((x[i]*pow(y[i], 2)) != pow2(x[i],y[i]))
+		if ((x[i]*pow(2, y[i])) != pow2(x[i],y[i]))
 		{
 			break;
 		}
 		i++;
 	}
-	if (i != size)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
@@ -43,7 +43,7 @@ void TestcheckPower2Loop()
 	int size = 5;
 	int i = 0;
 	printf("\n----------------------\nTestcheckPower2Loop:\n");
-	while (i<size-1)
+	while (i<size)
 	{ 
 	
 		if (expected_results[i] != checkPower2Loop(arr[i]))
@@ -52,7 +52,7 @@ void TestcheckPower2Loop()
 		}
 		i++;
 	}
-	if (i != size)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
@@ -78,7 +78,7 @@ void TestcheckPower2BitWise()
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
@@ -103,7 +103,7 @@ void TestaddOne()
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
@@ -139,13 +139,14 @@ void TestbyteMiror()
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
-		printf("\n OK\n");
+		
+		printf("\n failed\n");
 	}
 	else
 	{
-		printf("\n failed\n");
+		printf("\n OK\n");
 	}
 	
 }
@@ -166,37 +167,40 @@ void Testcheck2and6BitsAnd()
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
 	else
 	{
 		printf("\n failed\n");
+		
 	}
 }
 
 
 
-void TestSwap3and6Bits()
+void TestSwap3and5Bits()
 {
 
 	unsigned char arr[4] =  { 19, 37, 132, 228};
 	int expected_results[4] = {7, 49 , 144, 240};
 	int size = 4;
 	int i = 0;
-	printf("\n----------------------\nTestSwap3and6Bits:\n");
+	printf("\n----------------------\nTestSwap3and5Bits:\n");
 	while (i<size)
 	{ 
-		if ((expected_results[i]) != Swap3and6Bits(arr[i]))
+	
+		if ((expected_results[i]) != Swap3and5Bits(arr[i]))
 		{
 			break;
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
 		printf("\n OK\n");
+
 	}
 	else
 	{
@@ -222,7 +226,7 @@ void TestcheckDevisionBy16()
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
@@ -251,7 +255,7 @@ void TestSwapTwoVarNoTemp()
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
@@ -265,8 +269,8 @@ void TestSwapTwoVarNoTemp()
 void TestCountNumberOfSetBitsLoop()
 {
 
-	unsigned int arr[6] =  { 19, 16, 48, 80, 85, 2450};
-	int expected_results[6] = {3, 1 , 2, 2, 4, 5};
+	int arr[6] =  { -19, 16, -250, 80, 85, 2450};
+	int expected_results[6] = {30, 1 , 26, 2, 4, 5};
 	int size = 6;
 	int i = 0;	
 	printf("\n----------------------\nTestCountNumberOfSetBitsLoop:\n");
@@ -279,7 +283,7 @@ void TestCountNumberOfSetBitsLoop()
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
@@ -293,7 +297,7 @@ void TestCountNumberOfSetBitsLoop()
 void TestCountNumberOfSetBitsBitWise()
 {
 
-	unsigned int arr[6] =  { 19, 16, 48, 80, 85, 2450};
+	unsigned int arr[6] =  { -19, 16, 48, 80, 85, 2450};
 
 	int size = 6;
 	int i = 0;	
@@ -307,7 +311,7 @@ void TestCountNumberOfSetBitsBitWise()
 		}
 		i++;
 	}
-	if (i != size-1)
+	if (i == size)
 	{
 		printf("\n OK\n");
 	}
@@ -353,7 +357,7 @@ int main()
 	
 	Testcheck2and6BitsAnd();
 	
-	TestSwap3and6Bits();
+	TestSwap3and5Bits();
 
 	TestcheckDevisionBy16();
 	
