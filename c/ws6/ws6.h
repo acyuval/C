@@ -48,11 +48,9 @@ unsigned int SwapTwoVarNoTemp(unsigned int A ,unsigned int B);
 int CountNumberOfSetBitsLoop(int number);
 
 /* this function counts the number of set bits in number   */
-
 int CountNumberOfSetBitsBitWise(int number);
 
 /* this function prints a binary represintion of float number    */
-
 void PrintFloatToBinary(float number);
 
 

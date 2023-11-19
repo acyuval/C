@@ -268,7 +268,6 @@ void TestSwapTwoVarNoTemp()
 
 void TestCountNumberOfSetBitsLoop()
 {
-
 	int arr[6] =  { -19, 16, -250, 80, 85, 2450};
 	int expected_results[6] = {30, 1 , 26, 2, 4, 5};
 	int size = 6;
@@ -283,10 +282,12 @@ void TestCountNumberOfSetBitsLoop()
 		}
 		i++;
 	}
+
 	if (i == size)
 	{
 		printf("\n OK\n");
 	}
+
 	else
 	{
 		printf("\n failed\n");
@@ -298,9 +299,9 @@ void TestCountNumberOfSetBitsBitWise()
 {
 
 	unsigned int arr[6] =  { -19, 16, 48, 80, 85, 2450};
-
 	int size = 6;
 	int i = 0;	
+
 	printf("\n----------------------\nTestCountNumberOfSetBitsBitWise:\n");
 	while (i<size)
 	{ 
@@ -311,10 +312,12 @@ void TestCountNumberOfSetBitsBitWise()
 		}
 		i++;
 	}
+
 	if (i == size)
 	{
 		printf("\n OK\n");
 	}
+
 	else
 	{
 		printf("\n failed\n");
@@ -323,13 +326,11 @@ void TestCountNumberOfSetBitsBitWise()
 
 void TestPrintFloatToBinary()
 {
-
 	float arr[7] =  {1 ,19, 16, 48, 80.2, 85.78, 2.23};
-
 	int size = 7;
 	int i = 0;	
+
 	printf("\n----------------------\nTestPrintFloatToBinary:\n");
-	
 	while (i<size)
 	{ 
 		printf("%f:\t", arr[i]);
@@ -340,34 +341,20 @@ void TestPrintFloatToBinary()
 }
 
 
-
-
-
-
 int main()
 {
-	
 	TestcheckPower2BitWise();
 	TestcheckPower2Loop();
 	TestaddOne();
 	Testpow2();
 	TestcheckArrayFor3Bits();
-	
 	TestbyteMiror();
-	
 	Testcheck2and6BitsAnd();
-	
 	TestSwap3and5Bits();
-
 	TestcheckDevisionBy16();
-	
 	TestSwapTwoVarNoTemp();
-
 	TestCountNumberOfSetBitsLoop();
-	
-	
 	TestCountNumberOfSetBitsBitWise();
-	
 	TestPrintFloatToBinary();
 	
 	

@@ -33,7 +33,6 @@ unsigned int checkPower2BitWise(unsigned int n)
 {
 	unsigned int result = ((n != 0) && !(n & (n - 1)));
 	return result;
-
 }
 
 
@@ -47,10 +46,9 @@ unsigned int addOne(int n)
 		n = n ^ temp;
 		temp = temp << 1;
 	}
-	n = n ^ temp;
-	
-	return n;
 
+	n = n ^ temp;
+	return n;
 }
 
 
@@ -61,8 +59,6 @@ int checkArrayFor3Bits(unsigned int arr[],int size)
 	int bit_counter = 0;
 	unsigned int this = 0;
 
-
-	
 	for(i=0; i < size; i++)
 	{
 		bit_counter = 0;
@@ -96,7 +92,6 @@ unsigned int byteMirorBitWise(unsigned int num)
 	num = ((num & 0x00FF00FF) << 8) | ((num & 0xFF00FF00) >> 8); 
 	num = ((num & 0x0000FFFF) << 16) | ((num & 0xFFFF0000) >> 16); 
 	return num >> (32 - 8);
-	
 }
 
 
@@ -133,29 +128,22 @@ unsigned char check2and6BitsOr(unsigned char ch)
 
 unsigned char Swap3and5Bits(unsigned char ch)
 {
-	
 	char bit_3_flag = (ch & 4);
 	char bit_5_flag = (ch & 16);
-	
 	ch = ch + ((bit_3_flag == 4) - (bit_5_flag == 16)) * (12);
 	return ch;
 } 
 
 unsigned int checkDevisionBy16(unsigned int num)
 {
-
-
 	return ((num >> 4) << 4);
 } 
 
 unsigned int SwapTwoVarNoTemp(unsigned int A ,unsigned int B)
 {
 	A = A ^ B;
-	 
 	B = A ^ B;
-	
 	A = A ^ B;
-	
 	return (A);
 } 
 
@@ -172,7 +160,6 @@ int CountNumberOfSetBitsLoop(int number)
 		number = number ^ -2147483648;  /* int min  -2147483648 */
 	}
 	
-	
 	for(j = 0 ; j < 32 ; j++)
 	{
 
@@ -184,12 +171,10 @@ int CountNumberOfSetBitsLoop(int number)
 	}
 
 	return bit_counter;
-
 }
 
 int CountNumberOfSetBitsBitWise(int number)
 {
-
 	number = number - ((number >> 1) & 1431655765);
 	number = (number & 858993459) + ((number >> 2) & 858993459);
 	number = (number + (number >> 4)) & 252645135;
@@ -212,7 +197,6 @@ void PrintFloatToBinary(float number)
   		printf("%d", (*to_int & mask)? 1: 0);
   		*to_int = *to_int << 1;
 	}
-		
 }
 
 		
