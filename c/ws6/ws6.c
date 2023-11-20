@@ -8,14 +8,14 @@
 #include "ws6.h"
 
 
-long pow2(unsigned int x, unsigned int y)
+long Pow2(unsigned int x, unsigned int y)
 {
 	unsigned int result = (x << y);
 	
 	return result;
 }
 
-unsigned int checkPower2Loop(unsigned int n)
+unsigned int CheckPower2Loop(unsigned int n)
 {
 	while(1 !=  n)
 	{
@@ -31,7 +31,7 @@ unsigned int checkPower2Loop(unsigned int n)
 }
 
 
-unsigned int checkPower2BitWise(unsigned int n)
+unsigned int CheckPower2BitWise(unsigned int n)
 {
 	unsigned int result = ((n != 0) && !(n & (n - 1)));
 	
@@ -40,7 +40,7 @@ unsigned int checkPower2BitWise(unsigned int n)
 
 
 
-unsigned int addOne(int n)
+unsigned int AddOne(int n)
 {
 	int temp = 1;
 	
@@ -55,7 +55,7 @@ unsigned int addOne(int n)
 }
 
 
-int checkArrayFor3Bits(unsigned int arr[],int size)
+int CheckArrayFor3Bits(unsigned int arr[],int size)
 {
 	int i = 0;
 	int j = 0; 
@@ -87,7 +87,7 @@ int checkArrayFor3Bits(unsigned int arr[],int size)
 }
 
 
-unsigned int byteMirorBitWise(unsigned int num)
+unsigned int ByteMirorBitWise(unsigned int num)
 {
 	num = ((num & 0x55555555) << 1) | ((num & 0xAAAAAAAA) >> 1); 
 	num = ((num & 0x33333333) << 2) | ((num & 0xCCCCCCCC) >> 2); 
@@ -98,12 +98,12 @@ unsigned int byteMirorBitWise(unsigned int num)
 }
 
 
-unsigned int byteMirorLoop(unsigned int n)
+unsigned int ByteMirorLoop(unsigned int n)
 {
 	unsigned int result = 0;
 	int counter = 0; 
 
-	while (counter < 8) 
+	while (8 > counter) 
 	{
 		result <<= 1;
 		if (1 == (n & 1))
@@ -117,14 +117,14 @@ unsigned int byteMirorLoop(unsigned int n)
 	return result;
 }
 
-int check2and6BitsAnd(unsigned char ch)
+int Check2and6BitsAnd(unsigned char ch)
 {
 	/* in 32 only 6th bits is on in 2 only 2nd bit is on*/
 	return ((ch & 34) == 34);
 }
 
 
-unsigned char check2and6BitsOr(unsigned char ch)
+unsigned char Check2and6BitsOr(unsigned char ch)
 {
 	/* in 34 only 6th and 2nd bits are on - 00100010 */
 	return ((34 & ch));
@@ -140,7 +140,7 @@ unsigned char Swap3and5Bits(unsigned char ch)
 	return ch;
 } 
 
-unsigned int checkDevisionBy16(unsigned int num)
+unsigned int CheckDevisionBy16(unsigned int num)
 {
 	return ((num >> 4) << 4);
 } 
@@ -153,14 +153,12 @@ unsigned int SwapTwoVarNoTemp(unsigned int A ,unsigned int B)
 	return (A);
 } 
 
-
-
 int CountNumberOfSetBitsLoop(int number)
 {
 	int j = 0; 
 	int bit_counter = 0;
 	
-	if (number < 0)
+	if (0 > number)
 	{
 		bit_counter++;
 		number = number ^ -2147483648;  /* int min  -2147483648 */
@@ -168,7 +166,6 @@ int CountNumberOfSetBitsLoop(int number)
 	
 	for(j = 0 ; j < 32 ; j++)
 	{
-
 		if (1 == (number & 1))
 		{
 			bit_counter++;

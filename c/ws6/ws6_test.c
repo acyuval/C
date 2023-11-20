@@ -21,7 +21,7 @@ void Testpow2()
 	while (i<size)
 	{ 
 	
-		if ((x[i]*pow(2, y[i])) != pow2(x[i],y[i]))
+		if ((x[i]*pow(2, y[i])) != Pow2(x[i],y[i]))
 		{
 			break;
 		}
@@ -33,7 +33,6 @@ void Testpow2()
 	{
 		printf("\n OK\n");
 	}
-	
 	else
 	{
 		printf("\n failed\n");
@@ -50,8 +49,7 @@ void TestcheckPower2Loop()
 	printf("\n----------------------\nTestcheckPower2Loop:\n");
 	while (i<size)
 	{ 
-	
-		if (expected_results[i] != checkPower2Loop(arr[i]))
+		if (expected_results[i] != CheckPower2Loop(arr[i]))
 		{
 			break;
 		}
@@ -78,8 +76,7 @@ void TestcheckPower2BitWise()
 	printf("\n----------------------\nTestcheckPower2BitWise:\n");
 	while (i<size)
 	{ 
-	
-		if (expected_results[i] != checkPower2BitWise(arr[i]))
+		if (expected_results[i] != CheckPower2BitWise(arr[i]))
 		{
 			break;
 		}
@@ -105,8 +102,7 @@ void TestaddOne()
 	printf("\n----------------------\nTestaddOne:\n");
 	while (i<size)
 	{ 
-	
-		if ((arr[i]+1) != addOne(arr[i]))
+		if ((arr[i]+1) != AddOne(arr[i]))
 		{
 			break;
 		}
@@ -118,14 +114,11 @@ void TestaddOne()
 	{
 		printf("\n OK\n");
 	}
-	
 	else
 	{
 		printf("\n failed\n");
 	}
-
 }
-
 
 void TestcheckArrayFor3Bits()
 {
@@ -133,7 +126,7 @@ void TestcheckArrayFor3Bits()
 	int size = 6;
 	
 	printf("\n----------------------\nTestcheckArrayFor3Bits:\n");
-	checkArrayFor3Bits(arr,size);
+	CheckArrayFor3Bits(arr,size);
 }
 
 void TestbyteMirorBitWise()
@@ -146,7 +139,7 @@ void TestbyteMirorBitWise()
 	printf("\n----------------------\nTestbyteMirorBitWise:\n");
 	while (i<size)
 	{ 
-		if (expected_results[i] != byteMirorBitWise(arr[i]))
+		if (expected_results[i] != ByteMirorBitWise(arr[i]))
 		{
 			break;
 		}
@@ -158,12 +151,10 @@ void TestbyteMirorBitWise()
 	{
 		printf("\n OK\n");
 	}
-	
 	else
 	{
 		printf("\n failed\n");
 	}
-	
 }
 
 
@@ -177,7 +168,7 @@ void TestbyteMirorLoop()
 	printf("\n----------------------\nTestbyteMirorLoop:\n");
 	while (i<size)
 	{ 
-		if (byteMirorLoop(arr[i]) != expected_results[i])
+		if (ByteMirorLoop(arr[i]) != expected_results[i])
 		{
 			break;
 		}
@@ -189,17 +180,14 @@ void TestbyteMirorLoop()
 	{
 		printf("\n OK\n");		
 	}
-	
 	else
 	{
 		printf("\n failed\n");
 	}
-	
 }
 
 void Testcheck2and6BitsAnd()
 {
-
 	unsigned char arr[6] =  {7, 2, 6, 8, 42 , 34};
 	int expected_results[6] = {0, 0 , 0, 0 , 1, 1};
 	int size = 6;
@@ -208,7 +196,7 @@ void Testcheck2and6BitsAnd()
 	printf("\n----------------------\nTestcheck2and6BitsAnd:\n");
 	while (i<size)
 	{ 
-		if ((expected_results[i]) != check2and6BitsAnd(arr[i]))
+		if ((expected_results[i]) != Check2and6BitsAnd(arr[i]))
 		{
 			break;
 		}
@@ -220,11 +208,9 @@ void Testcheck2and6BitsAnd()
 	{
 		printf("\n OK\n");
 	}
-	
 	else
 	{
 		printf("\n failed\n");
-		
 	}
 }
 
@@ -232,7 +218,6 @@ void Testcheck2and6BitsAnd()
 
 void TestSwap3and5Bits()
 {
-
 	unsigned char arr[4] =  { 19, 37, 132, 228};
 	int expected_results[4] = {7, 49 , 144, 240};
 	int size = 4;
@@ -241,7 +226,6 @@ void TestSwap3and5Bits()
 	printf("\n----------------------\nTestSwap3and5Bits:\n");
 	while (i<size)
 	{ 
-	
 		if ((expected_results[i]) != Swap3and5Bits(arr[i]))
 		{
 			break;
@@ -253,10 +237,8 @@ void TestSwap3and5Bits()
 	if (i == size)
 	{
 		printf("\n OK\n");
-
 	}
 	else
-	
 	{
 		printf("\n failed\n");
 	}
@@ -265,7 +247,6 @@ void TestSwap3and5Bits()
 
 void TestcheckDevisionBy16()
 {
-
 	unsigned int arr[6] =  { 19, 16, 48, 80, 85, 2450};
 	int size = 6;
 	int i = 0;	
@@ -274,7 +255,7 @@ void TestcheckDevisionBy16()
 	printf("\n----------------------\nTestcheckDevisionBy16:\n");
 	while (i<size)
 	{ 
-		this_result = checkDevisionBy16(arr[i]);
+		this_result = CheckDevisionBy16(arr[i]);
 		if ((this_result % 16) !=  0)
 		{
 			break;
@@ -287,7 +268,6 @@ void TestcheckDevisionBy16()
 	{
 		printf("\n OK\n");
 	}
-	
 	else
 	{
 		printf("\n failed\n");
@@ -297,7 +277,6 @@ void TestcheckDevisionBy16()
 
 void TestSwapTwoVarNoTemp()
 {
-
 	unsigned int A[6] =  { 19, 16, 48, 80, 85, 2450};
 	unsigned int B[6] =  { 30, 15, 23, 49, 22, 1100};
 	int size = 6;

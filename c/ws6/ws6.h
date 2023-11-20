@@ -9,37 +9,37 @@
 
 
 /* this function return x*2^y   */
-long pow2(unsigned int x, unsigned int y);
+long Pow2(unsigned int x, unsigned int y);
 
 /* this function return 1 if n is a power of 2 using loop  */
-unsigned int checkPower2Loop(unsigned int n);
+unsigned int CheckPower2Loop(unsigned int n);
 
 /* this function return 1 if n is a power of 2 using bitwise  */
-unsigned int checkPower2BitWise(unsigned int n);
+unsigned int CheckPower2BitWise(unsigned int n);
 
 /* this function return n +1 using bitwise  */
-unsigned int addOne(int n);
+unsigned int AddOne(int n);
 
 /* this function print the numbers in arr that has 3 bits on  */
-int checkArrayFor3Bits(unsigned int arr[],int size);
+int CheckArrayFor3Bits(unsigned int arr[],int size);
 
 /* this function preform a bit miror to num */
-unsigned int byteMirorBitWise(unsigned int num);
+unsigned int ByteMirorBitWise(unsigned int num);
 
 /* this function preform a bit miror to num */
-unsigned int byteMirorLoop(unsigned int n);
+unsigned int ByteMirorLoop(unsigned int n);
 
 /* this function return 1 if ch has 2nd and 6th bits on  */
-int check2and6BitsAnd(unsigned char ch);
+int Check2and6BitsAnd(unsigned char ch);
 
 /* this function return 1 if ch has 2nd or 6th bits on  */
-unsigned char check2and6BitsOr(unsigned char ch);
+unsigned char Check2and6BitsOr(unsigned char ch);
 
 /* this function preform swap of 3rd and 5th bits in ch  */
 unsigned char Swap3and5Bits(unsigned char ch);
 
 /* this function return the closest lower number that is devided by 16 with no reminder   */
-unsigned int checkDevisionBy16(unsigned int num);
+unsigned int CheckDevisionBy16(unsigned int num);
 
 /* this function preform swap of two var with no exptra var   */
 unsigned int SwapTwoVarNoTemp(unsigned int A ,unsigned int B);
