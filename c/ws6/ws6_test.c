@@ -333,6 +333,7 @@ void TestCountNumberOfSetBitsBitWise()
 {
 
 	unsigned int arr[6] =  { -19, 16, 48, 80, 85, 2450};
+	int expected_results[6] = {30, 1 , 2, 2, 4, 5};
 	int size = 6;
 	int i = 0;	
 
@@ -340,7 +341,7 @@ void TestCountNumberOfSetBitsBitWise()
 	while (i<size)
 	{ 
 		
-		if (CountNumberOfSetBitsBitWise(arr[i]) !=  CountNumberOfSetBitsLoop(arr[i]))
+		if (CountNumberOfSetBitsBitWise(arr[i]) !=  expected_results[i])
 		{
 			break;
 		}
