@@ -38,7 +38,7 @@ unsigned char check2and6BitsOr(unsigned char ch);
 /* this function preform swap of 3rd and 5th bits in ch  */
 unsigned char Swap3and5Bits(unsigned char ch);
 
-/* this function return 1 if number is devided in 16 with no reminder   */
+/* this function return the closest lower number that is devided by 16 with no reminder   */
 unsigned int checkDevisionBy16(unsigned int num);
 
 /* this function preform swap of two var with no exptra var   */

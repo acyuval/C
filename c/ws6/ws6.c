@@ -11,17 +11,19 @@
 long pow2(unsigned int x, unsigned int y)
 {
 	unsigned int result = x * (2 << (y-1));
+	
 	return result;
 }
 
 unsigned int checkPower2Loop(unsigned int n)
 {
-	while(n != 1)
+	while(1 !=  n)
 	{
 		if((n % 2) != 0)
 		{
 			return 0;
 		}	
+		
 		n=n/2;	
 	}
 	
@@ -57,23 +59,23 @@ int checkArrayFor3Bits(unsigned int arr[],int size)
 	int i = 0;
 	int j = 0; 
 	int bit_counter = 0;
-	unsigned int this = 0;
+	unsigned int curr = 0;
 
 	for(i=0; i < size; i++)
 	{
 		bit_counter = 0;
-		this = arr[i];
+		curr = arr[i];
 		for(j = 0 ; j < 32 ; j++)
 		{
- 
-			if ((this & 1) == 1)
+			if ((curr & 1) == 1)
 			{
 				bit_counter++;
 			}
-			this = this >> 1 ;			
+			
+			curr = curr >> 1 ;			
 		}
 		
-		if (bit_counter == 3)
+		if (3 == bit_counter )
 		{
 			printf("[%d]" , arr[i]);
 		}
@@ -98,6 +100,7 @@ unsigned int byteMirorBitWise(unsigned int num)
 unsigned int byteMirorLoop(unsigned int n)
 {
 	unsigned int result = 0;
+	
 	while (n > 0) 
 	{
 		result <<= 1;
@@ -130,6 +133,7 @@ unsigned char Swap3and5Bits(unsigned char ch)
 {
 	char bit_3_flag = (ch & 4);
 	char bit_5_flag = (ch & 16);
+	
 	ch = ch + ((bit_3_flag == 4) - (bit_5_flag == 16)) * (12);
 	return ch;
 } 
@@ -192,6 +196,7 @@ void PrintFloatToBinary(float number)
 	float float_num = number;
 	unsigned int *to_int = (unsigned int *)&float_num;
 	int mask = 1 << 31 ;  /* 10000000.... */
+	
 	for(i = 0 ; i < 32 ; i++) 
 	{
   		printf("%d", (*to_int & mask)? 1: 0);
