@@ -129,8 +129,6 @@ void TestaddOne()
 
 void TestcheckArrayFor3Bits()
 {
-	
-
 	unsigned int arr[6] =  {7, 2, 6, 19, 7 , 14};
 	int size = 6;
 	
@@ -138,16 +136,17 @@ void TestcheckArrayFor3Bits()
 	checkArrayFor3Bits(arr,size);
 }
 
-void TestbyteMiror()
+void TestbyteMirorBitWise()
 {
 	unsigned int arr[6] =  {7, 2, 6, 19, 7 , 14};
+	unsigned int expected_results[6] = {224, 64 , 96, 200 ,224 ,112};
 	int size = 6;
 	int i = 0;
 	
-	printf("\n----------------------\nTestbyteMiror:\n");
+	printf("\n----------------------\nTestbyteMirorBitWise:\n");
 	while (i<size)
 	{ 
-		if ((byteMirorLoop(arr[i])) != byteMirorBitWise(arr[i]))
+		if (expected_results[i] != byteMirorBitWise(arr[i]))
 		{
 			break;
 		}
@@ -157,12 +156,43 @@ void TestbyteMiror()
 	
 	if (i == size)
 	{
-		printf("\n failed\n");
+		printf("\n OK\n");
 	}
 	
 	else
 	{
-		printf("\n OK\n");
+		printf("\n failed\n");
+	}
+	
+}
+
+
+void TestbyteMirorLoop()
+{
+	unsigned int arr[6] =  {7, 2, 6, 19, 7 , 14};
+	unsigned int expected_results[6] = {224, 64 , 96, 200 ,224 ,112};
+	int size = 6;
+	int i = 0;
+	
+	printf("\n----------------------\nTestbyteMirorLoop:\n");
+	while (i<size)
+	{ 
+		if (byteMirorLoop(arr[i]) != expected_results[i])
+		{
+			break;
+		}
+		
+		i++;
+	}
+	
+	if (i == size)
+	{
+		printf("\n OK\n");		
+	}
+	
+	else
+	{
+		printf("\n failed\n");
 	}
 	
 }
@@ -384,7 +414,8 @@ int main()
 	TestaddOne();
 	Testpow2();
 	TestcheckArrayFor3Bits();
-	TestbyteMiror();
+	TestbyteMirorBitWise();
+	TestbyteMirorLoop();
 	Testcheck2and6BitsAnd();
 	TestSwap3and5Bits();
 	TestcheckDevisionBy16();

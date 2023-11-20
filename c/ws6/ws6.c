@@ -10,7 +10,7 @@
 
 long pow2(unsigned int x, unsigned int y)
 {
-	unsigned int result = x * (2 << (y-1));
+	unsigned int result = (x << y);
 	
 	return result;
 }
@@ -19,7 +19,7 @@ unsigned int checkPower2Loop(unsigned int n)
 {
 	while(1 !=  n)
 	{
-		if((n % 2) != 0)
+		if(0 != (n % 2))
 		{
 			return 0;
 		}	
@@ -34,6 +34,7 @@ unsigned int checkPower2Loop(unsigned int n)
 unsigned int checkPower2BitWise(unsigned int n)
 {
 	unsigned int result = ((n != 0) && !(n & (n - 1)));
+	
 	return result;
 }
 
@@ -67,7 +68,7 @@ int checkArrayFor3Bits(unsigned int arr[],int size)
 		curr = arr[i];
 		for(j = 0 ; j < 32 ; j++)
 		{
-			if ((curr & 1) == 1)
+			if (1 == (curr & 1))
 			{
 				bit_counter++;
 			}
@@ -75,7 +76,7 @@ int checkArrayFor3Bits(unsigned int arr[],int size)
 			curr = curr >> 1 ;			
 		}
 		
-		if (3 == bit_counter )
+		if (3 == bit_counter)
 		{
 			printf("[%d]" , arr[i]);
 		}
@@ -100,16 +101,17 @@ unsigned int byteMirorBitWise(unsigned int num)
 unsigned int byteMirorLoop(unsigned int n)
 {
 	unsigned int result = 0;
-	
-	while (n > 0) 
+	int counter = 0; 
+
+	while (counter < 8) 
 	{
 		result <<= 1;
-		if ((n & 1) == 1)
+		if (1 == (n & 1))
 		{
 			result ^= 1;
  		}
-	
-	n >>= 1;
+		n >>= 1;
+		counter++;
 	}
 
 	return result;
@@ -167,7 +169,7 @@ int CountNumberOfSetBitsLoop(int number)
 	for(j = 0 ; j < 32 ; j++)
 	{
 
-		if ((number & 1) == 1)
+		if (1 == (number & 1))
 		{
 			bit_counter++;
 		}
