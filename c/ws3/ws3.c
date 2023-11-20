@@ -56,41 +56,35 @@ void ListOfDataTypes(void)
 
 }
 
-
-void PrintAllEnvp(char **env)
+char ** GetAllEnvp(char **env)
 {
-	
-	int i = 0;
-	int counter_rows=0;
-	int str_len=0;
-	char ** buffer =NULL;
 	char ** temp_ptr = NULL;
-	char ** temp_ptr_original = env;
+	int counter_rows=0;
 	char *this_env = NULL;
-	char *this_env_original = NULL;
-	
-	printf("-----------------------------------------\nlist of all Env varible:  \n\n");
+	char *this_env_original = NULL;	
+	char ** buffer =NULL;
+	int str_len=0;
 	
 	/* count the number of env variable for malloc */
-	while(*temp_ptr_original != 0)
+	temp_ptr = env;
+	while(*env != 0)
 	{
 		++counter_rows;
-		++temp_ptr_original;
+		++env;
 	}
+	env = temp_ptr;
 	
-	buffer = malloc((counter_rows+1) * sizeof(env));
-	
+	buffer = malloc((counter_rows+1) * sizeof(env)); 
 	temp_ptr = buffer;
-	temp_ptr_original = env;
-	
-	while (*temp_ptr_original != 0)
+	while (*env != 0)
 	{
-		this_env_original = *temp_ptr_original;
+		this_env_original = *env;
 		
-		str_len=strlen(this_env_original); /* count the number chars in a given variable string*/
+		str_len=strlen(this_env_original);	 /* count the number chars in a given variable string*/
 
-		*temp_ptr = malloc((str_len + 1));
-		this_env = *temp_ptr;		
+		*buffer = malloc((str_len + 1));
+		
+		this_env = *buffer;		
 		
 		while(*this_env_original != '\0')
 		{
@@ -100,28 +94,42 @@ void PrintAllEnvp(char **env)
 		}
 		*this_env = '\0';
 
-		temp_ptr++;
-		temp_ptr_original++;
+		buffer++;
+		env++;
 
 	}
 	
-	*temp_ptr_original = 0; 
+	buffer = temp_ptr;
+	return (buffer) ;	
+	
+}
+
+void PrintAllEnvp(char ** env)
+{
+	int i = 0;
+	char ** temp_ptr = NULL;
+	char *this_env = NULL;
+	char ** buffer = NULL;
+	
+	printf("-----------------------------------------\nlist of all Env varible:  \n\n");
+	buffer = GetAllEnvp(env);
 	
 	temp_ptr = buffer;
-	while(*temp_ptr != 0)
+	while(*buffer != 0)
   	{
   		printf("\n%d: ", i++);
-  		this_env = *temp_ptr;
+  		this_env = *buffer;
     		while(*this_env != '\0')
     		{
     			printf("%c", *this_env);
     			this_env++; 
     		}
-    		free(*temp_ptr);
-    		temp_ptr++;	   
+    		free(*buffer);
+    		buffer++;	   
   	}
-  	free(buffer);
   	
+  	buffer = temp_ptr;
+  	free(buffer);
   	printf("\nend of list \n");
   	
   	

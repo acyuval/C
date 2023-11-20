@@ -3,11 +3,25 @@
 *	Reviewer : Dvir
 *	Date:      
 ******************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
+
+#include <stdlib.h> 	/*	size_t	*/
+#include <stdio.h>	/*	printf()	*/
+
 #include "ws3.h"
 extern const char **environ;
 #define ARRAYSIZE(x) (sizeof x/sizeof x[0])
+
+void TestGetArrOfPtrs(void);
+
+int main()
+{
+	TestGetArrOfPtrs();
+	ListOfDataTypes();
+	PrintAllEnvp(environ);
+	Jusephus(100);
+
+	return (0);
+}
 
 
 
@@ -42,12 +56,3 @@ void TestGetArrOfPtrs(void)
 }
 
 
-int main()
-{
-	TestGetArrOfPtrs();
-	ListOfDataTypes();
-	PrintAllEnvp(environ);
-	Jusephus(100);
-
-	return (0);
-}
