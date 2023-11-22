@@ -14,27 +14,26 @@ int foo(int * arrA , int * arrB ,int size)
 	int *start_of_arrA = arrA;
 	int *start_of_arrB = arrB; 
 	int counter = 0;
+	
 	while(round_counter < (size*2))
 	{
 		while(i < size)
 		{
 			if(*arrA == *arrB)
 			{
-				arrB++;
 				arrA++;
 				counter++;
 				if (counter == size)
 				{
-					printf("secsses");
 					return 0;
 				}
 			}
-			else
+			else if (*start_of_arrA != *arrB)
 			{
+				counter = 0 ; 
 				arrA = start_of_arrA;
-				counter = 0;
-				arrB++;
 			}
+			arrB++;
 			i++;
 		}
 		i = 0; 
@@ -44,12 +43,15 @@ int foo(int * arrA , int * arrB ,int size)
 	return 1;
 }
 
+   
+
+
 int main()
 {
-	int arrA[5] = {4, 5 , 6, 7 , 8};
-	int arrB[5] = { 6, 4 ,8 , 4 , 5};
+	int arrA[5] = {4, 5 , 3, 4 , 5};
+	int arrB[5] = { 4, 5 , 4 , 5 , 3};
 	int size = 5;
-	printf("is it : %d",foo(arrA, arrB, size));
+	printf("\nis it : %d\n",foo(arrA, arrB, size));
 	
 	return 0;
 }
