@@ -1,6 +1,6 @@
 /******************************************************************************
 *	Author:    Yuval 
-*	Reviewer : Igal
+*	Reviewer : Artur
 *	Date:      
 ******************************************************************************/
 #include <stdio.h>
@@ -9,92 +9,77 @@
 #include <string.h>
 #include "ws8.h"
 
-#define ARRAYSIZE(x) (sizeof x/sizeof x[0])
-#define NO_elements 3
 
-enum typeofdata 
-{
-	int_e = 0,
-	float_e = 1,
-	string_e = 2
-};
+#define MAX2(a,b) (a > b ? a : b)
 
-struct items
-{ 
-	size_t data;
-	void (op_print)();
-	void (op_add)()
-	void (op_clean)() 	
-};
- 	  
- 	  
-struct items ** InitArr()
+#define MAX3(a,b,c) MAX2(MAX2(a,b), MAX2(b,c))
+
+
+#define SIZEOF_VAR(var) (char *)(&var+1)-(char*)(&var)
+
+#define SIZEOF_TYPE(type) ((size_t)((type*)0 + 1)) -(size_t)(type*)(0)
+
+#define NO_OF_TESTS 11
+
+
+struct test_struct 
 {
-	int i = 0;
-	char * string = NULL;
-	float floatt = 0.0;
-	int intt = 0; 
-	
-	struct items ** ptrs = (struct items**)(malloc(sizeof(void*) * NO_elements));
-	
-	for (i=0; i< NO_elements ; i++)
+	int x1; 
+	double x2;
+	long x3; 
+	char x4;
+}this_struct;
+
+
+
+int number_of_sucsses = 0;
+
+void test(int booll)
+{
+	if(1 == booll)
 	{
-		*(ptrs+i) =  (struct items*)malloc(sizeof(struct items));
-		((*(ptrs+i))-> ptr) = (void *)(malloc(sizeof(20)));
+		number_of_sucsses++;
 	}
-	
-	floatt = 12.44;
-	intt = 18;
-	
-	((*ptrs)-> ptr) = "string";
-	((*ptrs)-> type) = string_e;
-	
-	memcpy(((*(ptrs+1))-> ptr), &floatt , 4 );
-	((*ptrs+1)-> type) = float_e;
-	
-	memcpy(((*(ptrs+2))-> ptr), &intt , 4 ); 
-	((*ptrs+2)-> type) = int_e;
-	
-	
+	else 
+	{
+		printf("failed in no %d" , number_of_sucsses);
+	}
 
-	printf("in here : %d \n" , *(int *)(*(ptrs+2))->ptr);
-	
-	return (ptrs);
- 		
 }
 
-int print_me(struct items ** ptrs )
+void TestMacros()
 {
-	int i = 0;
-	struct items * this_struct_ptr = NULL; 
-	for(i =0 ; i < NO_elements ; i++)
+	int x1= 5; 
+	double x2 =2;
+	long x3 = 2; 
+	char x4 = 3;
+	
+	test(sizeof(x1) == SIZEOF_VAR(x1));
+	test(sizeof(x2) == SIZEOF_VAR(x2));
+	test(sizeof(x3) == SIZEOF_VAR(x3));
+	test(sizeof(x4) == SIZEOF_VAR(x4));
+	test(sizeof(this_struct) == SIZEOF_VAR(this_struct));
+	test(sizeof(char) == SIZEOF_TYPE(char));
+	test(sizeof(double) == SIZEOF_TYPE(double));
+	test(sizeof(struct test_struct ) == SIZEOF_TYPE(struct test_struct ));
+	test(sizeof(int *) == SIZEOF_TYPE(int *));	
+	test(MAX2(3,2) == 3);	
+	test(MAX3(6,2,3) == 6);	
+		
+	if (number_of_sucsses == NO_OF_TESTS)
 	{
-		this_struct_ptr = *(ptrs+i); 
-		switch (this_struct_ptr->type)
-		{ 
-		case int_e: 
-			printf("1");
-			printf("%d \n" , *(int *)(this_struct_ptr->ptr));	
-			break;
-		case float_e: 
-			printf("2");
-			printf("%f \n" , *(float *)(this_struct_ptr->ptr));
-			break;
-		case string_e: 
-			printf("3");
-			printf("%s \n" , (char *)(this_struct_ptr->ptr));
-			break;				
-		}	
+		printf("\nTest macros :  OK\n");
 	}
-	return 0;
+	else
+	{
+		printf("\nTest macros : failed\n");
+	}
 }
-
 
 int main()
 {
-	struct items ** ptrs = InitArr();
-	print_me(ptrs);
-
+	MultiDataTypeArr();
+	TestMacros();
 	return 0;
 }
 

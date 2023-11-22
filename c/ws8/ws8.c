@@ -1,6 +1,6 @@
 /******************************************************************************
 *	Author:    Yuval 
-*	Reviewer : Igal
+*	Reviewer : Artur
 *	Date:      
 ******************************************************************************/
 
@@ -12,6 +12,7 @@
 
 
 #define NO_elements 3
+
 
 enum data_types 
 {
@@ -27,7 +28,7 @@ typedef struct items
 	void (*op_print)(size_t);
 	void (*op_add)(size_t *, int);
 	int (*op_clean)(size_t *);	
-} data_struct;
+}data_struct;
  
  	  
 size_t PutInt(int num)
@@ -125,10 +126,10 @@ int CleanNULL(size_t * num)
 }
 
 
-int main()
-{
-	
+ 
+void MultiDataTypeArr(){
 	int i = 0;
+	
 	data_struct struct_arr[NO_elements] = {{0},{0},{0}};
 	
 	struct_arr[0].type =INTT;
@@ -149,32 +150,29 @@ int main()
 	struct_arr[2].op_add = AddStr;
 	struct_arr[2].op_clean = CleanStr; 
 	
-	
-	printf("\nprint:\n");
+	printf("\nPrint:\n");
 	for(i = 0; i < NO_elements ; i++)
 	{
 		struct_arr[i].op_print(struct_arr[i].data);
 	}
 	
-	printf("\nadd:\n");
+	printf("\nAdd:\n");
 	for(i = 0; i < NO_elements ; i++)
 	{
 		struct_arr[i].op_add(&struct_arr[i].data,1);
 	}
 	
-	printf("\nprint again:\n");
+	printf("\nPrint again:\n");
 	for(i = 0; i < NO_elements ; i++)
 	{
 		struct_arr[i].op_print(struct_arr[i].data);
 	}
 	
-	
 	for(i = 0; i < NO_elements ; i++)
 	{
 		struct_arr[i].op_clean(&struct_arr[i].data);
 	}
-	printf("\ncleaned!\n");	
-	return 0;
 	
-
+	printf("\nCleaned!\n");	
+	
 }
