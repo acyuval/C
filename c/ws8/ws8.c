@@ -149,11 +149,11 @@ void InitStructs(data_struct *struct_ptr)
 
  
 void MultiDataTypeArr(){
-	int i = 0;
 	
+	int i = 0;
 	data_struct struct_arr[NO_elements] = {{0},{0},{0}};
 	data_struct * struct_ptr = struct_arr;
-	
+
 	InitStructs(struct_ptr);
 	
 	printf("\nPrint:\n");

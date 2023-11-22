@@ -28,13 +28,15 @@ int foo(int * arrA , int * arrB ,int size)
 					return 0;
 				}
 			}
-			else if (*start_of_arrA != *arrB)
+			else
 			{
-				counter = 0 ; 
+				counter = 0;
 				arrA = start_of_arrA;
 			}
+			
 			arrB++;
 			i++;
+			round_counter++;
 		}
 		i = 0; 
 		arrB= start_of_arrB;
@@ -48,8 +50,8 @@ int foo(int * arrA , int * arrB ,int size)
 
 int main()
 {
-	int arrA[5] = {4, 5 , 3, 4 , 5};
-	int arrB[5] = { 4, 5 , 4 , 5 , 3};
+	int arrA[5] = {6, 5 , 3, 4 , 5};
+	int arrB[5] = { 4, 5 , 6 , 5 , 3};
 	int size = 5;
 	printf("\nis it : %d\n",foo(arrA, arrB, size));
 	
