@@ -4,9 +4,9 @@
 *	Date:      
 ******************************************************************************/
 
-#include <stdio.h>  /* printf */
-#include <string.h> /* strlen */
-#include <stdlib.h> /* malloc */
+#include <stdio.h>  /* printf() sprintf() */
+#include <string.h> /* strlen() 	  */
+#include <stdlib.h> /* malloc()  , free() */
 
 #include "ws8.h"
 
@@ -125,30 +125,36 @@ int CleanNULL(size_t * num)
 	return 0;	
 }
 
+void InitStructs(data_struct *struct_ptr)
+{
+		
+	struct_ptr->type =INTT;
+	struct_ptr->data = PutInt(-5);
+	struct_ptr->op_print = PrintInt;
+	struct_ptr->op_add = AddInt;
+	struct_ptr->op_clean = CleanNULL; 
+	struct_ptr++;
+	struct_ptr->type = FLOATT;
+	struct_ptr->data = PutFloat(4.123);
+	struct_ptr->op_print = PrintFloat;
+	struct_ptr->op_add = AddFloat;
+	struct_ptr->op_clean = CleanNULL; 	
+	struct_ptr++;
+	struct_ptr->type =STRINGG;
+	struct_ptr->data = PutStr("hello");
+	struct_ptr->op_print = PrintStr;
+	struct_ptr->op_add = AddStr;
+	struct_ptr->op_clean = CleanStr; 
+}
 
  
 void MultiDataTypeArr(){
 	int i = 0;
 	
 	data_struct struct_arr[NO_elements] = {{0},{0},{0}};
+	data_struct * struct_ptr = struct_arr;
 	
-	struct_arr[0].type =INTT;
-	struct_arr[0].data = PutInt(-5);
-	struct_arr[0].op_print = PrintInt;
-	struct_arr[0].op_add = AddInt;
-	struct_arr[0].op_clean = CleanNULL; 
-	
-	struct_arr[1].type = FLOATT;
-	struct_arr[1].data = PutFloat(4.123);
-	struct_arr[1].op_print = PrintFloat;
-	struct_arr[1].op_add = AddFloat;
-	struct_arr[1].op_clean = CleanNULL; 	
-	
-	struct_arr[2].type =STRINGG;
-	struct_arr[2].data = PutStr("hello");
-	struct_arr[2].op_print = PrintStr;
-	struct_arr[2].op_add = AddStr;
-	struct_arr[2].op_clean = CleanStr; 
+	InitStructs(struct_ptr);
 	
 	printf("\nPrint:\n");
 	for(i = 0; i < NO_elements ; i++)

@@ -4,9 +4,7 @@
 *	Date:      
 ******************************************************************************/
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h> 
-#include <string.h>
+
 #include "ws8.h"
 
 
@@ -21,6 +19,20 @@
 
 #define NO_OF_TESTS 11
 
+void TestMacros();
+void test(int booll);
+
+int No_of_tests_ok = 0;   /* this variaable will represent the number of succsses test */ 
+
+
+int main()
+{
+	MultiDataTypeArr();
+	TestMacros();
+	return 0;
+}
+
+
 
 struct test_struct 
 {
@@ -32,20 +44,8 @@ struct test_struct
 
 
 
-int number_of_sucsses = 0;
 
-void test(int booll)
-{
-	if(1 == booll)
-	{
-		number_of_sucsses++;
-	}
-	else 
-	{
-		printf("failed in no %d" , number_of_sucsses);
-	}
 
-}
 
 void TestMacros()
 {
@@ -66,7 +66,7 @@ void TestMacros()
 	test(MAX2(3,2) == 3);	
 	test(MAX3(6,2,3) == 6);	
 		
-	if (number_of_sucsses == NO_OF_TESTS)
+	if (No_of_tests_ok == NO_OF_TESTS)
 	{
 		printf("\nTest macros :  OK\n");
 	}
@@ -76,11 +76,18 @@ void TestMacros()
 	}
 }
 
-int main()
-{
-	MultiDataTypeArr();
-	TestMacros();
-	return 0;
-}
 
+
+void test(int booll)
+{
+	if(1 == booll)
+	{
+		No_of_tests_ok++;
+	}
+	else 
+	{
+		printf("failed in no %d" , No_of_tests_ok);
+	}
+
+}
 
