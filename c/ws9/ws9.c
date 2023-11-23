@@ -4,8 +4,8 @@
 *	Date:      
 ******************************************************************************/
 
-#include <stdio.h>  /* printf()  	  */
-#include <string.h> /* strcpy()		  */
+#include <stdio.h>  /* printf() , fopen()  */
+#include <string.h> /* strcpy(),	  */
 
 #include "ws9.h"
 
@@ -39,7 +39,11 @@ int DeSerialize(student * this_student)
 		return 1;
 	}
 	
-	fread(this_student,sizeof(student), 1, file);
+	if(!(fread(this_student,sizeof(student), 1, file)))
+	{
+		printf("couldnt read from file ");
+		return 1;
+	}
 	
 	if(fclose(file))
 	{

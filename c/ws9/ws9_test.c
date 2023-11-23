@@ -11,8 +11,11 @@
 
 #define NO_OF_TESTS 9
 
+/* this global variable will represent the number of succsses test */ 
 int number_of_test_succses = 0;
-void TestHelper(int booll);
+
+
+static void TestHelper(int booll);
 int TestSerializitionAndDeSerializition();
 void TestStructSerializition(student * Src_student,student * dest_student);
 
@@ -74,7 +77,7 @@ void TestStructSerializition(student * Src_student,student * dest_student)
 }
 
 /* this function is helper function to preform test on struct */
-void TestHelper(int booll)
+static void TestHelper(int booll)
 {
 	if(booll)
 	{
