@@ -10,7 +10,6 @@
 
 #include "ws8.h"
 
-
 #define NO_elements 3
 
 
@@ -127,7 +126,6 @@ int CleanNULL(size_t * num)
 
 void InitStructs(data_struct *struct_ptr)
 {
-		
 	struct_ptr->type =INTT;
 	struct_ptr->data = PutInt(-5);
 	struct_ptr->op_print = PrintInt;
