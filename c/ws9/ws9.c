@@ -50,7 +50,8 @@ int DeSerialize(student * this_student)
 	return 0;
 }
 
-void InitStruct(student * this_student, char * first_name , char * last_name ,float grades[6])
+void InitStruct(student * this_student, char * first_name , char * last_name 
+							       ,float grades[6])
 {
 	strcpy(this_student->first_name, first_name);
 	strcpy(this_student->last_name, last_name);
@@ -71,6 +72,7 @@ void print_struct(student * this_student)
 	printf("literature:%f\n" , this_student->grades.human_grades.literature);
 	printf("math:%f\n" , this_student->grades.real_grades.math);
 	printf("physics:%f\n" , this_student->grades.real_grades.physics);
-	printf("sport:%f\n--------------------------------\n\n" , this_student->grades.sport);
+	printf("sport:%f\n--------------------------------\n\n" , this_student->
+								  grades.sport);
 }
 

@@ -41,7 +41,8 @@ typedef struct student
 *	notes:	undifined behaivor when first name / last name is more then 20 
 *									chars
 ******************************************************************************/ 
-void InitStruct(student * this_student, char * first_name , char * last_name ,float grades[6]);
+void InitStruct(student * this_student, char * first_name , char * last_name 
+							     ,float grades[6]);
 
 
 /******************************************************************************

@@ -12,17 +12,17 @@
 #define NO_OF_TESTS 9
 
 int number_of_test_succses = 0;
-void test(int booll);
-int TestGradesLogger();
+void TestHelper(int booll);
+int TestSerializitionAndDeSerializition();
 void TestStructSerializition(student * Src_student,student * dest_student);
 
 int main()
 {
-	TestGradesLogger();
+	TestSerializitionAndDeSerializition();
 	return 0;
 }
 
-int TestGradesLogger()
+int TestSerializitionAndDeSerializition()
 {
 	student new_student = {0};
 	student loaded_student = {0};
@@ -49,18 +49,23 @@ int TestGradesLogger()
 }
 
 
-
+/* this function check and confirm correctnes of every cell in the struct */
 void TestStructSerializition(student * Src_student,student * dest_student)
 {
-	test(!strcmp(Src_student->first_name,  dest_student->first_name));
-	test(!strcmp(Src_student->last_name,  dest_student->last_name));
-	test(Src_student->grades.sport == dest_student->grades.sport);
-	test(Src_student->grades.human_grades.psychology == dest_student->grades.human_grades.psychology);
-	test(Src_student->grades.human_grades.sociology == dest_student->grades.human_grades.sociology);
-	test(Src_student->grades.human_grades.literature == dest_student->grades.human_grades.literature);
-	test(Src_student->grades.real_grades.math = dest_student->grades.real_grades.math);
-	test(Src_student->grades.real_grades.physics == dest_student->grades.real_grades.physics);
-	test(Src_student->grades.sport == dest_student->grades.sport);
+	TestHelper(!strcmp(Src_student->first_name,  dest_student->first_name));
+	TestHelper(!strcmp(Src_student->last_name,  dest_student->last_name));
+	TestHelper(Src_student->grades.sport == dest_student->grades.sport);
+	TestHelper(Src_student->grades.human_grades.psychology == dest_student->
+						grades.human_grades.psychology);
+	TestHelper(Src_student->grades.human_grades.sociology == dest_student->
+						 grades.human_grades.sociology);
+	TestHelper(Src_student->grades.human_grades.literature == dest_student->
+						grades.human_grades.literature);
+	TestHelper(Src_student->grades.real_grades.math = dest_student->grades.
+							      real_grades.math);
+	TestHelper(Src_student->grades.real_grades.physics == dest_student->
+						    grades.real_grades.physics);
+	TestHelper(Src_student->grades.sport == dest_student->grades.sport);
 	
 	if (number_of_test_succses == NO_OF_TESTS)
 	{
@@ -68,8 +73,8 @@ void TestStructSerializition(student * Src_student,student * dest_student)
 	}
 }
 
-
-void test(int booll)
+/* this function is helper function to preform test on struct */
+void TestHelper(int booll)
 {
 	if(booll)
 	{
