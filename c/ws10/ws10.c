@@ -4,35 +4,167 @@
 *	Date:      
 ******************************************************************************/
 
-#include <stdio.h>  /* printf() , fopen()  */
-#include <string.h> /* strcpy(),	  */
+#include <stdio.h>  	/* printf() , fopen()  */
+#include <string.h> 	/* strcpy(),	  */
 
 #include "ws10.h"
 #define WORD_SIZE 8
 
+static void cpyByteByteC(char *str, int c)
+{
+	*(str) = (char)c;
+}
 
-void * MemSet(void *str, int c, size_t n)
+static void cpyByteByteDest(char *dest, char * src)
+{
+	*(dest) = *(src);
+}
+
+static void cpyWordChunkC(void *str, size_t * word)
 {
 
+	size_t *str_size_t = (size_t *)str; 
+	*str_size_t = *word;
+}
+
+static void cpyWordChunkDest(size_t *dest, size_t * src)
+{
+
+	*dest = *src;
+}
+
+void * MemMove(void *dest, const void * src, size_t n)
+{
 	
-	size_t *str_c = (size_t *)str;
-	size_t i = 0;
-	int *c_nibble_size = &c;
-	size_t * c_word_size = (size_t *)c_nibble_size;
-	if (n > 8)
+	int offset = ((long)((char *)src+n))%8;
+	char *dest_char_ptr = (char *)dest + n;
+	char *src_char_ptr = (char *)src + n;
+	
+	printf("\noffset in MemMove : %d\n" , offset);	
+	
+	if(dest < src)
 	{
-	*(c_nibble_size) = c;
-	*(c_nibble_size + 1) = c; 
+		MemCpy(dest, src , n);
 	}
 	
-	for(i=0 ; i < n ; i += 8)
+	if(dest > src)
 	{
-		printf("%ld ",i);
-		*str_c = *(size_t *)c_word_size;
-		str_c++; 
-	}  
 
-	return (void *)str;
+		while(offset)
+		{
+			
+			cpyByteByteDest(dest_char_ptr, src_char_ptr);
+			dest_char_ptr--; 
+			src_char_ptr--;
+			n--;
+			offset--;  
+		}
+		
+		while(n > 8)
+		{
+			
+			cpyWordChunkDest((size_t *)dest_char_ptr,(size_t *)src_char_ptr);
+			dest_char_ptr -= 8;
+			src_char_ptr -= 8;
+			n -=8;
+			
+		}
+		while(n)
+		{
+			cpyByteByteDest(dest_char_ptr,src_char_ptr);
+			dest_char_ptr--;
+			src_char_ptr--;
+			n--;
+		}
+	}
+	return dest;
+		
+}
+
+
+
+
+void * MemCpy(void *dest, const void * src, size_t n)
+{
+	
+	int offset = ((long)(src))%8;
+	char *dest_char_ptr = (char *)dest;
+	char *src_char_ptr = (char *)src;
+	
+	printf("\noffset in memcpy : %d\n" , offset);
+	
+	while(offset)
+	{
+		
+		cpyByteByteDest(dest_char_ptr, src_char_ptr);
+		dest_char_ptr++; 
+		src_char_ptr++;
+		n--;
+		offset--;  
+	}
+	
+	while(n > 8)
+	{
+		
+		cpyWordChunkDest((size_t *)dest_char_ptr,(size_t *)src_char_ptr);
+		dest_char_ptr += 8;
+		src_char_ptr += 8;
+		n -=8;
+		
+	}
+
+	while(n)
+	{
+		cpyByteByteDest(dest_char_ptr,src_char_ptr);
+		dest_char_ptr++;
+		src_char_ptr++;
+		n--;
+	}
+
+	return dest;
+}
+
+
+
+
+void * MemSet(void *dest, int c, size_t n)
+{
+
+	char * dest_char = dest;
+	char word[WORD_SIZE] = {0};
+	int i= 0 ;
+	int offset = ((long)(void *)(&c))%8;
+	
+	printf("\noffset in MemSet : %d\n" , offset);	
+	
+	while(offset)
+	{
+		cpyByteByteC(dest_char,c);
+		dest_char++; 
+		n--;
+		offset--;  
+	}
+	
+	while(n > 8)
+	{
+		for(i=0 ; i < WORD_SIZE ; i++)
+		{
+			word[i] = c; 
+		}  
+		
+		cpyWordChunkC(dest_char,(size_t *)word);
+		dest_char+=8;
+		n -=8;
+	}
+
+	while(n)
+	{
+		cpyByteByteC(dest_char,c);
+		dest_char++;
+		n--;
+	}
+	
+	return (void *)dest;
 }
 
 

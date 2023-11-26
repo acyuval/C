@@ -9,56 +9,115 @@
 
 #include "ws10.h"
 
-#define NO_OF_TESTS 9
-
-/* this global variable will represent the number of succsses test */ 
-int number_of_test_succses = 0;
 
 
-static void TestHelper(int booll);
+
 void TestMemSet();
-
+void TestMemCpy();
+void TestMemMove(); 
 
 int main()
 {
+	TestMemMove();
+	TestMemCpy();
 	TestMemSet();
 	
 	return 0;
 }
 
-void TestAll()
+
+
+void TestMemMove()
 {
 	
-	if (number_of_test_succses == NO_OF_TESTS)
+	char src[100] = "hello i need to";
+	char * dest_expected = src +5;
+	char * dest = src +5;
+	size_t i = 0;
+	size_t n = 5;
+	printf("\n----------------");
+	MemMove(dest,src, n);  	
+	memmove(dest_expected,src, n);  		
+	
+	printf("\nTestMemMove:    \n");	
+	for(i=0 ; i < n; i++)
 	{
-		printf("TestStructSerializition Succsess!\n\n");
+		if(*(dest+i)!=*(dest_expected+i))
+		{
+			printf("not match in i:%ld", i);
+			
+		}
 	}
+	
+	if (i == n)
+	{
+		printf("TestMemMove Succsess!\n\n");
+	}
+	printf("\n--------------");
 }
+
 
 void TestMemSet()
 {
-	int c = 5; 
-	int i = 0;
-	char * new[20] = {0};
-	size_t n = 32;
-	printf("before: %d\n", *(int*)new);
+	int c = 'a'; 
+	size_t i = 0;
+	char dest[100] = {0};
+	char dest_expected[100] = {0};
+	size_t n = 14;
 	
-	MemSet(new , c , n);  	
-	for(i=0 ; i < 8; i++)
+	MemSet(dest , c , n);
+	memset(dest_expected , c , n);  	
+	
+	printf("\nTestMemSet:    \n");
+	for(i=0 ; i < n; i++)
 	{
-		printf("num is : %d\n", *(int*)(new+i));
+		if(*(dest+i)!=*(dest_expected+i))
+		{
+			printf("not match in i:%ld", i);
+			
+		}
 	}
+	
+	if (i == n)
+	{
+		printf("TestMemSet Succsess!\n\n");
+	}
+	printf("\n--------------");
+	
+
 }
 
-static void TestHelper(int booll)
+
+void TestMemCpy()
 {
-	if(booll)
+	
+	char * src = "hello i need";
+	char dest[100] = {0};
+	char dest_expected[100] = {0};
+	size_t i = 0;
+	size_t n = 13;
+	
+	
+	MemCpy(dest,src, n); 
+	memcpy(dest_expected,src, n);
+	
+	printf("\n----------------");
+	printf("\nTestMemCpy:    \n");	
+	for(i=0 ; i < n; i++)
 	{
-		number_of_test_succses++;
+		if(*(dest+i)!=*(dest_expected+i))
+		{
+			printf("not match in i:%ld", i);
+			
+		}
 	}
-	else
+	
+	if (i == n)
 	{
-		printf("failed in no %d\n", number_of_test_succses);
+		printf("TestMemCpy Succsess!\n\n");
 	}
+	printf("\n--------------");
+	
 }
+
 
