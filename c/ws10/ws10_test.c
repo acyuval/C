@@ -3,9 +3,8 @@
 *	Reviewer : Artur
 *	Date:      
 ******************************************************************************/
-#include <stdio.h>  /* printf()  	  */
-#include <string.h> /*  strcpy() , memset()  */
-#include <stdlib.h> /* Exit		  */
+#include <stdio.h>  /* printf()  		       */
+#include <string.h> /* memset() , memmove(), memcpy()  */
 
 #include "ws10.h"
 
@@ -42,7 +41,7 @@ void TestMemMove()
 	printf("\nTestMemMove:    \n");	
 	for(i=0 ; i < n; i++)
 	{
-		if(*(dest+i)!=*(dest_expected+i))
+		if(*(dest+i) != *(dest_expected+i))
 		{
 			printf("not match in i:%ld", i);
 			
@@ -71,7 +70,7 @@ void TestMemSet()
 	printf("\nTestMemSet:    \n");
 	for(i=0 ; i < n; i++)
 	{
-		if(*(dest+i)!=*(dest_expected+i))
+		if(*(dest+i) != *(dest_expected+i))
 		{
 			printf("not match in i:%ld", i);
 			
@@ -105,7 +104,7 @@ void TestMemCpy()
 	printf("\nTestMemCpy:    \n");	
 	for(i=0 ; i < n; i++)
 	{
-		if(*(dest+i)!=*(dest_expected+i))
+		if(*(dest+i) != *(dest_expected+i))
 		{
 			printf("not match in i:%ld", i);
 			
