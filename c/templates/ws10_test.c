@@ -15,7 +15,7 @@
 int number_of_test_succses = 0;
 
 
-static void TestHelper(int booll);
+static void TestHelper(int booll , char * calling_function);
 
 int main()
 {
@@ -29,19 +29,20 @@ void ()
 
 	if (number_of_test_succses == NO_OF_TESTS)
 	{
-		printf("TestStructSerializition Succsess!\n\n");
+		printf("\n\n");
 	}
 }
 
-static void TestHelper(int booll)
+static void TestHelper(int booll , char * calling_function)
 {
 	if(booll)
 	{
+		printf("%s sucsess!",calling_function);
 		number_of_test_succses++;
 	}
 	else
 	{
-		printf("failed in no %d\n", number_of_test_succses);
+		printf("failed in %s, No. %d\n",calling_function ,number_of_test_succses);
 	}
 }
 
