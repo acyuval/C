@@ -96,15 +96,15 @@ void TestItoa()
 			    strlen(expected_results[i])), function_descriptor);
 	}
 	
-	printf("\nTestAtoiAnyBase Sucsess!");
+	printf("\nTestAtoiAnyBase Sucsess!\n");
 }
 
 
 void TestItoaAnyBase()
 {
 	char * function_descriptor = "TestItoa";
-	char expected_results[10][20] = {"11011","2030", "A32" , "4B8E"} ;
-	int test[10] = {27, 140, 1245, 19342};
+	char expected_results[10][20] = {"11011","2030", "-A32" , "4B8E"} ;
+	int test[10] = {27, 140, -1245, 19342};
 	int base[36] = {2,4,11,16};
 	int i = 0;
 	int num_of_test = 4;

@@ -11,8 +11,10 @@
 
 
 #include "ws11.h"
-
-
+#define POSITIVE 1
+#define NEGATIVE -1
+#define NUM_OF_DIGITS 10
+#define ASCII_SIZE 256
 static void strrev(char* str);
 
 
@@ -28,7 +30,7 @@ int IsLittleEndian(void)
 
 char* ItoaAnyBase(int num, char* buffer, int base)
 {
-	int sign = 0; 
+	int flag_sign = 0; 
 	int i = 0;
 	int digit = 0;
 	
@@ -41,7 +43,8 @@ char* ItoaAnyBase(int num, char* buffer, int base)
 	
 	if(num < 0)
 	{
-		sign = 1;
+		flag_sign = 1;
+		num *= NEGATIVE;
 	}
 	
 	while(num != 0)
@@ -49,7 +52,7 @@ char* ItoaAnyBase(int num, char* buffer, int base)
 		digit = num%base;
 		if(digit > 9)
 		{
-			buffer[i] = (digit-10) + 'A';
+			buffer[i] = (digit-NUM_OF_DIGITS) + 'A';
 		}
 		else 
 		{
@@ -60,11 +63,10 @@ char* ItoaAnyBase(int num, char* buffer, int base)
 		num /= base;
 	}
 	
-	if(sign)
+	if(flag_sign)
 	{
 		buffer[i] = '-';
 	}
-	
 	strrev(buffer);
 	return buffer;
 }
@@ -81,7 +83,6 @@ int Atoi(const char *str)
 {
 	char * read = (char *)str; 
 	int result = 0;
-	int multiple = 1 ; 
 	int counter = 0;
 	int sign = 1; 
 	
@@ -90,22 +91,19 @@ int Atoi(const char *str)
 		read++;
 		if(*read == '-')
 		{
-			sign = -1;
+			sign = NEGATIVE;
 		}	
 	}
 	
-	while(isdigit(*read))  /* count the number size */
+	while(isdigit(read[counter]))  /* count the number size */
 	{
 		counter++;
-		read++;
 	}
 	
-	read = read - counter;
-	multiple = (pow(10 , counter-1));
 	while(counter)
 	{
-		result += multiple*(*read-'0');
-		multiple /= 10;
+		result *= 10;
+		result += (*read-'0');
 		read++;
 		counter--;
 	}
@@ -118,7 +116,6 @@ int AtoiAnyBase(const char *str, int base)
 {
 	char * read = (char *)str; 
 	int result = 0;
-	int multiple = 1 ; 
 	int counter = 0;
 	int sign = 1; 
 	
@@ -127,32 +124,31 @@ int AtoiAnyBase(const char *str, int base)
 		read++;
 		if(*read == '-')
 		{
-			sign = -1;
+			sign = NEGATIVE;
 		}	
 	}
 	
-	while(isdigit(*read) ||  isalpha(*read)) /* count the number size */
+	while(isdigit(read[counter]) ||  isalpha(read[counter])) /* count the number size */
 	{
 		counter++;
-		read++;
 	}
 	
-	read = read - counter;
-	multiple = pow(base , counter-1);
-	while(counter)
+
+	while(counter)	
 	{
-		if(*read >= '0' && *read <= '0' + base)
+			
+		result *= base;
+		if(*read >= '0' && *read <= '0' + base && isdigit(*read))
 		{
-			result += multiple*(*read-'0');
+			result += (*read-'0');
 			
 		}
-		
-		if(*read >= 'A' && *read <= 'A' + base)
+		if(*read >= 'A' && *read <= 'A' + base && isalpha(*read))
 		{
-			result += multiple*((*read - 'A' + 10));
+			result += ((*read - 'A' + NUM_OF_DIGITS));
 		}
 		
-		multiple /= base;
+		
 		read++;
 		counter--;
 	}
@@ -165,7 +161,7 @@ void PrintArrOfChars(char *str1, char *str2 ,char *str3, size_t size1,
 						 size_t size2, size_t size3)
 {
 	size_t i = 0;
-	char hash_chars[256] = {0};
+	char hash_chars[ASCII_SIZE] = {0};
 	
 	for(i=0 ; i<size1; i++)
 	{

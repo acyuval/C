@@ -8,7 +8,7 @@
 #define _WS11_H_
 
 
-#define IS_LITTLE_ENDIAN ((*(double *)"\0\xff") < 0x0100)   
+#define IS_LITTLE_ENDIAN ((*(short *)"\0\xff") < 0x0100)   
 
 /******************************************************************************
 *	description: get num as str and return same number int 
