@@ -85,7 +85,7 @@ int Atoi(const char *str)
 	int counter = 0;
 	int sign = 1; 
 	
-	while(!(isdigit(*read)))
+	while(!(isdigit(*read))) /* remove additional spaces */
 	{
 		read++;
 		if(*read == '-')
@@ -94,7 +94,7 @@ int Atoi(const char *str)
 		}	
 	}
 	
-	while(isdigit(*read))
+	while(isdigit(*read))  /* count the number size */
 	{
 		counter++;
 		read++;
@@ -116,7 +116,7 @@ int Atoi(const char *str)
 
 int AtoiAnyBase(const char *str, int base)
 {
-	char * read = (char *)str; /* start reading from the end */
+	char * read = (char *)str; 
 	int result = 0;
 	int multiple = 1 ; 
 	int counter = 0;
@@ -165,28 +165,34 @@ void PrintArrOfChars(char *str1, char *str2 ,char *str3, size_t size1,
 						 size_t size2, size_t size3)
 {
 	size_t i = 0;
-	char appear[256] = {0};
+	char hash_chars[256] = {0};
 	
 	for(i=0 ; i<size1; i++)
 	{
-		appear[(int)(*(str1+i))] += 1;
+		if(!hash_chars[(int)(*(str1+i))])
+		{
+			hash_chars[(int)(*(str1+i))] += 1;
+		}
 	} 
 
 	for(i=0 ; i<size2; i++)
 	{
-		appear[(int)(*(str2+i))] += 1;
+		if(hash_chars[(int)(*(str2+i))] == 1)
+		{
+			hash_chars[(int)(*(str2+i))] += 1;
+		}
 	} 
 
 	for(i=0 ; i<size3; i++)
 	{
-		appear[(int)(*(str3+i))] = 0;
+		hash_chars[(int)(*(str3+i))] = 0;
 	} 	
 
 	for(i=0 ; i < 256; i++)
 	{
-		if(appear[i] >= 2)
+		if(hash_chars[i] == 2)
 		{
-			printf("%c ", (char)i);
+			printf("\n[%c]", (char)i);
 		}
 	}
 }

@@ -89,11 +89,13 @@ void TestItoa()
 	int i = 0;
 	int num_of_test = 4;
 	char buffer[100] = {0};
+	
 	for(i=0;i<num_of_test;i++)
 	{
 		TestHelper(!memcmp(expected_results[i],Itoa(test[i], buffer), 
 			    strlen(expected_results[i])), function_descriptor);
 	}
+	
 	printf("\nTestAtoiAnyBase Sucsess!");
 }
 
@@ -106,18 +108,16 @@ void TestItoaAnyBase()
 	int base[36] = {2,4,11,16};
 	int i = 0;
 	int num_of_test = 4;
+	
 	for(i=0;i<num_of_test;i++)
 	{
 		char buffer[100] = {0};
 		TestHelper(!memcmp(expected_results[i], ItoaAnyBase(test[i], buffer, base[i]), 
 			    strlen(expected_results[i])), function_descriptor);
 	}
+	
 	printf("\nTestAtoiAnyBase Sucsess!");
 }
-
-
-
-
 
 
 static void TestHelper(int booll , char * calling_function)
