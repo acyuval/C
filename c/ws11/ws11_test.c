@@ -61,7 +61,7 @@ void TestAtoi()
 	
 	char * test = "   -410036  ";
 	TestHelper((atoi(test) == Atoi(test) ), function_descriptor);
-	printf("\nTestAtoiAnyBase Sucsess!");
+	printf("\nTestAtoi Sucsess!");
 }
 
 void TestAtoiAnyBase()
@@ -78,7 +78,7 @@ void TestAtoiAnyBase()
 		TestHelper((expected_results[i] == AtoiAnyBase(test[i],
 					       base[i])), function_descriptor);
 	}
-	printf("\nTestAtoiAnyBase Sucsess!");
+	printf("\nTestAtoiAnyBase Sucsess!\n");
 }
 
 void TestItoa()
@@ -96,13 +96,13 @@ void TestItoa()
 			    strlen(expected_results[i])), function_descriptor);
 	}
 	
-	printf("\nTestAtoiAnyBase Sucsess!\n");
+	printf("\nTestItoa Sucsess!\n");
 }
 
 
 void TestItoaAnyBase()
 {
-	char * function_descriptor = "TestItoa";
+	char * function_descriptor = "TestItoaAnyBase";
 	char expected_results[10][20] = {"11011","2030", "-A32" , "4B8E"} ;
 	int test[10] = {27, 140, -1245, 19342};
 	int base[36] = {2,4,11,16};
@@ -116,7 +116,7 @@ void TestItoaAnyBase()
 			    strlen(expected_results[i])), function_descriptor);
 	}
 	
-	printf("\nTestAtoiAnyBase Sucsess!");
+	printf("\nTestItoaAnyBase Sucsess!");
 }
 
 

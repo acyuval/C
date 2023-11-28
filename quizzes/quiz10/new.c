@@ -20,17 +20,16 @@ int foo(char * str, int size)
 		{
 			index[j] = i;
 			j++;
-			printf("i:%d ", i);
 		}
 		str++;
 		i++;
 	}
 	
 	index[j] = i;
-	printf("index[j]:%d \n", index[j]);
 	
 	No_of_spaces = j; 
-	while(j>0)
+
+	while(No_of_spaces>0)
 	{
 		str = str + index[j-1];
 		while(i<index[j])
@@ -39,11 +38,11 @@ int foo(char * str, int size)
 			*new_str++ = *(str++);
 			i--;
 		}
-		j--;
+		No_of_spaces--;
 		
 	}
 	
-	
+	free(new_str);
 
 
 	return 0;
@@ -54,7 +53,7 @@ int main()
 	char test[100] = "i am student";
 	
 	foo(test , 12);
-
+	printf("string : %s" , test);
 	return 0;
 }
 

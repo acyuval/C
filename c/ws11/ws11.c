@@ -5,16 +5,17 @@
 ******************************************************************************/
 
 #include <stdio.h>  /* printf() , fopen()	*/
-#include <string.h> /* strcpy(),	  	*/
+#include <string.h> /* strlen(),	  	*/
 #include <ctype.h>  /* isdigit() , isalpha()	*/
-#include <math.h>  /* pow()		  	*/
 
 
 #include "ws11.h"
+
 #define POSITIVE 1
 #define NEGATIVE -1
 #define NUM_OF_DIGITS 10
 #define ASCII_SIZE 256
+
 static void strrev(char* str);
 
 
@@ -50,7 +51,7 @@ char* ItoaAnyBase(int num, char* buffer, int base)
 	while(num != 0)
 	{
 		digit = num%base;
-		if(digit > 9)
+		if(digit >= NUM_OF_DIGITS)
 		{
 			buffer[i] = (digit-NUM_OF_DIGITS) + 'A';
 		}
@@ -79,39 +80,6 @@ char* Itoa(int num, char* buffer)
 }
 
 
-int Atoi(const char *str)
-{
-	char * read = (char *)str; 
-	int result = 0;
-	int counter = 0;
-	int sign = 1; 
-	
-	while(!(isdigit(*read))) /* remove additional spaces */
-	{
-		read++;
-		if(*read == '-')
-		{
-			sign = NEGATIVE;
-		}	
-	}
-	
-	while(isdigit(read[counter]))  /* count the number size */
-	{
-		counter++;
-	}
-	
-	while(counter)
-	{
-		result *= 10;
-		result += (*read-'0');
-		read++;
-		counter--;
-	}
-	
-	return result*sign;
-}
-
-
 int AtoiAnyBase(const char *str, int base)
 {
 	char * read = (char *)str; 
@@ -119,14 +87,16 @@ int AtoiAnyBase(const char *str, int base)
 	int counter = 0;
 	int sign = 1; 
 	
-	while(!(isdigit(*read)) && !isalpha(*read)) /* remove additional spaces */
+	while(isspace(*read)) /* remove additional spaces */
 	{
 		read++;
-		if(*read == '-')
-		{
-			sign = NEGATIVE;
-		}	
 	}
+
+	if(*read == '-')
+	{
+		sign = NEGATIVE;
+		read++;
+	}	
 	
 	while(isdigit(read[counter]) ||  isalpha(read[counter])) /* count the number size */
 	{
@@ -137,23 +107,26 @@ int AtoiAnyBase(const char *str, int base)
 	while(counter)	
 	{
 			
+		
 		result *= base;
 		if(*read >= '0' && *read <= '0' + base && isdigit(*read))
 		{
 			result += (*read-'0');
-			
 		}
 		if(*read >= 'A' && *read <= 'A' + base && isalpha(*read))
 		{
 			result += ((*read - 'A' + NUM_OF_DIGITS));
 		}
-		
-		
 		read++;
 		counter--;
 	}
-	
 	return result*sign;	
+}
+
+
+int Atoi(const char *str)
+{
+	return AtoiAnyBase(str, 10);
 }
 
 
