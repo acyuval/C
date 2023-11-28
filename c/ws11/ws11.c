@@ -1,11 +1,11 @@
 /******************************************************************************
 *	Author:    Yuval 
-*	Reviewer : Artur
+*	Reviewer : Yarden
 *	Date:      
 ******************************************************************************/
 
-#include <stdio.h>  /* printf() , fopen()	*/
-#include <string.h> /* strlen(),	  	*/
+#include <stdio.h>  /* printf() 				*/
+#include <string.h> /* strlen(),	  			*/
 #include <ctype.h>  /* isdigit() , isalpha()	*/
 
 

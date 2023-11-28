@@ -7,44 +7,45 @@
 #include <stdlib.h>
 #define ARRAYSIZE(x) (sizeof x/sizeof x[0])
 
+
 int foo(char * str, int size)
 {
 	char index[100] = {0};
-	int i =0; int j = 0 ;
-	int No_of_spaces = 0;
+	int i =0; 
+	int No_of_spaces = 1;
+
 	char * new_str = malloc(size +1);
-	char * start_ptr = str;
+	char * ptr_cpy_new_str = new_str;
+	
 	while(i<size)
 	{
-		if(*str == ' ')
+		if(str[i] == ' ')
 		{
-			index[j] = i;
-			j++;
+			index[No_of_spaces] = i+1;
+			No_of_spaces++;
 		}
-		str++;
 		i++;
 	}
-	
-	index[j] = i;
-	
-	No_of_spaces = j; 
 
-	while(No_of_spaces>0)
+	index[No_of_spaces] = i;
+	
+	while(No_of_spaces >= 0)
 	{
-		str = str + index[j-1];
-		while(i<index[j])
-		{
-			printf("new_str:%c \n", *str++);
-			*new_str++ = *(str++);
-			i--;
-		}
-		No_of_spaces--;
 		
+		i = index[No_of_spaces-1];
+		
+		while(i<index[No_of_spaces])
+		{
+			*new_str++ = str[i];
+			i++;
+		}
+
+		*new_str++ = ' ';
+		No_of_spaces--;
 	}
+	*new_str = '\0';
 	
-	free(new_str);
-
-
+	printf("\nnew str: %s\n\n", ptr_cpy_new_str);
 	return 0;
 }
 
