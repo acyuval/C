@@ -16,7 +16,6 @@
 #define OFF 0
 #define BIT_ARRAY_SIZE sizeof(bitarray_t)*CHAR_BIT
 #define BYTE_RANGE 256
-#define ONE_SIZE_T (bitarray_t)1
 #define LAST_BYTE (sizeof(bitarray_t)-1)
 
 static void strrev(char* str);
