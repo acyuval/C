@@ -4,28 +4,29 @@
 *	Date:      
 ******************************************************************************/
 
-#include <stdio.h>  /* printf() , fopen()  */
-#include <string.h> /* strcpy(),	  */
-#include <stdlib.h> /* malloc()			*/ 
-#include <assert.h> 
-
+#include <stdio.h>  /* printf() , fopen()   */
+#include <string.h> /* strcpy()				*/
+#include <stdlib.h> /* malloc()				*/ 
+#include <assert.h> 	
+#include <limits.h> /* CHAR_BIT				*/
 
 #include "bitarray.h"
 
 #define ON 1
 #define OFF 0
-#define BIT_ARRAY_SIZE 64
+#define BIT_ARRAY_SIZE sizeof(bitarray_t)*CHAR_BIT
 #define BYTE_RANGE 256
-#define ONE_SIZE_T (size_t)1
+#define ONE_SIZE_T (bitarray_t)1
+#define LAST_BYTE (sizeof(bitarray_t)-1)
 
 static void strrev(char* str);
-static unsigned char LUT_m[BYTE_RANGE];	
-static unsigned char LUT_c[BYTE_RANGE];
+static unsigned char lut_mirror[BYTE_RANGE];	
+static unsigned char lut_count[BYTE_RANGE];
 
 bitarray_t BitArraySetAll(bitarray_t b_arr)
 {
 	(void)b_arr;
-	return ~(0);
+	return ~((bitarray_t)0);
 }
 
 bitarray_t BitArrayResetAll(bitarray_t b_arr)
@@ -41,7 +42,7 @@ bitarray_t BitArraySetBit(bitarray_t b_arr, size_t index, int bool_val)
 	assert(index < BIT_ARRAY_SIZE);
 	assert(bool_val == 1 || bool_val == 0);
 	
-	mask = (ONE_SIZE_T << (index));
+	mask = (1 << (index));
 	
 	return bool_val ? (b_arr = b_arr | mask) : (b_arr = b_arr & (~mask)); 
 }
@@ -53,9 +54,9 @@ int BitArrayGetVal(bitarray_t b_arr, size_t index)
 	
 	assert(index < BIT_ARRAY_SIZE);
 	
-	mask = ONE_SIZE_T << (index);
+	mask = 1 << (index);
 	
-	return (b_arr = b_arr & mask) ? 1 : 0; 
+	return (b_arr & mask) ? 1 : 0; 
 }
 
 bitarray_t BitArraySetOff(bitarray_t b_arr, size_t index)
@@ -103,7 +104,7 @@ size_t BitArrayCountOff(bitarray_t b_arr)
 char *BitArrayToString(bitarray_t b_arr, char *buffer)
 {
 	size_t i = 0;
-	size_t mask = 1;
+	bitarray_t mask = 1;
 	
 	while(i < BIT_ARRAY_SIZE)
 	{
@@ -120,38 +121,18 @@ char *BitArrayToString(bitarray_t b_arr, char *buffer)
 
 bitarray_t BitArrayRotateRight(bitarray_t b_arr, size_t offset)
 {
-	size_t i = 0 ;
-	int temp = 0 ;
-	
-	for(i=0 ; i < offset ; i++)
-	{
-		temp = BitArrayGetVal(b_arr, 0);
-		b_arr >>= ONE_SIZE_T;
-		if(temp) 
-		{
-			b_arr = BitArraySetOn(b_arr, 63);
-		}
-	}
-	
-	return b_arr;
+	offset %= BIT_ARRAY_SIZE;
+
+	return (b_arr >> offset | b_arr << (BIT_ARRAY_SIZE - offset));
 }
 
 bitarray_t BitArrayRotateLeft(bitarray_t b_arr, size_t offset)
 {
-		size_t i = 0 ;
+	offset %= BIT_ARRAY_SIZE; 
 		
-		for(i=0 ; i < offset ; i++)
-		{
-			int temp = BitArrayGetVal(b_arr, 63);
-			b_arr <<= ONE_SIZE_T;
-			if(temp) 
-			{
-				b_arr = BitArraySetOn(b_arr, 1);
-			}
-		}
-		
-		return b_arr;
+	return (b_arr << offset | b_arr >> (BIT_ARRAY_SIZE - offset));
 }
+
 
 
 /* LUT table is a calculating Number of set-bits 
@@ -162,25 +143,41 @@ static unsigned char * BuildLUTCountBits(unsigned char * LUT)
 	
 	for(i = 0 ; i < BYTE_RANGE ; i++)
 	{
-		LUT[i] = BitArrayCountOn(i);
+		LUT[i] = (unsigned char)BitArrayCountOn(i);
 	}
 	
 	return LUT;
 }
 
+static unsigned char ByteMiror(unsigned char n)
+{
+	unsigned char result = 0;
+	int counter = 0; 
+
+	while (CHAR_BIT > counter) 
+	{
+		result <<= 1;
+		if (1 == (n & 1))
+		{
+			result |= 1;
+ 		}
+		n >>= 1;
+		counter++;
+	}
+
+	return result;
+}
 
 /* LUT table is a calculating fliipped values
 										 of any possible byte configurtaion */
 static unsigned char * BuildLUTMiror(unsigned char * LUT)
 {
-	size_t i = 0; 
-	bitarray_t temp = 0;
-	unsigned char * char_ptr = (unsigned char *)&temp;
-	
-	for(i = 0 ; i < BYTE_RANGE ; i++)
+	int a_byte = 0; 
+
+	while(a_byte < BYTE_RANGE)
 	{
-		temp = BitArrayMirror(i);
-		LUT[i] = *(char_ptr + 7);
+		LUT[a_byte] = ByteMiror(a_byte);
+		a_byte++;
 	}
 	
 	return LUT;
@@ -193,34 +190,35 @@ size_t BitArrayCountOnLUT(bitarray_t b_arr)
 	unsigned char * char_ptr = (unsigned char *)&b_arr; 
 	size_t count_bits = 0;
 	static int is_inited = 0;
-	unsigned char * ptr_LUT = LUT_c;
 	
 	if(!is_inited)   /* will be initialized only once during program lifetime */
 	{
-		ptr_LUT = BuildLUTCountBits(ptr_LUT);
+		BuildLUTCountBits(lut_count);
 		is_inited = 1;
 	}
 	
 	for(i = 0 ; i < (sizeof(bitarray_t)) ; i++)
 	{
 		this_byte_value = *(char_ptr+i);
-		count_bits += LUT_c[this_byte_value];
+		count_bits += lut_count[this_byte_value];
 	}
+	
 	return count_bits;
 }
 
 bitarray_t BitArrayMirror(bitarray_t b_arr)
 {
-	size_t mirror_b_Arr = 0;
+	bitarray_t mirror_b_Arr = 0;
 	size_t counter = 0; 
 	
 	while (BIT_ARRAY_SIZE > counter) 
 	{
 		mirror_b_Arr <<= 1;
-		if (b_arr & ONE_SIZE_T)
+		if (b_arr & 1)
 		{
-			mirror_b_Arr ^= ONE_SIZE_T;
+			mirror_b_Arr |= 1;
  		}
+		
 		b_arr >>= 1;
 		counter++;
 	}
@@ -234,21 +232,20 @@ bitarray_t BitArrayMirrorLUT(bitarray_t b_arr)
 	size_t res = 0;
 	static int is_inited =  0;
 	unsigned char this_byte_value = 0;
-	unsigned char * ptr_LUT = LUT_m;	
 		
 	unsigned char * char_read = (unsigned char *)&b_arr; 
 	unsigned char * char_write = (unsigned char *)&res; 
 	
 	if(!is_inited)/* will be initialized only once during program lifetime */
 	{
-		ptr_LUT = BuildLUTMiror(ptr_LUT);
+		BuildLUTMiror(lut_mirror);
 		is_inited = 1;
 	}
 
 	for(i = 0 ; i < (sizeof(b_arr)) ; i++)
 	{
 		this_byte_value = *(char_read + i);
-		*(char_write + 7 - i) = LUT_m[this_byte_value];
+		*(char_write + LAST_BYTE - i) = lut_mirror[this_byte_value];
 	}
 		
 	return res;

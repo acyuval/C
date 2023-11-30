@@ -20,21 +20,28 @@ static void TestHelper(int booll , char * calling_function,int test_no);
 void TestBitArrayMirror();
 void TestBitArrayGetSetFlip();
 void TestBitArrayCountOnOff();
-void TestBitArrayRotateLeftRight();
+void TestBitArrayRotateLeft();
+void TestBitArrayRotateRight();
+void TestBitArrayFlip();
+void TestBitArraySet();
+void TestBitArrayGet();
 void TestBitArrayCountOnLUT();
 void TestBitArrayMirrorLUT();
+void TestBitArrayToString(void);
 
 int main()
 {
 	TestBitArrayMirrorLUT();
 	TestBitArrayCountOnLUT();	
-	
-	TestBitArrayRotateLeftRight();
+	TestBitArrayToString(); 
+	TestBitArrayRotateRight();
+	TestBitArrayRotateLeft();
 	TestBitArrayCountOnOff();
-	
+	TestBitArrayFlip();
+	TestBitArraySet();
+	TestBitArrayGet();	
 	TestBitArrayMirror();
 	
-	TestBitArrayGetSetFlip();
 	
 	return 0;
 }
@@ -61,33 +68,54 @@ void TestBitArrayCountOnOff()
 	
 }
 
-void TestBitArrayGetSetFlip()
+void TestBitArraySet()
 {
 	size_t test = 0;
 	size_t expected = 2; 
 	
 	test = BitArraySetBit(test, 1, ON);
-	TestHelper((test == expected), "TestBitArrayGetSetFlip", 1);
+	TestHelper((test == expected), "TestBitArraySet", 1);
 	
-	expected = 0;
 	
-	test = BitArrayFlip(test, 1);
-	TestHelper((test == expected), "TestBitArrayGetSetFlip", 2);
-	
-	test = BitArrayGetVal(test, 1);
-	TestHelper((test == expected), "TestBitArrayGetSetFlip", 3);
 }
 
-void TestBitArrayRotateLeftRight()
+void TestBitArrayFlip()
 {
-	size_t test = 9;
-	size_t expected = 10;
+	size_t test = 0;
+	size_t expected = 2; 
 	
-	test = BitArrayRotateLeft(test, 2);
-	TestHelper((test > expected), "TestBitArrayRotateLeftRight", 1);
+	test = BitArrayFlip(test, 1);
 	
-	test = BitArrayRotateRight(test, 2);
-	TestHelper((test < expected), "TestBitArrayRotateLeftRight", 2);
+	TestHelper((test == expected), "TestBitArrayFlip", 1);
+}
+
+void TestBitArrayGet()
+{
+	size_t test = 2;
+	size_t expected = 1; 
+	
+	test = BitArrayGetVal(test, 1);
+	TestHelper((test == expected), "TestBitArrayGet", 1);
+}
+
+void TestBitArrayRotateLeft()
+{
+	size_t test = 0x400;
+	size_t expected = 0x2000;
+	
+	test = BitArrayRotateLeft(test, 3);
+	TestHelper((test == expected), "TestBitArrayRotateLeft", 1);
+	
+}
+
+
+void TestBitArrayRotateRight()
+{
+	size_t test = 0x400;
+	size_t expected = 0x80;
+
+	test = BitArrayRotateRight(test, 3);
+	TestHelper((test == expected), "TestBitArrayRotateRight", 1);
 }
 
 
@@ -100,17 +128,28 @@ void TestBitArrayCountOnLUT()
 }
 
 
+void TestBitArrayToString(void)
+{
+	char string[100] = {0};
+	bitarray_t test = 1; 
+	char * expected_string = "0000000000000000"
+						 	"0000000000000000"
+						 	"0000000000000000"
+						 	"0000000000000001"; 
+						
+						 	
+	TestHelper(0 == strcmp(expected_string, BitArrayToString(test, string)), 
+					"TestBitArrayToString" , 1);
+}
+	
+	
 void TestBitArrayMirrorLUT()
 {
-	bitarray_t test = 45;
-	char buffer[100] = {0};
-	size_t expected = BitArrayMirror(test);
-	
-	printf("\nB:%s\n",BitArrayToString(test, buffer));
-	
+	bitarray_t test = 1;
+	bitarray_t expected = 1;
+
+	expected <<= 63;
 	test = BitArrayMirrorLUT(test);
-	printf("A:%s\n\n",BitArrayToString(test, buffer));
-	
 	TestHelper((test == expected), "TestBitArrayMirrorLUT", 1);
 }
 
