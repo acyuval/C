@@ -19,7 +19,8 @@
 static void TestHelper(int booll , char * calling_function,int test_no);
 void TestBitArrayMirror();
 void TestBitArrayGetSetFlip();
-void TestBitArrayCountOnOff();
+void TestBitArrayCountOn();
+void TestBitArrayCountOff();
 void TestBitArrayRotateLeft();
 void TestBitArrayRotateRight();
 void TestBitArrayFlip();
@@ -36,13 +37,12 @@ int main()
 	TestBitArrayToString(); 
 	TestBitArrayRotateRight();
 	TestBitArrayRotateLeft();
-	TestBitArrayCountOnOff();
 	TestBitArrayFlip();
 	TestBitArraySet();
 	TestBitArrayGet();	
 	TestBitArrayMirror();
-	
-	
+	TestBitArrayCountOn();
+	TestBitArrayCountOff();
 	return 0;
 }
 
@@ -57,14 +57,25 @@ void TestBitArrayMirror()
 }
 
 
-void TestBitArrayCountOnOff()
+void TestBitArrayCountOn()
 {
 	int set_bit = 0;
 	int expected = 2;
 	bitarray_t test  = 5; 
 	
 	set_bit = BitArrayCountOn(test);
-	TestHelper((set_bit == expected),"TestBitArrayCountOnOff",1);
+	TestHelper((set_bit == expected),"TestBitArrayCountOn",1);
+	
+}
+
+void TestBitArrayCountOff()
+{
+	bitarray_t test  = 2; 
+	int expected = 63;
+	int set_bit = 0;
+	
+	set_bit = BitArrayCountOff(test);
+	TestHelper((set_bit == expected),"TestBitArrayCountOff",1);
 	
 }
 
