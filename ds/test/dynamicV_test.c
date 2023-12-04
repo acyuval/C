@@ -39,34 +39,43 @@ void TestVectorCreate()
 	this_vector = VectorCreate(sizeof(int), 12);
 	TestHelper(NULL != this_vector,"TestVectorCreate", 1);
 	
+	VectorDestroy(this_vector);
 }
 
 
 
 void TestVectorPushBack()
 {
-	int i = 4;
+	int i = 0;
 	vector_t * this_vector = VectorCreate(sizeof(int), 12);
-	
-	VectorPushBack(this_vector, &i);
-	VectorPushBack(this_vector, &i);
-	VectorPushBack(this_vector, &i);
-	VectorPushBack(this_vector, &i);
 
-	TestHelper(4 == *(int *)VectorGetAccess(this_vector,1),"TestVectorPushBack", 1);
+	for(i=0 ; i < 5 ; i++)
+	{
+		VectorPushBack(this_vector, &i);	
+	}	
+	
+	TestHelper(1 == *(int *)VectorGetAccess(this_vector,1),"TestVectorPushBack", 1);
 	VectorDestroy(this_vector);
 }
 
 
 void TestVectorPopBack()
 {
-	int input[2] = {4,2};
-	vector_t * this_vector = VectorCreate(sizeof(int), 12);
-	VectorPushBack(this_vector,&input[0]);
-	VectorPushBack(this_vector,&input[1]);
-	VectorPopBack(this_vector);
+	int i = 0; 
 	
-	TestHelper(1 == VectorSize(this_vector), "TestVectorPopBack", 1);
+	vector_t * this_vector = VectorCreate(sizeof(int), 12);
+	
+	for(i=0 ; i< 11 ; i++)
+	{
+		VectorPushBack(this_vector,&i);
+	}
+	
+	TestHelper(11 == VectorSize(this_vector), "TestVectorPopBack", 1);
+	
+	for(i=0 ; i< 7 ; i++)
+	{
+		VectorPopBack(this_vector);
+	}
 	
 	TestHelper(6 == VectorCapacity(this_vector), "TestVectorPopBack", 2);
 	
