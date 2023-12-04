@@ -1,34 +1,48 @@
-#ifndef __VECTOR_H__
-#define __VECTOR_H__
+/******************************************************************************
+*	Author:    Yuval 
+*	Reviewer : 
+*	Date:      
+******************************************************************************/
 
-#include <stddef.h> /* size_t */
+#include <string.h> /* memcpy()				*/
+#include <stdlib.h> /* malloc()	free()		*/ 
+#include <assert.h> /* assert()				*/
+#include <assert.h>
+#include <stdio.h>
 
+#include "dynamicV.h"
+
+
+#define GROWTH 2
+#define SIZE_IN_BYTES (vector->element_size * vector->size) 
+
+static void *  ChangeSize(vector_t *vector , size_t new_cap);
 
 
 struct vector 
 {
-	char * vector_ptr;
+	void * buffer;
 	size_t element_size ; 
 	size_t size;
 	size_t capacity;
 };
 
 
-vector_t *VectorCreate(element_size,capacity)
+vector_t *VectorCreate(size_t element_size, size_t capacity)
 {
 	vector_t * this_vector = (vector_t *)malloc(sizeof(vector_t)); 
 
 	assert(element_size != 0);
-	assert(cpacity != 0);
+	assert(capacity != 0);
 	
 	if (NULL == this_vector)
 	{
 		return this_vector;
 	} 
 	
-	this_vector->vector_ptr = malloc(element_size*capacity);
+	this_vector->buffer = malloc(element_size*capacity);
 	
-	if (NULL == this_vector->vector_ptr)
+	if (NULL == this_vector->buffer)
 	{
 		free(this_vector);
 		return this_vector;
@@ -45,48 +59,67 @@ vector_t *VectorCreate(element_size,capacity)
 void VectorDestroy(vector_t *vector)
 {
 	assert(NULL != vector);
-	free((vector-> vector_ptr) - (vector->size * vector->element_size));
+	
+	free(vector->buffer);
+	
+	vector->buffer = NULL;
 	free(vector);
 }
 
 
 
-/******************************************************************************
-*Description: access to the arbitrary index in the vector
-*Arguments: pointer to the vector and an index in the vector
-*Return Value: pointer to the data in the given index
-*Time Complexity: O(1)
-*Space Complexity: O(1)
-Notes: trying to access outside the bounds of the vector is undefined behavior
-******************************************************************************/
-void *VectorGetAccess(vector_t *vector, size_t index);
+void *VectorGetAccess(vector_t *vector, size_t index)
+{
+	assert(NULL != vector);
+	assert(index <= (vector->size));
+	
+	return ((char *)(vector-> buffer) + index * vector->element_size);
+}
 
 
 
 
+int VectorPushBack(vector_t *vector, const void *data)
+{
+	assert(NULL != vector);
+	
+	if (vector->size > vector->capacity)
+	{
+		vector->buffer = ChangeSize(vector , vector->size * GROWTH);
+		if(NULL == vector->buffer)
+		{
+			return 1;
+		}
+	}
+	
+	memcpy((char *)vector-> buffer + SIZE_IN_BYTES , data, vector-> element_size);
+	vector-> size += 1;
 
-/******************************************************************************
-*Description: pushes the given data to the end of the vector
-*Arguments: pointer to the vector and a pointer to the data to push
-*Return Value: void 
-*Time Complexity: O(1)
-*Space Complexity: O(1)
-******************************************************************************/
-void VectorPushBack(vector_t *vector, const void *data);
+	return (0);
+}
 
 
 
 
-
-/******************************************************************************
-*Description: pops the end of the vector out
-*Arguments: pointer to the vector
-*Return Value: void
-*Time Complexity: O(1)
-*Space Complexity: O(1)
-Notes: popping out of an empty vector leads to undefined behavior
-******************************************************************************/
-void VectorPopBack(vector_t *vector);
+int VectorPopBack(vector_t *vector)
+{
+	assert(NULL != vector);
+	assert(vector->size != 0);
+	
+	*(int *)((char *)vector->buffer + vector->size) = 0;   						/* delete is made by changeing last value to 0 */
+	vector->size -= 1;
+	
+	if (vector->size < (vector->capacity)/GROWTH)
+	{
+		vector->buffer = ChangeSize(vector, (vector->capacity / GROWTH));
+		if(NULL == vector->buffer)
+		{
+			return 1;
+		}		
+	}
+	
+	return 0;
+}
 
 
 size_t VectorSize(const vector_t *vector)
@@ -94,38 +127,62 @@ size_t VectorSize(const vector_t *vector)
 	assert(NULL != vector);
 	
 	return (vector->size);
-
 }
 
 
 size_t VectorCapacity(const vector_t *vector)
 {	
-	assert(NULL != stack);
+	assert(NULL != vector);
 	
-	return (stack->capacity);	
+	return (vector->capacity);	
 }
 
 
 
 
-/******************************************************************************
-*Description: shrinks the capacity of the vector to the minimum size necessary 
-              to keep the current data
-*Arguments: pointer to the vector
-*Return Value: pointer to the new location of the vector
-*Time Complexity: O(n)
-*Space Complexity: O(1)
-******************************************************************************/
-vector_t *VectorShrink(vector_t *vector);
+int VectorShrink(vector_t *vector)
+{
+	assert(NULL != vector);
+	assert(vector->size != 0);
 
-/******************************************************************************
-*Description: increments the reserved memory of the given vector by
-              the given size
-*Arguments: pointer to the vector and a size to add to the capacity
-*Return Value: pointer to the new location of the vector
-*Time Complexity: O(n)
-*Space Complexity: O(n)
-******************************************************************************/
-vector_t *VectorReserve(vector_t *vector, size_t new_capacity);
+	vector->buffer =  ChangeSize(vector, vector->size);
+	if(NULL == vector->buffer)
+		{
+			return 1;
+		}		
+
+	return (0);
+}
+
+int VectorReserve(vector_t *vector, size_t new_capacity)
+{
+	assert(NULL != vector);
+	vector->buffer =  ChangeSize(vector, new_capacity);
+
+	if(NULL == vector->buffer)
+		{
+			return 1;
+		}		
+
+	return (0);
+}
+
+static void *  ChangeSize(vector_t *vector ,size_t new_cap)
+{
+	void *shrinked_buffer = NULL;
+	
+	shrinked_buffer = realloc(vector->buffer , new_cap*vector->element_size);
+	
+	if(NULL == shrinked_buffer)
+	{
+		return (vector->buffer);
+	}
+	
+	vector->capacity =  new_cap;
+
+	return (shrinked_buffer);
+}
+
+
 
 

@@ -5,123 +5,155 @@
 ******************************************************************************/
 #include <stdio.h>  /* printf()  	  */
 
-#include "stack.h"
+#include "dynamicV.h"
 
 static void TestHelper(int booll , char * calling_function, int test_no); 
-stack_t * TestStackCreate();
-void TestStackPush();
-void TestStackPop();
-void TestStackPeek();
-void TestStackIsEmpty();
-void TestStackSize();
-void TestStackCapacity();
+void TestVectorCreate();
+void TestVectorPushBack();
+void TestVectorPopBack();
+void TestVectorGetAccess();
+void TestVectorSize();
+void TestVectorCapacity();
+void TestVectorReserve();
+
+void TestVectorShrink();
 
 int main()
 {
-	TestStackCreate();
-	TestStackPush();
-	TestStackPop();
-	TestStackPeek();
-	TestStackIsEmpty();
-	TestStackSize();
-	TestStackCapacity();
-	
+
+	TestVectorCreate();
+	TestVectorPushBack();
+	TestVectorPopBack();
+	TestVectorGetAccess();
+	TestVectorSize();
+	TestVectorCapacity();
+	TestVectorReserve();
+	TestVectorShrink();
 	return (0);
 }
 
 
-stack_t * TestStackCreate()
+void TestVectorCreate()
 {
-	stack_t * this_stack = NULL;
-	this_stack = StackCreate(12, sizeof(int));
-	TestHelper(NULL != this_stack,"TestStackCreate", 1);
+	vector_t * this_vector = NULL;
+	this_vector = VectorCreate(sizeof(int), 12);
+	TestHelper(NULL != this_vector,"TestVectorCreate", 1);
 	
-	return (this_stack);
 }
 
 
 
-void TestStackPush()
+void TestVectorPushBack()
 {
-	
 	int i = 4;
+	vector_t * this_vector = VectorCreate(sizeof(int), 12);
 	
-	stack_t * this_stack = NULL;
-	this_stack = StackCreate(12, sizeof(int));
-	
-	StackPush(this_stack, &i);
-	
-	TestHelper(4 == *(int *)StackPeek(this_stack),"TestStackPush", 1);
-	StackDestroy(this_stack);
+	VectorPushBack(this_vector, &i);
+	VectorPushBack(this_vector, &i);
+	VectorPushBack(this_vector, &i);
+	VectorPushBack(this_vector, &i);
+
+	TestHelper(4 == *(int *)VectorGetAccess(this_vector,1),"TestVectorPushBack", 1);
+	VectorDestroy(this_vector);
 }
 
 
-void TestStackPop()
+void TestVectorPopBack()
 {
 	int input[2] = {4,2};
-	stack_t * this_stack = StackCreate(12, sizeof(int));
-	StackPush(this_stack,&input[0]);
-	StackPush(this_stack,&input[1]);
-	StackPop(this_stack);
-	TestHelper(4 == *(int *)StackPeek(this_stack),"TestStackPop", 1);
-	StackDestroy(this_stack);
+	vector_t * this_vector = VectorCreate(sizeof(int), 12);
+	VectorPushBack(this_vector,&input[0]);
+	VectorPushBack(this_vector,&input[1]);
+	VectorPopBack(this_vector);
+	
+	TestHelper(1 == VectorSize(this_vector), "TestVectorPopBack", 1);
+	
+	TestHelper(6 == VectorCapacity(this_vector), "TestVectorPopBack", 2);
+	
+	VectorDestroy(this_vector);
+	
 }
 
 
-void TestStackPeek()
-{
-	
-	int input[2] = {4,2};
-	stack_t * this_stack = StackCreate(12, sizeof(int));
-	StackPush(this_stack,&input[0]);
-	StackPush(this_stack,&input[1]);
-	
-	TestHelper(2 == *(int *)StackPeek(this_stack),"TestStackPeek", 1);
-	StackDestroy(this_stack);
-}
-
-
-void TestStackIsEmpty()
-{
-	int input[2] = {4,2};
-	stack_t * this_stack = StackCreate(12, sizeof(int));
-	
-	TestHelper(1 == StackIsEmpty(this_stack),"TestStackIsEmpty", 1);
-	
-	StackPush(this_stack,&input[0]);
-	
-	TestHelper(0 == StackIsEmpty(this_stack),"TestStackIsEmpty", 2);
-	
-	StackDestroy(this_stack);
-}
-
-
-
-void TestStackSize()
+void TestVectorGetAccess()
 {
 	
 	int input[2] = {4,2};
-	stack_t * this_stack = StackCreate(12, sizeof(int));
+	vector_t * this_vector = VectorCreate(sizeof(int), 12);
+	VectorPushBack(this_vector,&input[0]);
+	VectorPushBack(this_vector,&input[1]);
 	
-	TestHelper(0 == StackSize(this_stack),"TestStackSize", 1);
+	TestHelper(2 == *(int *)VectorGetAccess(this_vector,1),"TestVectorGetAccess", 1);
+	VectorDestroy(this_vector);
+}
+
+
+
+
+void TestVectorSize()
+{
 	
-	StackPush(this_stack,&input[0]);
+	int input[2] = {4,2};
+	vector_t * this_vector = VectorCreate(sizeof(int), 12);
 	
-	TestHelper(1 == StackSize(this_stack),"TestStackSize", 2);
+	TestHelper(0 == VectorSize(this_vector),"TestVectorSize", 1);
 	
-	StackDestroy(this_stack);
+	VectorPushBack(this_vector,&input[0]);
+	
+	TestHelper(1 == VectorSize(this_vector),"TestVectorSize", 2);
+	
+	VectorDestroy(this_vector);
 
 }
 
 
-void TestStackCapacity()
+void TestVectorCapacity()
 {
 	
-	stack_t * this_stack = StackCreate(12, sizeof(int));
+	vector_t * this_vector = VectorCreate(sizeof(int), 12);
 	
-	TestHelper(12 == StackCapacity(this_stack),"TestStackCapacity", 1);
+	TestHelper(12 == VectorCapacity(this_vector),"TestVectorCapacity", 1);
 	
-	StackDestroy(this_stack);
+	VectorDestroy(this_vector);
+
+
+}
+
+
+
+void TestVectorShrink()
+{
+	
+	int i = 0;
+	
+	vector_t * this_vector = VectorCreate(sizeof(int), 12);
+	
+	
+	for(i=0;i<16; i++)
+	{
+		VectorPushBack(this_vector, &i);
+	}
+	
+	VectorShrink(this_vector);
+	
+	TestHelper(16 == VectorSize(this_vector),"TestVectorShrink", 1);
+	
+	VectorDestroy(this_vector);
+
+
+}
+
+
+
+void TestVectorReserve()
+{
+	vector_t * this_vector = VectorCreate(sizeof(int), 12);
+	
+	VectorReserve(this_vector, 50);
+	
+	TestHelper(50 == VectorCapacity(this_vector),"TestVectorReserve", 1);
+	
+	VectorDestroy(this_vector);
 
 
 }
