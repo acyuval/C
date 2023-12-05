@@ -10,8 +10,7 @@
 *							FUNCTION DECLRATION								  * 
 ******************************************************************************/
 
-static int CountNodes(slist_iter_t this_node, void * params);
-
+static int CountNodes(void * this_node, void * params);
 
 
 struct node
@@ -64,7 +63,8 @@ void SLLDestroy(list_t *list)
 	{
 		this_node = SLLRemove(this_node);
 	}
-	
+	free(list->tail);
+	free(list);
 }
 
 
@@ -97,26 +97,24 @@ slist_iter_t SLLInsert(list_t *list, slist_iter_t where, void *value)
 
 slist_iter_t SLLRemove(slist_iter_t iter)
 {
-	void * temp_next = iter->next;
+	slist_iter_t temp_next = NULL;
+	assert(NULL != iter);
 	
-	iter->data = iter->next->data;
-	iter->next = iter->next->next; 
+	temp_next = iter->next;
+	
+	iter->data = temp_next->data;
+	iter->next = temp_next->next;
+	
+	if (NULL == iter->next)
+	{
+		((list_t *)iter->data)->tail = iter; 
+	}
 	
 	free(temp_next);
 	
-	return(iter->next);
+	return (iter);
 }
 
-
-size_t SLLCount(const list_t *list)
-{
-	struct node * this_node = list-> head;
-	size_t counter = 0; 
-	
-	SLLForEach(list->head, list->tail, &CountNodes, (void *)counter);
-	
-	return counter-1;
-}
 
 
 slist_iter_t SLLFind(slist_iter_t from, slist_iter_t to,
@@ -204,6 +202,15 @@ int SLLIsEqual(slist_iter_t iterator_1, slist_iter_t iterator_2)
 
 
 
+size_t SLLCount(const list_t *list)
+{
+	size_t counter = 0; 
+	
+	SLLForEach(list->head, list->tail, &CountNodes, (void *)&counter);
+	
+	return counter;
+}
+
 
 int SLLForEach(slist_iter_t from, slist_iter_t to, action_t act_func, void *params)
 {
@@ -215,7 +222,7 @@ int SLLForEach(slist_iter_t from, slist_iter_t to, action_t act_func, void *para
 	
 	while(this_node != to)
 	{
-		if(act_func((void *)this_node,params))
+		if(act_func((void *)this_node, params))
 		{
 			return (-1);
 		}
@@ -227,8 +234,8 @@ int SLLForEach(slist_iter_t from, slist_iter_t to, action_t act_func, void *para
 
 static int CountNodes(void * this_node, void * params)
 {
-	
+	(void)this_node;
 	*(size_t *)params += 1;
-	return params;
+	return 0;
 }
 

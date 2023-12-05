@@ -24,6 +24,8 @@ void TestSLLSetData();
 void TestSLLRemove();
 void TestSLLFind();
 int Match(void * src, void *data);
+void TestIsEmptyh();
+
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -32,11 +34,10 @@ int Match(void * src, void *data);
 int main()
 {
 	TestSLLFind();
-	/*
 	TestSSLInsertCount();
 	TestSLLSetData();
 	TestSLLRemove();
-	*/
+	TestIsEmptyh();
 	return (0);
 }
 
@@ -63,7 +64,7 @@ void TestSSLInsertCount()
 	
 	TestHelper(SLLCount(test_list) == 3, "TestSSLCount" , 1);
 		
-
+	SLLDestroy(test_list);
 }
 
 void TestSLLSetData()
@@ -79,6 +80,7 @@ void TestSLLSetData()
 	new_next = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[3]);
 	SLLSetData(new_next, (void *)&input[4]);
 	TestHelper(*(int *)SLLGetData(new_next) == 1, "TestSLLSetData" , 1);
+	SLLDestroy(test_list);
 }
 
 
@@ -94,6 +96,7 @@ void TestSLLRemove()
 	TestHelper(*(int *)SLLGetData(new_next) == 10, "TestSLLRemove" , 1);
 	SLLRemove(new_next);
 	TestHelper(*(int *)SLLGetData(new_next) == 20, "TestSLLRemove" , 2);
+	SLLDestroy(test_list);
 }
 
 
@@ -108,8 +111,26 @@ void TestSLLFind()
 	
 	new_next = SLLFind(SLLBegin(test_list),SLLEnd(test_list), &Match , (void *)&input[1]);
 
-	TestHelper(*(int *)SLLGetData(new_next) == 50, "SLLFind" , 1);
+	TestHelper(*(int *)SLLGetData(new_next) == 30, "SLLFind" , 1);
+	SLLDestroy(test_list);
 }
+
+
+void TestIsEmptyh()
+{
+	int input[5] = {50,30,20,10,1};
+	slist_iter_t new_next = NULL;
+	list_t * test_list = SLLCreate();
+	new_next = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[1]);
+	new_next = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[2]);
+	new_next = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[3]);
+	
+	
+	TestHelper(SLLIsEmpty(test_list) == 0, "TestDestroy" , 1);
+	SLLDestroy(test_list);
+	
+}
+
 
 
 int Match(void * src, void *data)
