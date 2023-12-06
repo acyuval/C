@@ -17,7 +17,6 @@
 *							FUNCTION DECLRATION								  * 
 ******************************************************************************/
 
-node_t * Flip(node_t * itr);
 
 /******************************************************************************
 *							 FUNCTIONS 										  * 
@@ -44,6 +43,23 @@ node_t * Flip(node_t * itr)
 
 }
 
+int DetectLoop(node_t * itr)
+{
+	node_t * slow = itr;
+	node_t * fast = itr->next;
+	
+	while(slow != fast)
+	{
+		if(NULL == fast->next || NULL == slow->next )
+		{
+			return 0;
+		}
+		fast = fast->next->next;
+		slow = slow->next;
+	}
+	return 1;
+
+}
 
 node_t * FindIntersection(list_t *listA ,list_t *listB)
 {
@@ -93,8 +109,6 @@ node_t * FindIntersection(list_t *listA ,list_t *listB)
 	}	
 	
 	return NULL;
-	
-
 }
 
 /*

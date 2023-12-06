@@ -17,10 +17,12 @@
 /******************************************************************************
 *							FUNCTION DECLRATION								  * 
 ******************************************************************************/
-int CreateAndFlip(void);
+static void TestHelper(int booll , char * calling_function, int test_no);
+
+void CreateAndFlip(void);
 void CreateAndFindIntersection(void);
 
-
+void CreateAndIsLoop(void);
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -30,6 +32,7 @@ int main()
 {
 	CreateAndFlip();
 	CreateAndFindIntersection();
+	CreateAndIsLoop();
 	return (0);
 }
 
@@ -37,7 +40,7 @@ int main()
 *							TEST FUNCTIONS									  * 
 ******************************************************************************/
 
-int CreateAndFlip(void)
+void CreateAndFlip(void)
 {
 
 	node_t * head = NULL;
@@ -76,8 +79,48 @@ int CreateAndFlip(void)
 		itr = itr->next;
 	}
 
-	return 0;
 }
+
+
+
+void CreateAndIsLoop(void)
+{
+
+	node_t * head = NULL;
+	node_t n1,n2,n3,n4,n5,n6,n7,n8;
+
+	head = &n1;
+	
+	n1.data = 1;
+	n1.next = &n2;
+	n2.data = 2;
+	n2.next = &n3;
+	n3.data = 3;
+	n3.next = &n4;
+	n4.data = 4;
+	n4.next = &n5;
+	n5.data = 5;
+	n5.next = &n6;
+	n6.data = 6;
+	n6.next = &n7;
+	n7.data = 7;
+	n7.next = &n8;
+	n8.data = 8;
+	n8.next = &n2;
+	
+	
+	
+	TestHelper(1 == DetectLoop(head), "Test IsLoop", 1);	
+	
+	n8.next = NULL;
+	
+	TestHelper(0 == DetectLoop(head), "Test IsLoop", 2);	
+
+	n4.next = &n1;
+	
+	TestHelper(1 == DetectLoop(head), "Test IsLoop", 3);
+}
+
 
 
 void CreateAndFindIntersection(void)

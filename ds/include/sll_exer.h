@@ -33,7 +33,7 @@ node_t * Flip(node_t * itr);
 
 node_t * FindIntersection(list_t *listA ,list_t *listB);
 
-
+int DetectLoop(node_t * itr);
 
 
 #endif /* __SLLE_H__ */
