@@ -245,6 +245,21 @@ int SLLForEach(slist_iter_t from, slist_iter_t to, action_t act_func, void *para
 	return (SUCCESS); 
 }
 
+
+void SLLAppend(list_t *dest, list_t *src)
+{
+	*(dest->tail) = *(src->head);
+
+	src->head->next = NULL;
+	src->tail = src->head;
+	src->tail->data = src;
+
+	dest->tail = src->tail;
+	dest->tail->data = dest;
+}
+	
+
+
 static int CountNodes(void * this_node, void * params)
 {
 	(void)this_node;

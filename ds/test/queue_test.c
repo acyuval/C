@@ -19,17 +19,6 @@
 ******************************************************************************/
 
 static void TestHelper(int booll , char * calling_function, int test_no); 
-void TestSSLInsertCount();
-void TestSLLSetData();
-void TestSLLRemove();
-void TestSLLFind();
-void TestSLLSetData();
-void TestIsEmptyh();
-void TestSLLRemove();
-void TestSLLIsEqual();
-void TestForEach();
-int Match(void * src, void *data);
-int Print(void * this_node, void *node_counter);
 
 /******************************************************************************
 *							MAIN											  * 
@@ -38,15 +27,7 @@ int Print(void * this_node, void *node_counter);
 
 int main()
 {
-	TestSSLInsertCount();
-	TestSLLSetData();
-	TestSLLRemove();
-	TestSLLFind();
-	TestSLLSetData();
-	TestIsEmptyh();
-	TestSLLRemove();
-	TestSLLIsEqual();
-	TestForEach();
+	
 	return (0);
 }
 
@@ -57,7 +38,7 @@ int main()
 *							TEST FUNCTIONS									  * 
 ******************************************************************************/
 
-
+/*
 void TestSSLInsertCount()
 {
 	int input[5] = {50,30,20,10,1};

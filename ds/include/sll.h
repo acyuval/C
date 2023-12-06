@@ -8,17 +8,6 @@ typedef struct list list_t;
 typedef int (*is_match_t)(void *, void *);
 typedef int (*action_t)(void *, void *);
 
-/* struct node
-
-	void *data
-	struct node *next
-*/
-
-/* struct list
-
-	struct node *head
-	struct node *tail
-*/
 
 /******************************************************************************
 *Description: creates a new list
@@ -172,7 +161,7 @@ int SLLIsEqual(slist_iter_t iterator_1, slist_iter_t iterator_2);
 ******************************************************************************/
 int SLLForEach(slist_iter_t from, slist_iter_t to, action_t act_func, void *params);
 
-
+void SLLAppend(list_t *dest, list_t *src);
 
 #endif /* __SLL_H__ */
 
