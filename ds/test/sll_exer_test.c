@@ -58,6 +58,16 @@ int CreateAndFlip(void)
 	n5.data = 5;
 	n5.next = NULL;
 	
+	itr = head;
+	printf("\nTest Flip\n------------------\n");
+	printf("Before:");
+	while(itr != NULL)
+	{
+		printf("%d ", itr->data);
+		itr = itr->next;
+	}
+	
+	printf("\nAfter Flip:");
 	itr = Flip(head);
 	
 	while(itr != NULL)
@@ -95,7 +105,7 @@ void CreateAndFindIntersection(void)
 	n3.data = 3;
 	n3.next = &n4;
 	n4.data = 4;
-	n4.next = &n5;
+	n4.next = &l5;
 	n5.data = 5;
 	n5.next = NULL;
 	
@@ -109,7 +119,7 @@ void CreateAndFindIntersection(void)
 	l3.next = &l4;
 	
 	l4.data = 4;
-	l4.next = &n2;
+	l4.next = &l5;
 	
 	l5.data = 5;
 	l5.next = NULL;
@@ -117,7 +127,7 @@ void CreateAndFindIntersection(void)
 	
 	itr = FindIntersection(listA_ptr, listB_ptr);
 	
-	printf("\nis:%d\n", itr->data);
+	printf("\nvalue at the insersect: %d\n", itr->data);
 	
 }
 

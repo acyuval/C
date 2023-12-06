@@ -55,6 +55,7 @@ node_t * FindIntersection(list_t *listA ,list_t *listB)
 	{
 		itrA = itrA->next;
 		counter++;
+		
 	}
 	
 	while(itrB != NULL)
@@ -62,11 +63,11 @@ node_t * FindIntersection(list_t *listA ,list_t *listB)
 		itrB = itrB->next;
 		counter--;
 	}
-	
-	itrA =  listA->head;
-	itrB =  listB->head;
+
 	if(itrA == itrB)
 	{
+		itrA =  listA->head;
+		itrB =  listB->head;
 		if(counter > 0)
 		{
 			while(counter--)
