@@ -5,7 +5,7 @@
 ******************************************************************************/
 #include <stdio.h>  /* printf()  	  */
 
-#include "sll.h"
+#include "queue.h"
 
 
 /******************************************************************************
@@ -19,7 +19,10 @@
 ******************************************************************************/
 
 static void TestHelper(int booll , char * calling_function, int test_no); 
-
+void TestQueueEnQueueSize();
+void TestQueueDeQueue();
+void TestIssEmpty();
+void TestQueueAppend();
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -27,7 +30,11 @@ static void TestHelper(int booll , char * calling_function, int test_no);
 
 int main()
 {
+	TestQueueAppend();
 	
+	TestQueueEnQueueSize();
+	TestQueueDeQueue();
+	TestIssEmpty();
 	return (0);
 }
 
@@ -38,166 +45,86 @@ int main()
 *							TEST FUNCTIONS									  * 
 ******************************************************************************/
 
-/*
-void TestSSLInsertCount()
+
+void TestQueueEnQueueSize()
 {
 	int input[5] = {50,30,20,10,1};
 	
-	slist_iter_t test_itr = NULL;
-	slist_iter_t test_itr2 = NULL;
 	
-	list_t * test_list = SLLCreate();
+	queue_t * test_queue = QueueCreate();
 	
-	test_itr2 = SLLInsert(test_list, SLLBegin(test_list), &input[1]);
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), &input[2]);
-	test_itr = SLLInsert(test_list, test_itr2, &input[3]);
-	TestHelper(*(int *)SLLGetData(test_itr) == input[3], "TestSSLInsert" , 1);
+	QueueEnqueue(test_queue, &input[1]);
+	QueueEnqueue(test_queue, &input[2]);
+	QueueEnqueue(test_queue, &input[3]);
 	
-	TestHelper(SLLCount(test_list) == 3, "TestSSLCount" , 1);
+	TestHelper(*(int *)QueuePeek(test_queue) == input[1], "TestQueueEnQueue" , 1);
+	
+	TestHelper(QueueSize(test_queue) == 3, "TestQueueSize" , 1);
 		
-	SLLDestroy(test_list);
+	QueueDestroy(test_queue);
 }
 
-void TestSLLSetData()
+
+
+void TestQueueDeQueue()
 {
 	int input[5] = {50,30,20,10,1};
 	
-	slist_iter_t test_itr = NULL;
+	queue_t * test_queue = QueueCreate();
 	
-	list_t * test_list = SLLCreate();
+	QueueEnqueue(test_queue, &input[1]);
+	QueueEnqueue(test_queue, &input[2]);
+	QueueEnqueue(test_queue, &input[3]);
 	
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), &input[1]);
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), &input[2]);
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), &input[3]);
-	SLLSetData(test_itr,&input[4]);
+	TestHelper(*(int *)QueuePeek(test_queue) == 30, "TestQueueDeQueue" , 1);
 	
-	TestHelper(*(int *)SLLGetData(test_itr) == input[4], "TestSLLSetData" , 1);
-	SLLDestroy(test_list);
+	QueueDequeue(test_queue);
+	TestHelper(*(int *)QueuePeek(test_queue) == 20, "TestQueueDeQueue" , 2);
+	
+	QueueDestroy(test_queue);
 }
 
 
-void TestSLLRemove()
+
+
+void TestIssEmpty()
 {
 	int input[5] = {50,30,20,10,1};
-	slist_iter_t test_itr = NULL;
-	list_t * test_list = SLLCreate();
-
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[1]);
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[2]);
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[3]);
+	queue_t * test_queue = QueueCreate();
+	QueueEnqueue(test_queue, &input[1]);
+	QueueEnqueue(test_queue, &input[2]);
+	QueueEnqueue(test_queue, &input[3]);
 	
-	TestHelper(*(int *)SLLGetData(test_itr) == 10, "TestSLLRemove" , 1);
-	SLLRemove(test_itr);
-	TestHelper(*(int *)SLLGetData(test_itr) == 20, "TestSLLRemove" , 2);
-	SLLDestroy(test_list);
+	
+	TestHelper(QueueIsEmpty(test_queue) == 0, "TestIsEmpty  " , 1);
+	QueueDestroy(test_queue);
+	
 }
 
 
-void TestSLLFind()
+void TestQueueAppend()
 {
-	int input[5] = {50,30,20,10,1};
-	slist_iter_t test_itr = NULL;
-	list_t * test_list = SLLCreate();
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[1]);
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[2]);
-	test_itr = SLLInsert(test_list, SLLBegin(test_list), (void *)&input[3]);
+	int inputA[5] = {50,30,20,10,1};
+	int inputB[5] = {95,13,55,12,22};
 	
-	test_itr = SLLFind(SLLBegin(test_list),SLLEnd(test_list), &Match , (void *)&input[1]);
+	queue_t * test_queueA = QueueCreate();
+	queue_t * test_queueB = QueueCreate();
 	
-	TestHelper(*(int *)SLLGetData(test_itr) == 30, "TestSLLFind " , 1);
-	SLLDestroy(test_list);
-}
-
-
-void TestIsEmptyh()
-{
-	int input[5] = {50,30,20,10,1};
-	list_t * test_list = SLLCreate();
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[1]);
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[2]);
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[3]);
+	QueueEnqueue(test_queueA, &inputA[1]);
+	QueueEnqueue(test_queueA, &inputA[2]);
+	QueueEnqueue(test_queueA, &inputA[3]);
 	
+	QueueEnqueue(test_queueB, &inputB[1]);
+	QueueEnqueue(test_queueB, &inputB[2]);
+	QueueEnqueue(test_queueB, &inputB[3]);
 	
-	TestHelper(SLLIsEmpty(test_list) == 0, "TestIsEmptyh" , 1);
-	SLLDestroy(test_list);
+	QueueAppend(test_queueA, test_queueB);
+	
+	TestHelper(QueueSize(test_queueA) == 6, "TestQueueAppend  " , 1);
+	QueueDestroy(test_queueA);
+	QueueDestroy(test_queueB);
 	
 }
-
-
-void TestSLLNext()
-{
-	int input[5] = {50,30,20,10,1};
-	slist_iter_t test_itr = NULL;
-	list_t * test_list = SLLCreate();
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[1]);
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[2]);
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[3]);
-	
-	test_itr = SLLFind(SLLBegin(test_list),SLLEnd(test_list), &Match , (void *)&input[2]);
-	TestHelper(*(int *)SLLGetData(test_itr) == 20, "TestSLLNext " , 1);
-	test_itr = SLLNext(test_itr);
-	TestHelper(*(int *)SLLGetData(test_itr) == 30, "TestSLLNext " , 2);
-	SLLDestroy(test_list);
-	
-}
-
-void TestSLLIsEqual()
-{
-	int input[5] = {50,30,20,10,1};
-	slist_iter_t test_itr1 = NULL;
-	slist_iter_t test_itr2 = NULL;
-	list_t * test_list = SLLCreate();
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[3]);
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[2]);
-	SLLInsert(test_list, SLLBegin(test_list), (void *)&input[1]);
-	
-	test_itr1 = SLLFind(SLLBegin(test_list),SLLEnd(test_list), &Match , (void *)&input[1]);
-	test_itr1 = SLLNext(test_itr1);
-	test_itr2 = SLLFind(SLLBegin(test_list),SLLEnd(test_list), &Match , (void *)&input[2]);
-	
-	TestHelper(SLLIsEqual(test_itr1, test_itr2), "TestSLLIsEqual " , 1);
-	SLLDestroy(test_list);
-	
-}
-
-void TestForEach()
-{
-	int input[5] = {50,30,20,10,1};
-	int Node_counter = 0;
-	list_t * test_list = SLLCreate();
-	SLLInsert(test_list, SLLEnd(test_list), (void *)&input[1]);
-	SLLInsert(test_list, SLLEnd(test_list), (void *)&input[2]);
-	SLLInsert(test_list, SLLEnd(test_list), (void *)&input[3]);
-	
-	printf("\n-----------------------\nTestForEach\n");
-	SLLForEach(SLLBegin(test_list), SLLEnd(test_list), &Print, (void *)&Node_counter);
-	printf("\n-----------------------\n\n");
-	SLLDestroy(test_list);
-	
-}
-
-
-int Match(void * src, void *data)
-{
-	if (*(int *)src == *(int *)data)
-	{
-		return 1;
-	}
-	
-	return 0;
-}
-
-
-
-int Print(void * this_node, void *node_counter)
-{
-	slist_iter_t new_node = (slist_iter_t)this_node;
-	int value = *(int *)SLLGetData(new_node);
-	*((int *)node_counter) += 1;
-	printf("Node: %d-Value: %d , ", *((int *)node_counter) ,value);
-	return 0;
-}
-
 
 
 /******************************************************************************

@@ -251,11 +251,11 @@ void SLLAppend(list_t *dest, list_t *src)
 	*(dest->tail) = *(src->head);
 
 	src->head->next = NULL;
+	dest->tail = src->tail;
 	src->tail = src->head;
 	src->tail->data = src;
-
-	dest->tail = src->tail;
 	dest->tail->data = dest;
+
 }
 	
 
