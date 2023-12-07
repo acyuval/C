@@ -248,6 +248,11 @@ int SLLForEach(slist_iter_t from, slist_iter_t to, action_t act_func, void *para
 
 void SLLAppend(list_t *dest, list_t *src)
 {
+	if(SLLIsEmpty(src))
+	{
+		return;
+	}
+	
 	*(dest->tail) = *(src->head);
 
 	src->head->next = NULL;

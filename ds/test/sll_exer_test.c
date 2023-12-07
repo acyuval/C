@@ -12,6 +12,7 @@
 *							TYPE DEFS / MACROS 								  * 
 ******************************************************************************/
 
+static int input[8] = {1,2,3,4,5,6,7,8};
 
 
 /******************************************************************************
@@ -50,15 +51,15 @@ void CreateAndFlip(void)
 
 	head = &n1;
 	
-	n1.data = 1;
+	n1.data = (void *)&input[1];
 	n1.next = &n2;
-	n2.data = 2;
+	n2.data = (void *)&input[2];
 	n2.next = &n3;
-	n3.data = 3;
+	n3.data = (void *)&input[3];
 	n3.next = &n4;
-	n4.data = 4;
+	n4.data = (void *)&input[4];
 	n4.next = &n5;
-	n5.data = 5;
+	n5.data = (void *)&input[5];
 	n5.next = NULL;
 	
 	itr = head;
@@ -66,7 +67,7 @@ void CreateAndFlip(void)
 	printf("Before:");
 	while(itr != NULL)
 	{
-		printf("%d ", itr->data);
+		printf("%d ", *(int *)itr->data);
 		itr = itr->next;
 	}
 	
@@ -75,7 +76,7 @@ void CreateAndFlip(void)
 	
 	while(itr != NULL)
 	{
-		printf("%d ", itr->data);
+		printf("%d ", *(int *)itr->data);
 		itr = itr->next;
 	}
 
@@ -90,35 +91,33 @@ void CreateAndIsLoop(void)
 	node_t n1,n2,n3,n4,n5,n6,n7,n8;
 
 	head = &n1;
-	
-	n1.data = 1;
+	n1.data = (void *)&input[1];
 	n1.next = &n2;
-	n2.data = 2;
+	n2.data = (void *)&input[2];
 	n2.next = &n3;
-	n3.data = 3;
+	n3.data = (void *)&input[3];
 	n3.next = &n4;
-	n4.data = 4;
+	n4.data = (void *)&input[4];
 	n4.next = &n5;
-	n5.data = 5;
+	n5.data = (void *)&input[5];
 	n5.next = &n6;
-	n6.data = 6;
+	n6.data = (void *)&input[6];
 	n6.next = &n7;
-	n7.data = 7;
+	n7.data = (void *)&input[7];
 	n7.next = &n8;
-	n8.data = 8;
+	n8.data = (void *)&input[8];
 	n8.next = &n2;
 	
 	
-	
-	TestHelper(1 == DetectLoop(head), "Test IsLoop", 1);	
+	TestHelper(1 == HasLoop(head), "Test IsLoop", 1);	
 	
 	n8.next = NULL;
 	
-	TestHelper(0 == DetectLoop(head), "Test IsLoop", 2);	
+	TestHelper(0 == HasLoop(head), "Test IsLoop", 2);	
 
 	n4.next = &n1;
 	
-	TestHelper(1 == DetectLoop(head), "Test IsLoop", 3);
+	TestHelper(1 == HasLoop(head), "Test IsLoop", 3);
 }
 
 
@@ -126,51 +125,38 @@ void CreateAndIsLoop(void)
 void CreateAndFindIntersection(void)
 {
 
-
-	list_t listA = {0};
-	list_t listB = {0};
-	node_t n1,n2,n3,n4,n5;
+	node_t n1,n2,n3,n4;
 	node_t l1,l2,l3,l4,l5;
-	node_t * itr = NULL;
-	list_t * listA_ptr = &listA;
-	list_t * listB_ptr = &listB;
 	
-	listA.head = &n1;
-	listA.tail = &n5;
+	node_t * head_1 = NULL;
+	node_t * head_2 = NULL;
 	
-	listB.head = &l1;
-	listB.tail = &l5;
-	
-	n1.data = 1;
+	n1.data = (void *)&input[1];
 	n1.next = &n2;
-	n2.data = 2;
+	n2.data = (void *)&input[2];
 	n2.next = &n3;
-	n3.data = 3;
+	n3.data = (void *)&input[3];
 	n3.next = &n4;
-	n4.data = 4;
+	n4.data = (void *)&input[4];;
 	n4.next = &l5;
-	n5.data = 5;
-	n5.next = NULL;
 	
-	l1.data = 1;
+	l1.data = (void *)&input[1];
 	l1.next = &l2;
-	
-	l2.data = 2;
+	l2.data = (void *)&input[2];
 	l2.next = &l3;
-	
-	l3.data = 3;
+	l3.data = (void *)&input[3];
 	l3.next = &l4;
-	
-	l4.data = 4;
+	l4.data = (void *)&input[4];
 	l4.next = &l5;
-	
-	l5.data = 5;
+	l5.data = (void *)&input[5];
 	l5.next = NULL;
 	
+	head_1= &n1;
+	head_2= &l1;
 	
-	itr = FindIntersection(listA_ptr, listB_ptr);
+	head_1 = FindIntersection(head_1, head_2);
 	
-	printf("\nvalue at the insersect: %d\n", itr->data);
+	printf("\nvalue at the insersect: %d\n", *(int *)head_1->data);
 	
 }
 

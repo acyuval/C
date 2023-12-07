@@ -40,6 +40,11 @@ queue_t *QueueCreate(void)
 	}
 	
 	queue->list = SLLCreate();
+	if(NULL == queue->list)
+	{
+		free(queue);
+		return NULL;
+	}
 	
 	return (queue);
 
@@ -55,7 +60,7 @@ void QueueDestroy(queue_t *queue)
 
 int QueueEnqueue(queue_t *queue, const void *data)
 {
-	void * ret_val = SLLInsert(queue->list, SLLEnd(queue->list),(void *)data);
+	void * ret_val = SLLInsert(queue->list, SLLEnd(queue->list), (void *)data);
 	if(NULL == ret_val)
 	{
 		return (FAIL);

@@ -161,7 +161,16 @@ int SLLIsEqual(slist_iter_t iterator_1, slist_iter_t iterator_2);
 ******************************************************************************/
 int SLLForEach(slist_iter_t from, slist_iter_t to, action_t act_func, void *params);
 
+
+/******************************************************************************
+*Description: appends the list "src" to the end of the list "dest"
+*Parameters: two pointers to lists to append to each other
+*Return Value: none
+*Time Complexity: O(1)
+*Space Complexity: O(1)
+******************************************************************************/
 void SLLAppend(list_t *dest, list_t *src);
+
 
 #endif /* __SLL_H__ */
 

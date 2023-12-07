@@ -1,25 +1,16 @@
 #ifndef __SLLE_H__
 #define __SLLE_H__
 
-#include <stddef.h> /* size_t */
 
 
 
 
-typedef struct node_t
+typedef struct node
 {
-	int data;
-	struct node_t *next;
+	void *data;
+	struct node *next;
 	
 }node_t;
-
-
-typedef struct list_t
-{
-	struct node_t *head;
-	struct node_t *tail;
-}list_t;
-
 
 
 /******************************************************************************
@@ -29,11 +20,12 @@ typedef struct list_t
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 ******************************************************************************/
-node_t * Flip(node_t * itr);
+node_t *Flip(node_t * head);
 
-node_t * FindIntersection(list_t *listA ,list_t *listB);
+int HasLoop(node_t * head);
 
-int DetectLoop(node_t * itr);
+node_t * FindIntersection(node_t * head_1 ,node_t * head_2);
+
 
 
 #endif /* __SLLE_H__ */

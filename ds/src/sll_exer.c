@@ -5,8 +5,6 @@
 ******************************************************************************/
 
 #include <stddef.h> /* size_t 			  */
-#include <stdlib.h> /* malloc() , free()  */
-#include <assert.h> /* assert			  */
 #include <stdio.h>
 
 #include "sll_exer.h"
@@ -43,10 +41,15 @@ node_t * Flip(node_t * itr)
 
 }
 
-int DetectLoop(node_t * itr)
+int HasLoop(node_t * head)
 {
-	node_t * slow = itr;
-	node_t * fast = itr->next;
+	node_t * slow = head;
+	node_t * fast = head->next;
+	
+	if(NULL == head->next)
+	{
+		return 0;
+	}
 	
 	while(slow != fast)
 	{
@@ -61,10 +64,10 @@ int DetectLoop(node_t * itr)
 
 }
 
-node_t * FindIntersection(list_t *listA ,list_t *listB)
+node_t * FindIntersection(node_t *node_1 ,node_t *node_2)
 {
-	node_t * itrA = listA->head;
-	node_t * itrB = listB->head;
+	node_t * itrA = node_1;
+	node_t * itrB = node_2;
 	int counter = 0; 
 	
 	while(itrA != NULL)
@@ -82,11 +85,11 @@ node_t * FindIntersection(list_t *listA ,list_t *listB)
 
 	if(itrA == itrB)
 	{
-		itrA =  listA->head;
-		itrB =  listB->head;
+		node_t * itrA = node_1;
+		node_t * itrB = node_2;
 		if(counter > 0)
 		{
-			while(counter--)
+			while(0 != counter--)
 			{
 				itrA = itrA->next;
 			}
@@ -94,7 +97,7 @@ node_t * FindIntersection(list_t *listA ,list_t *listB)
 		
 		if(counter < 0)
 		{
-			while(counter++)
+			while(0 != counter++)
 			{
 				itrB = itrB->next;
 			}
@@ -105,15 +108,10 @@ node_t * FindIntersection(list_t *listA ,list_t *listB)
 			itrA = itrA->next;
 			itrB = itrB->next;
 		}	
+		
 		return itrA;	
 	}	
 	
 	return NULL;
 }
 
-/*
-1. run till end of both loops, test if there was intersct
-2. find diff in size between two 
-3. run only the big loop for the diff 
-4. run both when they are allined
-*/
