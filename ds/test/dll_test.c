@@ -77,9 +77,9 @@ void TestDLLInsertCount()
 	
 	dll_t * test_dll = DLLCreate();
 	
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[1]);
-	test_itr2 = DLLInsert(test_dll, DLLBegin(test_dll), &input[2]);
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[0]);
+	test_itr = DLLInsert(DLLBegin(test_dll), &input[1]);
+	test_itr2 = DLLInsert(DLLBegin(test_dll), &input[2]);
+	test_itr = DLLInsert(DLLBegin(test_dll), &input[0]);
 	TestHelper(*(int *)DLLGet(DLLPrev(test_itr2)) == input[2], "TestDLLInsert" , 1);
 	
 	TestHelper(DLLSize(test_dll) == 3, "TestDLLSize " , 1);
@@ -95,9 +95,9 @@ void TestDLLSetData()
 	
 	dll_t * test_dll = DLLCreate();
 	
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[1]);
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[2]);
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[3]);
+	test_itr = DLLInsert(DLLBegin(test_dll), &input[1]);
+	test_itr = DLLInsert(DLLBegin(test_dll), &input[2]);
+	test_itr = DLLInsert(DLLBegin(test_dll), &input[3]);
 	
 	DLLSet(test_itr,&input[4]);
 	
@@ -111,10 +111,10 @@ void TestDLLRemove()
 	int input[5] = {50,30,20,10,1};
 	dll_iter_t * test_itr = NULL;
 	dll_t * test_dll = DLLCreate();
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[0]);
-	test_itr = DLLInsert(test_dll, test_itr, &input[1]);
-	test_itr = DLLInsert(test_dll, test_itr, &input[2]);
-	test_itr = DLLPrev(DLLInsert(test_dll, test_itr, &input[3]));
+	test_itr = DLLInsert(DLLBegin(test_dll), &input[0]);
+	test_itr = DLLInsert(test_itr, &input[1]);
+	test_itr = DLLInsert(test_itr, &input[2]);
+	test_itr = DLLPrev(DLLInsert(test_itr, &input[3]));
 	
 	TestHelper(*(int *)DLLGet(test_itr) == 10, "TestDLLRemove" , 1);
 	
@@ -131,9 +131,9 @@ void TestIsEmptyh()
 	dll_t * test_dll = DLLCreate();
 	TestHelper(DLLIsEmpty(test_dll) == 1, "TestIsEmptyh" , 1);
 	
-	DLLInsert(test_dll, DLLBegin(test_dll), &input[1]);
-	DLLInsert(test_dll, DLLBegin(test_dll), &input[2]);
-	DLLInsert(test_dll, DLLBegin(test_dll), &input[3]);
+	DLLInsert(DLLBegin(test_dll), &input[1]);
+	DLLInsert(DLLBegin(test_dll), &input[2]);
+	DLLInsert(DLLBegin(test_dll), &input[3]);
 	
 	TestHelper(DLLIsEmpty(test_dll) == 0, "TestIsEmptyh" , 2);
 	DLLDestroy(test_dll);
@@ -146,9 +146,9 @@ void TestDLLNextPrevEnd()
 	int input[5] = {50,30,20,10,1};
 	dll_iter_t *test_itr = NULL;
 	dll_t * test_dll = DLLCreate();
-	DLLInsert(test_dll, DLLBegin(test_dll), &input[1]);
-	DLLInsert(test_dll, DLLBegin(test_dll), &input[2]);
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[3]);
+	DLLInsert(DLLBegin(test_dll), &input[1]);
+	DLLInsert(DLLBegin(test_dll), &input[2]);
+	test_itr = DLLInsert(DLLBegin(test_dll), &input[3]);
 	
 	TestHelper(*(int *)DLLGet(test_itr) == 20, "TestDLLNext " , 1);
 	test_itr = DLLNext(test_itr);
@@ -170,10 +170,10 @@ void TestDLLFind()
 	dll_iter_t *test_itr = NULL;
 	dll_t *test_dll = DLLCreate();
 	
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[0]);
-	test_itr = DLLInsert(test_dll, test_itr, &input[1]);
-	test_itr = DLLInsert(test_dll, test_itr, &input[2]);
-	test_itr = DLLPrev(DLLInsert(test_dll, test_itr, &input[3]));
+	test_itr = DLLInsert( DLLBegin(test_dll), &input[0]);
+	test_itr = DLLInsert(test_itr, &input[1]);
+	test_itr = DLLInsert(test_itr, &input[2]);
+	test_itr = DLLPrev(DLLInsert(test_itr, &input[3]));
 	
 	test_itr = DLLFind(DLLBegin(test_dll),DLLEnd(test_dll), &Match , &input[1]);
 	
@@ -209,8 +209,8 @@ void TestPushPopBackFront()
 	DLLForEach(DLLBegin(test_dll), DLLEnd(test_dll), &Print, &Node_counter);
 	printf("\n-----------------------\n");
 	
-	test_itr = DLLPopfront(test_dll);
-	test_itr = DLLPopback(test_dll);
+	DLLPopfront(test_dll);
+	DLLPopback(test_dll);
 	printf("\n-----------------------\nTestPopBackFront\n");
 	DLLForEach(DLLBegin(test_dll), DLLEnd(test_dll), &Print, &Node_counter);
 	printf("\n-----------------------\n");
@@ -227,9 +227,9 @@ void TestDLLIsEqual()
 	dll_iter_t *test_itr1 = NULL;
 	dll_iter_t *test_itr2 = NULL;
 	dll_t * test_dll = DLLCreate();
-	DLLInsert(test_dll, DLLBegin(test_dll), &input[3]);
-	DLLInsert(test_dll, DLLBegin(test_dll), &input[2]);
-	DLLInsert(test_dll, DLLBegin(test_dll), &input[1]);
+	DLLInsert(DLLBegin(test_dll), &input[3]);
+	DLLInsert(DLLBegin(test_dll), &input[2]);
+	DLLInsert(DLLBegin(test_dll), &input[1]);
 	
 	test_itr1 = DLLFind(DLLBegin(test_dll),DLLEnd(test_dll), &Match, &input[1]);
 	test_itr1 = DLLNext(test_itr1);
@@ -247,9 +247,9 @@ void TestForEach()
 	int input[5] = {50,30,20,10,1};
 	int Node_counter = 0;
 	dll_t * test_dll = DLLCreate();
-	DLLInsert(test_dll, DLLEnd(test_dll), &input[1]);
-	DLLInsert(test_dll, DLLEnd(test_dll), &input[2]);
-	DLLInsert(test_dll, DLLEnd(test_dll), &input[3]);
+	DLLInsert( DLLEnd(test_dll), &input[1]);
+	DLLInsert(DLLEnd(test_dll), &input[2]);
+	DLLInsert(DLLEnd(test_dll), &input[3]);
 	
 	printf("\n-----------------------\nTestForEach\n");
 	DLLForEach(DLLBegin(test_dll), DLLEnd(test_dll), &Print, &Node_counter);

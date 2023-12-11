@@ -75,13 +75,12 @@ void DLLDestroy(dll_t *dll)
 }
 
 
-dll_iter_t *DLLInsert(dll_t *dll, dll_iter_t *iter, void *data)
+dll_iter_t *DLLInsert(dll_iter_t *iter, void *data)
 {
 	struct node * node_ptr = (struct node *)malloc(sizeof(struct node));
 	
 	
 	assert(iter != NULL);
-	assert(dll != NULL);
 	
 	if(NULL == node_ptr)
 	{
@@ -202,23 +201,25 @@ int DLLIsEqual(dll_iter_t *iter1, dll_iter_t *iter2)
 
 dll_iter_t *DLLPushback(dll_t *dll, void *data)
 {
-	return (DLLInsert(dll, DLLEnd(dll), data));
+	return (DLLInsert(DLLEnd(dll), data));
 }
 
 
 dll_iter_t *DLLPushfront(dll_t *dll, void *data)
 {
-	return (DLLInsert(dll, DLLBegin(dll), data));
+	return (DLLInsert(DLLBegin(dll), data));
 }
 
-dll_iter_t *DLLPopback(dll_t *dll)
+void DLLPopback(dll_t *dll)
 {
-	return (DLLRemove(DLLPrev(DLLEnd(dll))));
+	DLLRemove(DLLPrev(DLLEnd(dll)));
+	return ;
 }
 
-dll_iter_t *DLLPopfront(dll_t *dll)
+void DLLPopfront(dll_t *dll)
 {
-	return (DLLRemove(DLLBegin(dll)));
+	DLLRemove(DLLBegin(dll));
+	return;
 }
 
 

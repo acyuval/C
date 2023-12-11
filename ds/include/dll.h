@@ -8,6 +8,7 @@ typedef struct dll dll_t;
 typedef int (*is_match_t)(void *, void *);
 typedef int (*action_t)(void *, void *);
 
+
 /******************************************************************************
 *Description: Creates a new doubly linked list.
 *Return Value: Pointer to the created dll.
@@ -64,16 +65,16 @@ void *DLLGet(const dll_iter_t *iter);
 void DLLSet(dll_iter_t *iter, void *data);
 
 /******************************************************************************
-*Description: creates a new node with the given data, and inserts it before
+*Description: Creates a new node with the given data, and inserts it before
 *			  the given iterator
-*Parameters: Pointer to the list, data to insert, and iterator that points  
+*Parameters: Data to insert, and iterator that points  
 *            to the insertion location.
 *Return Value: Iterator pointing to the inserted node
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 *Notes: If memory allocation fails, returns NULL
 ******************************************************************************/
-dll_iter_t *DLLInsert(dll_t *dll, dll_iter_t *iter, void *data);
+dll_iter_t *DLLInsert(dll_iter_t *iter, void *data);
 
 /******************************************************************************
 *Description: Removes the node that the given iterator points to from the list.
@@ -111,21 +112,22 @@ dll_iter_t *DLLPushfront(dll_t *dll, void *data);
 /******************************************************************************
 *Description: Removes the current last node of the list.
 *Parameters: Pointer to the list.
-*Return Value: The end of the list
+*Return Value: Void.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
+*Notes: Popping from an enpty list leads to undefined behavior.
 ******************************************************************************/
-dll_iter_t *DLLPopback(dll_t *dll);
+void DLLPopback(dll_t *dll);
 
 /******************************************************************************
 *Description: Removes the current head of the list.
 *Parameters: Pointer to the list.
-*Return Value: The new head of the list. If the list is emptied, returns the
-			   end of the list.
+*Return Value: Void.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
+*Notes: Popping from an enpty list leads to undefined behavior.
 ******************************************************************************/
-dll_iter_t *DLLPopfront(dll_t *dll);
+void DLLPopfront(dll_t *dll);
 
 /******************************************************************************
 *Description: Advances the iterator to the next node.
@@ -138,7 +140,7 @@ dll_iter_t *DLLPopfront(dll_t *dll);
 dll_iter_t *DLLNext(const dll_iter_t *iter);
 
 /******************************************************************************
-*Description: Advances the iterator to the previous node.
+*Description: Returns the iterator to the previous node.
 *Parameters: Iterator.
 *Return Value: Iterator that points to the previous node.
 *Time Complexity: O(1)
@@ -216,7 +218,11 @@ dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 *Notes: sending "to" that comes before "from" as parameters will lead to 
-* 		undefined behavior.
+* 		undefined behavior. if "where" is in the midst of the range, the
+*       behavior is undefined.
+*       In the list from which the range "from" to "to" were transferred, the
+*       nodes that came before "from" are connected to the nodes after "to" 
+*       (including "to").
 ******************************************************************************/
 void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where);
 
@@ -236,7 +242,7 @@ void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where);
 * 		sending "to" that comes before "from" as parameters leads to undefined
 * 		behavior.
 ******************************************************************************/
-int DLLMultiFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
+int DLLMultiFind(dll_iter_t *from, dll_iter_t *to, is_match_t is_match_func,\
 				 void *params, dll_t *output);
 
 #endif /*__DLL_H__*/
