@@ -7,7 +7,6 @@
 #include <stddef.h> /* size_t 			  */
 #include <stdlib.h> /* malloc() , free()  */
 #include <assert.h> /* assert			  */
-#include <stdio.h>
 
 #include "Cbuffer.h"
 
@@ -30,7 +29,8 @@ struct buffer
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
 
-
+/*when writing and reading from buffer one needs to consider one cell space 
+between reading and wrinting indexs to distinguish between empty/full queue */  
 
 buffer_t *BufferCreate(size_t capacity)
 {
@@ -63,11 +63,13 @@ size_t BufferRead(void *dest, buffer_t *buffer, size_t n)
 {
 	size_t dest_index = 0;
 	char * dest_ptr = (char *)dest;
+	size_t cap = buffer->capacity;
+	size_t read_i = buffer->read;
 	
 	while(n-- && !BufferIsEmpty(buffer))
 	{
-		dest_ptr[dest_index] = buffer->array[buffer->read];
-		buffer->read = (buffer->read + 1) % (buffer->capacity + 1);
+		dest_ptr[dest_index] = buffer->array[read_i];
+		read_i= (read_i + 1) % (cap + 1);  
 		dest_index++;
 	}
 
@@ -80,11 +82,13 @@ size_t BufferWrite(const void *src, buffer_t *buffer, size_t n)
 {
 	size_t src_index = 0;
 	char * src_ptr = (char *)src;
+	size_t cap = buffer->capacity;
+	size_t write_i = buffer->write;
 	
 	while(n-- && BufferFreeSpace(buffer))
 	{
-		buffer->array[buffer->write] = src_ptr[src_index];
-		buffer->write = (buffer->write + 1) % (buffer->capacity + 1);
+		buffer->array[write_i] = src_ptr[src_index];
+		write_i = (write_i + 1) % (cap + 1);
 		src_index++;
 	}
 	
@@ -93,8 +97,10 @@ size_t BufferWrite(const void *src, buffer_t *buffer, size_t n)
 
 size_t BufferSize(const buffer_t *buffer)
 {
-	return ((buffer->capacity +1) + buffer->write - buffer->read) %
-														(buffer->capacity + 1);
+	size_t cap = buffer->capacity;
+	size_t write_i = buffer->write;
+	size_t read_i = buffer->read;
+	return ((cap +1) + write_i - read_i) % (cap + 1);
 }
 
 int BufferIsEmpty(const buffer_t *buffer)
