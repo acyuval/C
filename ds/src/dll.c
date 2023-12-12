@@ -7,7 +7,7 @@
 #include <stddef.h> /* size_t 			  */
 #include <stdlib.h> /* malloc() , free()  */
 #include <assert.h> /* assert			  */
-
+#include <stdio.h> 
 #include "dll.h"
 
 #define SUCCESS (0)
@@ -190,15 +190,24 @@ dll_iter_t *DLLPushfront(dll_t *dll, void *data)
 
 void *DLLPopback(dll_t *dll)
 {
-	return(DLLRemove(DLLPrev(DLLEnd(dll))));
+	void * data = NULL;
+	assert(NULL != dll);
 	
+	data = DLLGet(DLLPrev(DLLEnd(dll)));
+	DLLRemove(DLLBegin(dll));
+
+	return (data);	
 }
 
 void *DLLPopfront(dll_t *dll)
 {
+	void * data = NULL;
 	
-	return (DLLRemove(DLLBegin(dll)));
+	assert(NULL != dll);
 	
+	data = DLLGet(DLLBegin(dll));
+	DLLRemove(DLLBegin(dll));
+	return (data);
 }
 
 
@@ -220,7 +229,7 @@ int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func, void *params
 	assert(NULL != to);
 	assert(NULL != act_func);
 	
-	while(node_ptr != to)
+	while(!DLLIsEqual(node_ptr,to))
 	{
 		if(act_func(node_ptr, params))
 		{
@@ -237,10 +246,7 @@ int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func, void *params
 void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where)
 {
 	
-	struct node * to_ptr= to;
 	struct node * prev_from_ptr= from->prev;
-	struct node * pr_to= NULL;
-	struct node * ne_to= NULL;
 	
 	assert(NULL != from);
 	assert(NULL != to);
@@ -267,7 +273,7 @@ dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 	assert(NULL != to);
 	assert(NULL != match_func);
 	
-	while(node_ptr != to)
+	while(!DLLIsEqual(node_ptr,to))
 	{
 		if(match_func(node_ptr->data,params))
 		{
@@ -284,19 +290,37 @@ int DLLMultiFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 				 								void *params, dll_t *output)
 {
 	struct node * iter = from;
+	struct node * where = NULL;
+	int counter = 0;
+	
 	assert(NULL != to);
 	assert(NULL != from);
 	assert(NULL != to);
 	assert(NULL != to);
-	while(itr != to)
+	
+	where = DLLBegin(output);
+	
+	while(!DLLIsEqual(iter,to))
 	{
-		iter = DLLFind(itr, to, match_func, params)
 		
-		if(itr != to)
+		iter = DLLFind(iter, to, match_func, params);
+		
+		if (iter == NULL)
 		{
-			DLLInsert(output, iter, DLLGet(iter));
+			return counter;
 		}
+		
+		where = DLLInsert(output, where, DLLGet(iter));
+		counter++;
+		
+		if(NULL == where)
+		{
+			return FAIL;
+		}
+		
+		iter = DLLNext(iter);
 	}
+	return counter;
 }
 
 static int CountNodes(void * this_node, void * params)

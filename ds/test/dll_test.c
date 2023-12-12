@@ -33,7 +33,7 @@ void TestPushPopBackFront();
 int Match(void * src, void *data);
 int Print(void * this_node, void *node_counter);
 void TestDLLSplice();
-
+void TestMultiFind();
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -41,9 +41,8 @@ void TestDLLSplice();
 
 int main()
 {
-	
+	TestMultiFind();
 	TestDLLSplice();
-	TestForEach();
 	TestDLLNextPrevEnd();
 	TestDLLInsertCount();
 	TestDLLSetData();
@@ -73,14 +72,13 @@ void TestDLLInsertCount()
 {
 	int input[5] = {50,30,20,10,1};
 	
-	dll_iter_t * test_itr = NULL;
 	dll_iter_t * test_itr2 = NULL;
 	
 	dll_t * test_dll = DLLCreate();
 	
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[1]);
+	DLLInsert(test_dll, DLLBegin(test_dll), &input[1]);
 	test_itr2 = DLLInsert(test_dll, DLLBegin(test_dll), &input[2]);
-	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[0]);
+	DLLInsert(test_dll, DLLBegin(test_dll), &input[0]);
 	TestHelper(*(int *)DLLGet(DLLPrev(test_itr2)) == input[2], "TestDLLInsert" , 1);
 	
 	TestHelper(DLLSize(test_dll) == 3, "TestDLLSize " , 1);
@@ -200,21 +198,21 @@ void TestPushPopBackFront()
 {
 	int input[5] = {50,30,20,10,1};
 	int Node_counter = 0;
-	dll_iter_t *test_itr = NULL;
+
 	dll_t *test_dll = DLLCreate();
-	test_itr = DLLPushfront(test_dll, &input[0]);
-	test_itr = DLLPushfront(test_dll, &input[1]);
-	test_itr = DLLPushback(test_dll, &input[2]);
-	test_itr = DLLPushback(test_dll, &input[3]);	
+	DLLPushfront(test_dll, &input[0]);
+	DLLPushfront(test_dll, &input[1]);
+	DLLPushback(test_dll, &input[2]);
+	DLLPushback(test_dll, &input[3]);	
 	printf("\n-----------------------\nTestPushBackFront\n");
 	DLLForEach(DLLBegin(test_dll), DLLEnd(test_dll), &Print, &Node_counter);
-	printf("\n-----------------------\n");
+	printf("\n-----------------------");
 	
 	DLLPopfront(test_dll);
 	DLLPopback(test_dll);
 	printf("\n-----------------------\nTestPopBackFront\n");
 	DLLForEach(DLLBegin(test_dll), DLLEnd(test_dll), &Print, &Node_counter);
-	printf("\n-----------------------\n");
+	printf("\n-----------------------");
 	
 	DLLDestroy(test_dll);
 }
@@ -245,67 +243,50 @@ void TestDLLIsEqual()
 
 void TestDLLSplice()
 {
-	int inputA[5] = {60,70,80,90,100};
-	int inputB[5] = {1,2,3,4,5};
+	int inputA[10] = {100,200,300,400,500,600,700,800,900,1000};
+	int inputB[10] = {1,2,3,4,5,6,7,8,9,10};
 	dll_iter_t *from = NULL;
 	dll_iter_t *to = NULL;
 	dll_iter_t *where = NULL;
 	int Node_counter = 0;
+	int i = 0;
 	dll_t * test_dllA = DLLCreate();
 	dll_t * test_dllB = DLLCreate();
 	
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[4]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[3]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[3]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[1]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[3]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[3]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[3]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[0]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[2]);
-	DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[0]);
+	for(i = 0 ; i < 10 ; i++)
+	{
+		DLLInsert(test_dllA, DLLBegin(test_dllA), &inputA[i]);
+	}
 	
-	from = DLLFind(DLLBegin(test_dllA),DLLEnd(test_dllA), &Match, &inputA[2]);
-	to   = DLLFind(DLLBegin(test_dllA),DLLEnd(test_dllA), &Match, &inputA[1]);
+	for(i = 0 ; i < 10 ; i++)
+	{
+		DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[i]);
+	}
 	
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[3]);
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[1]);
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[0]);
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[2]);
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[2]);
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[2]);
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[2]);
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[2]);
-	DLLInsert(test_dllB, DLLBegin(test_dllB), &inputB[4]);
 	
-	where = DLLPrev(DLLFind(DLLBegin(test_dllB),DLLEnd(test_dllB), &Match, &inputB[0]));
+	from = DLLFind(DLLBegin(test_dllA),DLLEnd(test_dllA), &Match, &inputA[6]);
+	to   = DLLFind(DLLBegin(test_dllA),DLLEnd(test_dllA), &Match, &inputA[2]);
+	where = DLLPrev(DLLFind(DLLBegin(test_dllB),DLLEnd(test_dllB), &Match, &inputB[4]));
 
-	printf("\n-----------------------\nTestDLLSplice- before A\n");
+	printf("\n-----------------------\nTestDLLSplice- before\n");
+	printf("DLL A:");
 	DLLForEach(DLLBegin(test_dllA), DLLEnd(test_dllA), &Print, &Node_counter);
-	printf("\n-----------------------\n\n");
-	
 	Node_counter = 0;
-	
-	printf("\n-----------------------\nTestDLLSplice before B\n");
+	printf("\nDLL B:");
 	DLLForEach(DLLBegin(test_dllB), DLLEnd(test_dllB), &Print, &Node_counter);
-	printf("\n-----------------------\n\n");
+	printf("\n-----------------------\n");
 	
 	Node_counter = 0;
 
 	DLLSplice(from, to , where);
 	
-		printf("\n-----------------------\nTestDLLSplice- after A\n");
+	printf("-----------------------\nTestDLLSplice- after\n");
+	printf("DLL A:");
 	DLLForEach(DLLBegin(test_dllA), DLLEnd(test_dllA), &Print, &Node_counter);
-	printf("\n-----------------------\n\n");
-	
 	Node_counter = 0;
-	
-	printf("\n-----------------------\nTestDLLSplice after B\n");
+	printf("\nDLL B:");
 	DLLForEach(DLLBegin(test_dllB), DLLEnd(test_dllB), &Print, &Node_counter);
-	printf("\n-----------------------\n\n");
-	
-	
-	
+	printf("\n-----------------------\n");
 }
 
 
@@ -323,6 +304,39 @@ void TestForEach()
 	DLLForEach(DLLBegin(test_dll), DLLEnd(test_dll), &Print, &Node_counter);
 	printf("\n-----------------------\n\n");
 	DLLDestroy(test_dll);
+	
+}
+
+void TestMultiFind()
+{
+	int input[7] = {50,30,20,10,1, 20, 20};
+	int i = 0;
+	dll_t * test_dll = DLLCreate();
+	dll_t * output = DLLCreate();
+	dll_iter_t *iter = NULL;
+	int value = 0;
+	int counter = 0;
+	for(i = 0 ; i < 7 ; i++)
+	{
+		DLLInsert(test_dll, DLLEnd(test_dll), &input[i]);
+	}
+	
+	DLLInsert(test_dll, DLLEnd(test_dll), &input[6]);
+	DLLInsert(test_dll, DLLEnd(test_dll), &input[1]);
+	DLLInsert(test_dll, DLLEnd(test_dll), &input[2]);
+	
+	counter = DLLMultiFind(DLLBegin(test_dll),DLLEnd(test_dll),&Match,&input[1], output);
+	i = 0;	
+	iter = DLLBegin(output);
+	
+	while(counter > 0)  
+	{
+		value = *(int *)DLLGet(iter);
+		TestHelper(value == input[1],"TestMultiFind", i);
+		iter = DLLNext(iter);
+		i++;
+		counter--;
+	}
 	
 }
 
