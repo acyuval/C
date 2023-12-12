@@ -4,12 +4,12 @@
 *	Date:      
 ******************************************************************************/
 
-#include <stddef.h> /* size_t 			  */
 #include <stdlib.h> /* malloc() , free()  */
 #include <assert.h> /* assert			  */
 
 #include "sll.h"
 
+#define TRUE (1)
 #define SUCCESS (0)
 #define FAIL (-1)
 /******************************************************************************
@@ -69,7 +69,7 @@ void SLLDestroy(list_t *list)
 	
 	this_node = list->head;
 	
-	while(this_node->next != NULL)
+	while(!SLLIsEqual(this_node,list->tail))
 	{
 		this_node = SLLRemove(this_node);
 	}
@@ -98,7 +98,7 @@ slist_iter_t SLLInsert(list_t *list, slist_iter_t where, void *value)
 	where->data = value;
 	where->next = new_node; 
 	
-	if(where == list->tail)
+	if(SLLIsEqual(where,list->tail))
 	{
 		list->tail = new_node;
 	}
@@ -139,9 +139,9 @@ slist_iter_t SLLFind(slist_iter_t from, slist_iter_t to,
 	assert(NULL != to);
 	assert(NULL != is_match_func);
 	
-	while(this_node != to)
+	while(!SLLIsEqual(this_node,to))
 	{
-		if(is_match_func(this_node->data,params))
+		if(TRUE == is_match_func(this_node->data,params))
 		{
 			return (this_node);
 		}
@@ -232,7 +232,7 @@ int SLLForEach(slist_iter_t from, slist_iter_t to, action_t act_func, void *para
 	assert(NULL != to);
 	assert(NULL != act_func);
 	
-	while(this_node != to)
+	while(!SLLIsEqual(this_node,to))
 	{
 		if(act_func(this_node, params))
 		{

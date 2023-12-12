@@ -74,7 +74,7 @@ void DLLSet(dll_iter_t *iter, void *data);
 *Space Complexity: O(1)
 *Notes: If memory allocation fails, returns NULL
 ******************************************************************************/
-dll_iter_t *DLLInsert(dll_iter_t *iter, void *data);
+dll_iter_t *DLLInsert(dll_t *dll_t, dll_iter_t *iter, void *data);
 
 /******************************************************************************
 *Description: Removes the node that the given iterator points to from the list.
@@ -112,22 +112,22 @@ dll_iter_t *DLLPushfront(dll_t *dll, void *data);
 /******************************************************************************
 *Description: Removes the current last node of the list.
 *Parameters: Pointer to the list.
-*Return Value: Void.
+*Return Value: The data of the removed node
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 *Notes: Popping from an enpty list leads to undefined behavior.
 ******************************************************************************/
-void DLLPopback(dll_t *dll);
+void *DLLPopback(dll_t *dll);
 
 /******************************************************************************
 *Description: Removes the current head of the list.
 *Parameters: Pointer to the list.
-*Return Value: Void.
+*Return Value: The data of the removed node
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 *Notes: Popping from an enpty list leads to undefined behavior.
 ******************************************************************************/
-void DLLPopfront(dll_t *dll);
+void *DLLPopfront(dll_t *dll);
 
 /******************************************************************************
 *Description: Advances the iterator to the next node.
@@ -200,7 +200,7 @@ int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func,\
 *Return Value: Iterator pointing to the matching data.
 *Time Complexity: O(n)
 *Space Complexity: O(1)
-*Notes: returns NULL if no match was found.
+*Notes: returns "to" if no match was found
 * 		sending "to" that comes before "from" as parameters will lead to 
 * 		undefined behavior.
 ******************************************************************************/
@@ -210,14 +210,14 @@ dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 /******************************************************************************
 *Description: Transfers the range from iterator "from" (inclusive) to 
 *			  iterator "to" (non-inclusive) into the position marked by
-*			  iterator "where". The original data in iterator "where" should
+*			  iterator "where". The original data in iterator "where" will
 *			  appear after the range.
 *Parameters: 2 iterators that mark the range, and an iterator that points 
 *			 to the insertion position.
 *Return Value: Void. 
 *Time Complexity: O(1)
 *Space Complexity: O(1)
-*Notes: sending "to" that comes before "from" as parameters will lead to 
+*Notes: Sending "to" that comes before "from" as parameters will lead to 
 * 		undefined behavior. if "where" is in the midst of the range, the
 *       behavior is undefined.
 *       In the list from which the range "from" to "to" were transferred, the
@@ -227,7 +227,7 @@ dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where);
 
 /******************************************************************************
-*Description: Finds any node that holds any of the given data in the given 
+*Description: Finds any node that holds with the specified data in the given 
 *			  range, from iterator "from" (inclusive) to iterator "to" (
 *			  non-inclusive), and inserts copies of the matching nodes in to 
 *			  the given dll "output".
