@@ -1,6 +1,6 @@
 /******************************************************************************
 *	Author:    Yuval 
-*	Reviewer : 
+*	Reviewer : Chen
 *	Date:      
 ******************************************************************************/
 
@@ -79,12 +79,13 @@ dll_iter_t *DLLInsert(dll_t *dll ,dll_iter_t *iter, void *data)
 	struct node * node_ptr = (struct node *)malloc(sizeof(struct node));
 	(void)dll;
 	
-	assert(iter != NULL);
 	
 	if(NULL == node_ptr)
 	{
 		return NULL;
 	}
+	
+	assert(iter != NULL);
 	
 	node_ptr->data = data;
 	node_ptr->next = iter;		
@@ -99,11 +100,11 @@ dll_iter_t *DLLInsert(dll_t *dll ,dll_iter_t *iter, void *data)
 
 dll_iter_t *DLLRemove(dll_iter_t *iter)
 {
-	dll_iter_t * next = iter->next;
+	dll_iter_t * next = NULL;
 	
 	assert(NULL != iter);
-	assert(iter->prev != NULL);
-	
+	assert(NULL != iter->prev);
+	next = iter->next;
 	iter->prev->next = next;
 	next->prev = iter->prev;
 	
