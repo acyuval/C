@@ -276,6 +276,8 @@ void TestDLLSplice()
 	DLLForEach(DLLBegin(test_dllB), DLLEnd(test_dllB), &Print, &Node_counter);
 	printf("\n-----------------------\n");
 	
+	TestHelper(DLLSize(test_dllA) == 10, "TestDLLSplice ", 1);
+	TestHelper(DLLSize(test_dllB) == 10, "TestDLLSplice ", 2);
 	Node_counter = 0;
 
 	DLLSplice(from, to , where);
@@ -287,6 +289,12 @@ void TestDLLSplice()
 	printf("\nDLL B:");
 	DLLForEach(DLLBegin(test_dllB), DLLEnd(test_dllB), &Print, &Node_counter);
 	printf("\n-----------------------\n");
+	
+	TestHelper(DLLSize(test_dllA) == 6, "TestDLLSplice ", 3);
+	TestHelper(DLLSize(test_dllB) == 14, "TestDLLSplice ", 4);
+
+	DLLDestroy(test_dllA);
+	DLLDestroy(test_dllB);
 }
 
 
@@ -337,7 +345,8 @@ void TestMultiFind()
 		i++;
 		counter--;
 	}
-	
+	DLLDestroy(output);
+	DLLDestroy(test_dll);
 }
 
 

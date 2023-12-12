@@ -5,3 +5,11 @@ alias gc9='gcc -std=c99 -pedantic-errors -Wall -DNDEBUG -O3'
 
 alias vlg='valgrind --leak-check=yes --track-origins=yes'
 
+
+alias compall='clear ; gcc -ansi -pedantic-errors -Wall -Wextra -g -Iinclude'
+alias runout='./a.out'
+alias gitloc='cd ~/git'
+alias debug='cgdb ./a.out'
+
+alias goto='bash ~/git/.gdbfunc.sh'
+
