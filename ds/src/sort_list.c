@@ -158,7 +158,6 @@ sorted_iter_t SortedListInsert(sorted_list_t *sorted_list, void *data)
 	sorted_iter_t where = {0};
 	sorted_iter_t failed = {0};
 	
-
 	where = FindSpot(sorted_list, data);
 	node_ptr = DLLInsert(GetDLLList(sorted_list), GetDLL(where), data);
 	
@@ -173,23 +172,16 @@ sorted_iter_t SortedListInsert(sorted_list_t *sorted_list, void *data)
 
 sorted_iter_t SortedListRemove(sorted_iter_t iter)
 {
-	sorted_iter_t
-	DLLRemove(GetDllIter(iter));
-	return next;
-}
-
-/*
-
-void DLLSet(dll_iter_t *iter, void *data)
-{
-	assert(iter != NULL);
-	assert(iter->next != NULL);
-
-	iter->data = data;
+	itr.itr = DLLRemove(GetDllIter(iter));
+	return itr;
 }
 
 
-int DLLIsEqual(dll_iter_t *iter1, dll_iter_t *iter2)
+
+
+
+
+int SortedListIsEqual(sorted_iter_t iter1, sorted_iter_t iter2)
 {
 	assert(iter1 != NULL);
 	assert(iter2 != NULL);
@@ -197,18 +189,9 @@ int DLLIsEqual(dll_iter_t *iter1, dll_iter_t *iter2)
 	return (iter1 == iter2);
 }
 
-dll_iter_t *DLLPushback(dll_t *dll, void *data)
-{
-	return (DLLInsert(dll, DLLEnd(dll), data));
-}
 
 
-dll_iter_t *DLLPushfront(dll_t *dll, void *data)
-{
-	return (DLLInsert(dll, DLLBegin(dll), data));
-}
-
-void *DLLPopback(dll_t *dll)
+void *SortedListPopFront(sorted_list_t *sorted_list);
 {
 	void * data = NULL;
 	assert(NULL != dll);
@@ -218,6 +201,8 @@ void *DLLPopback(dll_t *dll)
 
 	return (data);	
 }
+
+/*
 
 void *DLLPopfront(dll_t *dll)
 {

@@ -3,7 +3,7 @@
 
 #include <stddef.h> /*size_t*/
 
-typedef struct node * dll_iter_t;
+typedef struct node *dll_iter_t;
 typedef struct dll dll_t;
 typedef int (*is_match_t)(void *, void *);
 typedef int (*action_t)(void *, void *);
@@ -46,7 +46,7 @@ size_t DLLSize(const dll_t *dll);
 
 /******************************************************************************
 *Description: Gets the data pointed to by the given iterator.
-*Parameters: Pointer to an iterator.
+*Parameters: An iterator.
 *Return Value: The data pointed to by the iterator.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
@@ -56,7 +56,7 @@ void *DLLGet(const dll_iter_t iter);
 
 /******************************************************************************
 *Description: Sets new data into the given iterator.
-*Parameters: Pointer to an iterator, and pointer to new data.
+*Parameters: An iterator, and pointer to new data.
 *Return Value: Void.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
@@ -67,12 +67,11 @@ void DLLSet(dll_iter_t iter, void *data);
 /******************************************************************************
 *Description: Creates a new node with the given data, and inserts it before
 *			  the given iterator
-*Parameters: Data to insert, and iterator that points  
-*            to the insertion location.
+*Parameters: Data to insert, and iterator that points to the insertion location.
 *Return Value: Iterator pointing to the inserted node
 *Time Complexity: O(1)
 *Space Complexity: O(1)
-*Notes: If memory allocation fails, returns NULL
+*Notes: If memory allocation fails, returns the end of the list.
 ******************************************************************************/
 dll_iter_t DLLInsert(dll_t *dll_t, dll_iter_t iter, void *data);
 
@@ -94,7 +93,7 @@ dll_iter_t DLLRemove(dll_iter_t iter);
 *Return Value: Iterator pointing to the inserted node.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
-*Notes: If memory allocation fails, returns NULL.
+*Notes: If memory allocation fails, returns the end of the list.
 ******************************************************************************/
 dll_iter_t DLLPushback(dll_t *dll, void *data);
 
@@ -105,7 +104,7 @@ dll_iter_t DLLPushback(dll_t *dll, void *data);
 *Return Value: Iterator pointing to the inserted node.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
-*Notes: If memory allocation fails, returns NULL.
+*Notes: If memory allocation fails, returns the end of the list.
 ******************************************************************************/
 dll_iter_t DLLPushfront(dll_t *dll, void *data);
 
@@ -170,7 +169,7 @@ dll_iter_t DLLBegin(const dll_t *dll);
 dll_iter_t DLLEnd(const dll_t *dll);
 
 /******************************************************************************
-*Description: Checks whether 2 iterators refer to the same node.
+*Description: Checks whether 2 iterators refer to the same point in the list.
 *Parameters: 2 iterators to compare.
 *Return Value: 1 if they point to the same node, 0 otherwise.
 *Time Complexity: O(1)
@@ -200,12 +199,12 @@ int DLLForEach(dll_iter_t from, dll_iter_t to, action_t act_func,\
 *Return Value: Iterator pointing to the matching data.
 *Time Complexity: O(n)
 *Space Complexity: O(1)
-*Notes: returns "to" if no match was found
+*Notes: returns "to" if no match was found.
 * 		sending "to" that comes before "from" as parameters will lead to 
 * 		undefined behavior.
 ******************************************************************************/
 dll_iter_t DLLFind(dll_iter_t from, dll_iter_t to, is_match_t match_func,\
-					void *params);
+				   void *params);
 
 /******************************************************************************
 *Description: Transfers the range from iterator "from" (inclusive) to 
@@ -227,7 +226,7 @@ dll_iter_t DLLFind(dll_iter_t from, dll_iter_t to, is_match_t match_func,\
 void DLLSplice(dll_iter_t from, dll_iter_t to, dll_iter_t where);
 
 /******************************************************************************
-*Description: Finds any node that holds with the specified data in the given 
+*Description: Finds any node that holds the specified data in the given 
 *			  range, from iterator "from" (inclusive) to iterator "to" (
 *			  non-inclusive), and inserts copies of the matching nodes in to 
 *			  the given dll "output".
@@ -235,7 +234,8 @@ void DLLSplice(dll_iter_t from, dll_iter_t to, dll_iter_t where);
 *            parameters to compare, and a pointer to a dll which will store
 *            the output.
 *Return Value: Exit status - the function will an ERROR signal (-1) if it
-*			   fails to allocate the new nodes into the output.
+*			   fails to allocate the new nodes into the output, SUCCESS (0)
+*              otherwise
 *Time Complexity: O(n)
 *Space Complexity: O(1)
 *Notes: The user is responsible for properly destroying the given output.
