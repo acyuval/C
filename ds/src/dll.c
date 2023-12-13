@@ -181,7 +181,7 @@ void *DLLPopback(dll_t *dll)
 	assert(NULL != dll);
 	
 	data = DLLGet(DLLPrev(DLLEnd(dll)));
-	DLLRemove(DLLBegin(dll));
+	DLLRemove(DLLPrev(DLLEnd(dll)));
 
 	return (data);	
 }

@@ -10,6 +10,7 @@
 
 #include "sort_list.h"
 
+#define TRUE (1)
 #define SUCCESS (0)
 #define FAIL (-1)
 /******************************************************************************
@@ -24,7 +25,8 @@ struct sorted_list
 
 static void RemoveAddedNodes(dll_t *output);
 static int CountNodes(void * this_node, void * params);
-static sorted_iter_t BuildIter(sorted_list_t *sorted_list, dll_iter_t * iter_dll);
+static sorted_iter_t BuildIter(sorted_list_t *sorted_list, dll_iter_t iter_dll);
+static sorted_iter_t FindSpot(sorted_iter_t from, sorted_iter_t to, compare_t compare ,void *to_match);
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
@@ -111,7 +113,7 @@ void *SortedListGetData(sorted_iter_t iter)
 
 
 
-static sorted_iter_t BuildIter(sorted_list_t *sorted_list, dll_iter_t * iter_dll)
+static sorted_iter_t BuildIter(sorted_list_t *sorted_list, dll_iter_t iter_dll)
 {
 	sorted_iter_t new_iter = {0};
 	
@@ -128,52 +130,63 @@ static sorted_iter_t BuildIter(sorted_list_t *sorted_list, dll_iter_t * iter_dll
 }
 
 
-static sorted_iter_t FindSpot(sorted_list_t *sorted_list, void *data)
-{
-	sorted_iter_t node = SortedListBegin(sorted_list);
-	
-	while(sorted_list->compare(SortedListGetData(node), data))
-	{
-		node = SortedListNext(node);
-	}
-	
-	return node;
-}
 
-
-
-static dll_iter_t * GetDLLIter(sorted_iter_t iter)
+static dll_iter_t GetDLLIter(sorted_iter_t iter)
 {	
 	return iter.iter;
 }
 
-static dll_t * GetDLLList(orted_list_t *sorted_list)
+static dll_t *GetDLLList(sorted_list_t *sorted_list)
 {	
-	return sorted_list.dll;
+	return sorted_list->dll;
 }
+
+
+static sorted_iter_t FindSpot(sorted_iter_t from, sorted_iter_t to, compare_t compare ,void *to_match)
+{
+	int status = -1;
+	
+	if(NULL == SortedListGetData(from))
+	{
+		return from;
+	}
+	
+	status = compare(SortedListGetData(from) , to_match);
+	
+	while(status < 0 && TRUE != SortedListIsEqual(from, to))
+	{
+		from = SortedListNext(from);	
+		status = compare(SortedListGetData(from) , to_match);
+	}
+	
+	return from;
+}
+
 
 sorted_iter_t SortedListInsert(sorted_list_t *sorted_list, void *data)
 {
-	sorted_iter_t * node_ptr = NULL;
-	sorted_iter_t where = {0};
+	
+	sorted_iter_t SortedList_iter = SortedListBegin(sorted_list);
+	dll_iter_t  dll_iter = NULL;
 	sorted_iter_t failed = {0};
 	
-	where = FindSpot(sorted_list, data);
-	node_ptr = DLLInsert(GetDLLList(sorted_list), GetDLL(where), data);
+	SortedList_iter = FindSpot(SortedListBegin(sorted_list), SortedListEnd(sorted_list) , sorted_list->compare , data);
+		
+	dll_iter = DLLInsert(GetDLLList(sorted_list), GetDLLIter(SortedList_iter), data);
 	
-	if (NULL == node_ptr)
+	if (NULL == dll_iter)
 	{
 		return failed;
 	}
 	
-	return (where);	
+	return (BuildIter(sorted_list, dll_iter));
 }
 
 
 sorted_iter_t SortedListRemove(sorted_iter_t iter)
 {
-	itr.itr = DLLRemove(GetDllIter(iter));
-	return itr;
+	iter.iter = DLLRemove(GetDLLIter(iter));
+	return iter;
 }
 
 
@@ -183,162 +196,95 @@ sorted_iter_t SortedListRemove(sorted_iter_t iter)
 
 int SortedListIsEqual(sorted_iter_t iter1, sorted_iter_t iter2)
 {
-	assert(iter1 != NULL);
-	assert(iter2 != NULL);
-
-	return (iter1 == iter2);
+	dll_iter_t iter_dll1 = GetDLLIter(iter1);
+	dll_iter_t iter_dll2 = GetDLLIter(iter2);
+	return (DLLIsEqual(iter_dll1, iter_dll2));
 }
 
 
 
-void *SortedListPopFront(sorted_list_t *sorted_list);
+void *SortedListPopFront(sorted_list_t *sorted_list)
 {
 	void * data = NULL;
-	assert(NULL != dll);
+	dll_t * dll = NULL;
 	
-	data = DLLGet(DLLPrev(DLLEnd(dll)));
+	assert(NULL != sorted_list);
+	dll = GetDLLList(sorted_list);	
+	data = DLLGet(DLLBegin(dll));
 	DLLRemove(DLLBegin(dll));
 
 	return (data);	
 }
 
-/*
 
-void *DLLPopfront(dll_t *dll)
+
+void *SortedListPopBack(sorted_list_t *sorted_list)
 {
 	void * data = NULL;
+	dll_t * dll = NULL;
 	
-	assert(NULL != dll);
+	assert(NULL != sorted_list);
 	
-	data = DLLGet(DLLBegin(dll));
-	DLLRemove(DLLBegin(dll));
+	dll = GetDLLList(sorted_list);
+	
+	data = DLLGet(DLLPrev(DLLEnd(dll)));
+	DLLRemove(DLLPrev(DLLEnd(dll)));
+
 	return (data);
 }
 
 
-size_t DLLSize(const dll_t *dll)
+size_t SortedListSize(const sorted_list_t *sorted_list)
 {
 	size_t counter = 0; 
-	
+	dll_t * dll = GetDLLList((sorted_list_t *)sorted_list);
 	DLLForEach(DLLBegin(dll), DLLEnd(dll), &CountNodes, &counter);
-	
 	return (counter);
 }
 
 
-int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func, void *params)
+int SortedListForEach(sorted_iter_t from, sorted_iter_t to, action_t act_func, void *params)
 {
-	struct node * node_ptr = from;
-
-	assert(NULL != from);
-	assert(NULL != to);
-	assert(NULL != act_func);
+	int status = SUCCESS;
 	
-	while(!DLLIsEqual(node_ptr,to))
+	while(TRUE != SortedListIsEqual(from, to) && SUCCESS == status)
 	{
-		if(act_func(node_ptr, params))
-		{
-			return (FAIL);
-		}
+		status = act_func(&from, params);
 		
-		node_ptr = DLLNext(node_ptr);
+		from = SortedListNext(from);
 	}	
-
-	return (SUCCESS); 
-}
-
-	
-void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where)
-{
-	
-	struct node * prev_from_ptr= from->prev;
-	
-	assert(NULL != from);
-	assert(NULL != to);
-	assert(NULL != where);
-	
-	to->prev->next = where;
-	from->prev = where->prev;
-	
-	where->prev->next = from;
-	where->prev = to->prev;
-	
-	prev_from_ptr->next = to; 
-	to->prev = prev_from_ptr;
-	  
+	return (status); 
 }
 
 
 
-dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
-																  void *params)
+sorted_iter_t SortedListFind(sorted_iter_t from, sorted_iter_t to, void *to_find, const sorted_list_t *sorted_list)
 {
-	struct node * node_ptr = from;
+	assert(from.sorted_list == sorted_list);	
+	assert(from.sorted_list == to.sorted_list);
 
-	assert(NULL != from);
-	assert(NULL != to);
-	assert(NULL != match_func);
+	from = FindSpot(from, to ,sorted_list->compare , to_find);
 	
-	while(!DLLIsEqual(node_ptr,to))
+	return (SortedListPrev(from));
+}
+
+/*
+void SortedListMerge(sorted_list_t *dest, sorted_list_t *src)
+{
+	sorted_iter_t src_iter= SortedListBegin(src);
+	sorted_iter_t dest_iter= SortedListBegin(dest);
+	int status = 0;
+	while(SortedListIsEqual(src_iter, SortedListEnd(src)) != TRUE)
 	{
-		if(match_func(node_ptr->data,params))
-		{
-			return (node_ptr);
+			status = FindSpot(dest,dest_iter, SortedListGetData(dest_iter));
+			dest_iter = SortedListNext(dest_iter);
 		}
-	
-		node_ptr = DLLNext(node_ptr);
-	}
-
-	return (to);
+		DLLSplice(GetDLLIter(src_iter), GetDLLIter(src_iter),GetDLLIter(dest_iter));
+		src_iter = SortedListNext(src_iter);
+	}	
 }
 
-int DLLMultiFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
-				 								void *params, dll_t *output)
-{
-	struct node * iter = from;
-	struct node * where = NULL;
-	int counter = 0;
-	
-	assert(NULL != to);
-	assert(NULL != from);
-	assert(NULL != to);
-	assert(NULL != to);
-	where = DLLBegin(output);
-	
-	while(!DLLIsEqual(iter,to))
-	{
-		iter = DLLFind(iter, to, match_func, params);
-		
-		if (DLLIsEqual(iter,to))
-		{
-			return SUCCESS;
-		}
-
-		where = DLLInsert(output, where, DLLGet(iter));
-		counter++;
-		
-		if(NULL == where)
-		{
-			
-			RemoveAddedNodes(output);
-			return FAIL;
-		}
-		
-		iter = DLLNext(iter);
-	}
-	return counter;
-}
-
-static void RemoveAddedNodes(dll_t *output)
-{
-	struct node * iter = &(output->head);
-	while(DLLIsEmpty(output))
-	{
-		iter = DLLRemove(iter);	
-	}
-}
-
-
+*/
 static int CountNodes(void * this_node, void * params)
 {
 	(void)this_node;
@@ -347,5 +293,18 @@ static int CountNodes(void * this_node, void * params)
 	return (SUCCESS);
 }
 
+sorted_iter_t SortedListFindIf(sorted_iter_t from, sorted_iter_t to, is_match_t is_match_func, void *params)
+{
+	
+	while(TRUE != SortedListIsEqual(from,to))
+	{
+		if(TRUE == is_match_func(DLLGet(GetDLLIter(from)), params))
+		{
+			return (from);
+		}
+	
+		from = SortedListNext(from);
+	}
 
-
+	return (to);	
+}

@@ -10,7 +10,7 @@ typedef int (*compare_t) (void *, void *);
 
 typedef struct sorted_iter
 {
-	dll_iter_t *iter;
+	dll_iter_t iter;
 	#ifndef NDEBUG
 	sorted_list_t *sorted_list;
 	#endif
