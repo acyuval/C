@@ -11,5 +11,5 @@ alias runout='./a.out'
 alias gitloc='cd ~/git'
 alias debug='cgdb ./a.out'
 
-alias goto='bash ~/git/.gdbfunc.sh'
+alias goto='bash ~/git/.gdbfunc.sh && cgdb ./a.out -ex=r && source break_points'
 

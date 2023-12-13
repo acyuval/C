@@ -10,6 +10,7 @@
 
 #include "dll.h"
 
+#define TRUE (1)
 #define SUCCESS (0)
 #define FAIL (-1)
 /******************************************************************************
@@ -74,7 +75,7 @@ void DLLDestroy(dll_t *dll)
 }
 
 
-dll_iter_t *DLLInsert(dll_t *dll ,dll_iter_t *iter, void *data)
+dll_iter_t DLLInsert(dll_t *dll ,dll_iter_t iter, void *data)
 {
 	struct node * node_ptr = (struct node *)malloc(sizeof(struct node));
 	(void)dll;
@@ -98,9 +99,9 @@ dll_iter_t *DLLInsert(dll_t *dll ,dll_iter_t *iter, void *data)
 }
 
 
-dll_iter_t *DLLRemove(dll_iter_t *iter)
+dll_iter_t DLLRemove(dll_iter_t iter)
 {
-	dll_iter_t * next = NULL;
+	dll_iter_t next = NULL;
 	
 	assert(NULL != iter);
 	assert(NULL != iter->prev);
@@ -118,46 +119,46 @@ int DLLIsEmpty(const dll_t *dll)
 {
 	assert(dll != NULL);
 
-	return (DLLIsEqual(DLLBegin(dll), DLLEnd(dll)));	
+	return (TRUE == DLLIsEqual(DLLBegin(dll), DLLEnd(dll)));	
 }
 
 
 
-dll_iter_t *DLLEnd(const dll_t *dll)
+dll_iter_t DLLEnd(const dll_t *dll)
 {
 	assert(dll != NULL);
 	
-	return ((dll_iter_t *)&dll->tail);	
+	return ((dll_iter_t )&dll->tail);	
 }
 
-dll_iter_t *DLLBegin(const dll_t *dll)
+dll_iter_t DLLBegin(const dll_t *dll)
 {
 	assert(dll != NULL);
 	
-	return ((dll_iter_t *)dll->head.next);
+	return ((dll_iter_t )dll->head.next);
 }
 
 
 
-dll_iter_t *DLLNext(const dll_iter_t *iter)
+dll_iter_t DLLNext(const dll_iter_t iter)
 {
 	assert(iter != NULL);
 	return (iter->next);
 }	
 
-dll_iter_t *DLLPrev(const dll_iter_t *iter)
+dll_iter_t DLLPrev(const dll_iter_t iter)
 {
 	assert(iter != NULL);
 	return (iter->prev);
 }
 
-void *DLLGet(const dll_iter_t *iter)
+void *DLLGet(const dll_iter_t iter)
 {
 	assert(iter != NULL);
 	return (iter->data);
 }
 
-void DLLSet(dll_iter_t *iter, void *data)
+void DLLSet(dll_iter_t iter, void *data)
 {
 	assert(iter != NULL);
 	assert(iter->next != NULL);
@@ -166,7 +167,7 @@ void DLLSet(dll_iter_t *iter, void *data)
 }
 
 
-int DLLIsEqual(dll_iter_t *iter1, dll_iter_t *iter2)
+int DLLIsEqual(dll_iter_t iter1, dll_iter_t iter2)
 {
 	assert(iter1 != NULL);
 	assert(iter2 != NULL);
@@ -174,13 +175,13 @@ int DLLIsEqual(dll_iter_t *iter1, dll_iter_t *iter2)
 	return (iter1 == iter2);
 }
 
-dll_iter_t *DLLPushback(dll_t *dll, void *data)
+dll_iter_t DLLPushback(dll_t *dll, void *data)
 {
 	return (DLLInsert(dll, DLLEnd(dll), data));
 }
 
 
-dll_iter_t *DLLPushfront(dll_t *dll, void *data)
+dll_iter_t DLLPushfront(dll_t *dll, void *data)
 {
 	return (DLLInsert(dll, DLLBegin(dll), data));
 }
@@ -218,7 +219,7 @@ size_t DLLSize(const dll_t *dll)
 }
 
 
-int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func, void *params)
+int DLLForEach(dll_iter_t from, dll_iter_t to, action_t act_func, void *params)
 {
 	struct node * node_ptr = from;
 
@@ -226,7 +227,7 @@ int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func, void *params
 	assert(NULL != to);
 	assert(NULL != act_func);
 	
-	while(!DLLIsEqual(node_ptr,to))
+	while(TRUE != DLLIsEqual(node_ptr,to))
 	{
 		if(act_func(node_ptr, params))
 		{
@@ -240,7 +241,7 @@ int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func, void *params
 }
 
 	
-void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where)
+void DLLSplice(dll_iter_t from, dll_iter_t to, dll_iter_t where)
 {
 	
 	struct node * prev_from_ptr= from->prev;
@@ -262,7 +263,7 @@ void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where)
 
 
 
-dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
+dll_iter_t DLLFind(dll_iter_t from, dll_iter_t to, is_match_t match_func,\
 																  void *params)
 {
 	struct node * node_ptr = from;
@@ -271,7 +272,7 @@ dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 	assert(NULL != to);
 	assert(NULL != match_func);
 	
-	while(!DLLIsEqual(node_ptr,to))
+	while(TRUE != DLLIsEqual(node_ptr,to))
 	{
 		if(match_func(node_ptr->data,params))
 		{
@@ -284,7 +285,7 @@ dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 	return (to);
 }
 
-int DLLMultiFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
+int DLLMultiFind(dll_iter_t from, dll_iter_t to, is_match_t match_func,\
 				 								void *params, dll_t *output)
 {
 	struct node * iter = from;
@@ -297,11 +298,11 @@ int DLLMultiFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 	assert(NULL != to);
 	where = DLLBegin(output);
 	
-	while(!DLLIsEqual(iter,to))
+	while(TRUE != DLLIsEqual(iter,to))
 	{
 		iter = DLLFind(iter, to, match_func, params);
 		
-		if (DLLIsEqual(iter,to))
+		if (TRUE == DLLIsEqual(iter,to))
 		{
 			return SUCCESS;
 		}
@@ -324,7 +325,7 @@ int DLLMultiFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 static void RemoveAddedNodes(dll_t *output)
 {
 	struct node * iter = &(output->head);
-	while(DLLIsEmpty(output))
+	while(TRUE == DLLIsEmpty(output))
 	{
 		iter = DLLRemove(iter);	
 	}

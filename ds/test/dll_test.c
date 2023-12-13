@@ -72,7 +72,7 @@ void TestDLLInsertCount()
 {
 	int input[5] = {50,30,20,10,1};
 	
-	dll_iter_t * test_itr2 = NULL;
+	dll_iter_t  test_itr2 = NULL;
 	
 	dll_t * test_dll = DLLCreate();
 	
@@ -90,7 +90,7 @@ void TestDLLSetData()
 {
 	int input[5] = {50,30,20,10,1};
 	
-	dll_iter_t *test_itr = NULL;
+	dll_iter_t test_itr = NULL;
 	
 	dll_t * test_dll = DLLCreate();
 	
@@ -108,7 +108,7 @@ void TestDLLSetData()
 void TestDLLRemove()
 {
 	int input[5] = {50,30,20,10,1};
-	dll_iter_t * test_itr = NULL;
+	dll_iter_t  test_itr = NULL;
 	dll_t * test_dll = DLLCreate();
 	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[0]);
 	test_itr = DLLInsert(test_dll, test_itr, &input[1]);
@@ -143,7 +143,7 @@ void TestIsEmptyh()
 void TestDLLNextPrevEnd()
 {
 	int input[5] = {50,30,20,10,1};
-	dll_iter_t *test_itr = NULL;
+	dll_iter_t test_itr = NULL;
 	dll_t * test_dll = DLLCreate();
 	DLLInsert(test_dll, DLLBegin(test_dll), &input[1]);
 	DLLInsert(test_dll, DLLBegin(test_dll), &input[2]);
@@ -166,7 +166,7 @@ void TestDLLNextPrevEnd()
 void TestDLLFind()
 {
 	int input[5] = {50,30,20,10,1};
-	dll_iter_t *test_itr = NULL;
+	dll_iter_t test_itr = NULL;
 	dll_t *test_dll = DLLCreate();
 	
 	test_itr = DLLInsert(test_dll, DLLBegin(test_dll), &input[0]);
@@ -223,8 +223,8 @@ void TestPushPopBackFront()
 void TestDLLIsEqual()
 {
 	int input[5] = {50,30,20,10,1};
-	dll_iter_t *test_itr1 = NULL;
-	dll_iter_t *test_itr2 = NULL;
+	dll_iter_t test_itr1 = NULL;
+	dll_iter_t test_itr2 = NULL;
 	dll_t * test_dll = DLLCreate();
 	DLLInsert(test_dll, DLLBegin(test_dll), &input[3]);
 	DLLInsert(test_dll, DLLBegin(test_dll), &input[2]);
@@ -245,9 +245,9 @@ void TestDLLSplice()
 {
 	int inputA[10] = {100,200,300,400,500,600,700,800,900,1000};
 	int inputB[10] = {1,2,3,4,5,6,7,8,9,10};
-	dll_iter_t *from = NULL;
-	dll_iter_t *to = NULL;
-	dll_iter_t *where = NULL;
+	dll_iter_t from = NULL;
+	dll_iter_t to = NULL;
+	dll_iter_t where = NULL;
 	int Node_counter = 0;
 	int i = 0;
 	dll_t * test_dllA = DLLCreate();
@@ -321,7 +321,7 @@ void TestMultiFind()
 	int i = 0;
 	dll_t * test_dll = DLLCreate();
 	dll_t * output = DLLCreate();
-	dll_iter_t *iter = NULL;
+	dll_iter_t iter = NULL;
 	int value = 0;
 	int counter = 0;
 	for(i = 0 ; i < 7 ; i++)
@@ -353,7 +353,7 @@ void TestMultiFind()
 
 int Print(void * this_node, void *node_counter)
 {
-	dll_iter_t * new_node = (dll_iter_t *)this_node;
+	dll_iter_t  new_node = (dll_iter_t)this_node;
 	int value = *(int *)DLLGet(new_node);
 	*((int *)node_counter) += 1;
 	printf("Node%d:%d , ", *((int *)node_counter) ,value);

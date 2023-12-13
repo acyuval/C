@@ -3,7 +3,7 @@
 
 #include <stddef.h> /*size_t*/
 
-typedef struct node dll_iter_t;
+typedef struct node * dll_iter_t;
 typedef struct dll dll_t;
 typedef int (*is_match_t)(void *, void *);
 typedef int (*action_t)(void *, void *);
@@ -52,7 +52,7 @@ size_t DLLSize(const dll_t *dll);
 *Space Complexity: O(1)
 *Note: Calling the function on the end of the list leads to undefined behavior
 ******************************************************************************/
-void *DLLGet(const dll_iter_t *iter);
+void *DLLGet(const dll_iter_t iter);
 
 /******************************************************************************
 *Description: Sets new data into the given iterator.
@@ -62,7 +62,7 @@ void *DLLGet(const dll_iter_t *iter);
 *Space Complexity: O(1)
 *Note: Calling the function on the end of the list leads to undefined behavior
 ******************************************************************************/
-void DLLSet(dll_iter_t *iter, void *data);
+void DLLSet(dll_iter_t iter, void *data);
 
 /******************************************************************************
 *Description: Creates a new node with the given data, and inserts it before
@@ -74,7 +74,7 @@ void DLLSet(dll_iter_t *iter, void *data);
 *Space Complexity: O(1)
 *Notes: If memory allocation fails, returns NULL
 ******************************************************************************/
-dll_iter_t *DLLInsert(dll_t *dll_t, dll_iter_t *iter, void *data);
+dll_iter_t DLLInsert(dll_t *dll_t, dll_iter_t iter, void *data);
 
 /******************************************************************************
 *Description: Removes the node that the given iterator points to from the list.
@@ -85,7 +85,7 @@ dll_iter_t *DLLInsert(dll_t *dll_t, dll_iter_t *iter, void *data);
 Notes: Sending the end of the list as an argument will lead to 
 *	   undefined behavior.
 ******************************************************************************/
-dll_iter_t *DLLRemove(dll_iter_t *iter);
+dll_iter_t DLLRemove(dll_iter_t iter);
 
 /******************************************************************************
 *Description: Creates a new node with the given data and inserts it as the last
@@ -96,7 +96,7 @@ dll_iter_t *DLLRemove(dll_iter_t *iter);
 *Space Complexity: O(1)
 *Notes: If memory allocation fails, returns NULL.
 ******************************************************************************/
-dll_iter_t *DLLPushback(dll_t *dll, void *data);
+dll_iter_t DLLPushback(dll_t *dll, void *data);
 
 /******************************************************************************
 *Description: Creates a new node with the given data and inserts it as the head
@@ -107,7 +107,7 @@ dll_iter_t *DLLPushback(dll_t *dll, void *data);
 *Space Complexity: O(1)
 *Notes: If memory allocation fails, returns NULL.
 ******************************************************************************/
-dll_iter_t *DLLPushfront(dll_t *dll, void *data);
+dll_iter_t DLLPushfront(dll_t *dll, void *data);
 
 /******************************************************************************
 *Description: Removes the current last node of the list.
@@ -137,7 +137,7 @@ void *DLLPopfront(dll_t *dll);
 *Space Complexity: O(1)
 *Notes: Inputting the end of a list leads to undefined behavior.
 ******************************************************************************/
-dll_iter_t *DLLNext(const dll_iter_t *iter);
+dll_iter_t DLLNext(const dll_iter_t iter);
 
 /******************************************************************************
 *Description: Returns the iterator to the previous node.
@@ -147,7 +147,7 @@ dll_iter_t *DLLNext(const dll_iter_t *iter);
 *Space Complexity: O(1)
 *Notes: Inputting the head of a list leads to undefined behavior.
 ******************************************************************************/
-dll_iter_t *DLLPrev(const dll_iter_t *iter);
+dll_iter_t DLLPrev(const dll_iter_t iter);
 
 /******************************************************************************
 *Description: Updates the iterator to points to the beginning of the list
@@ -157,7 +157,7 @@ dll_iter_t *DLLPrev(const dll_iter_t *iter);
 *Time Complexity: O(1)
 *Space Complexity: O(1) 
 ******************************************************************************/
-dll_iter_t *DLLBegin(const dll_t *dll);
+dll_iter_t DLLBegin(const dll_t *dll);
 
 /******************************************************************************
 *Description: Updates the iterator to point to the end of the list (a none-
@@ -167,7 +167,7 @@ dll_iter_t *DLLBegin(const dll_t *dll);
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 ******************************************************************************/
-dll_iter_t *DLLEnd(const dll_t *dll);
+dll_iter_t DLLEnd(const dll_t *dll);
 
 /******************************************************************************
 *Description: Checks whether 2 iterators refer to the same node.
@@ -176,7 +176,7 @@ dll_iter_t *DLLEnd(const dll_t *dll);
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 ******************************************************************************/
-int DLLIsEqual(dll_iter_t *iter1, dll_iter_t *iter2);
+int DLLIsEqual(dll_iter_t iter1, dll_iter_t iter2);
 
 /******************************************************************************
 *Description: Iterates over the given range, from iterator "from" (inclusive)
@@ -189,7 +189,7 @@ int DLLIsEqual(dll_iter_t *iter1, dll_iter_t *iter2);
 *Notes: Sending "to" that comes before "from" as parameters will lead to 
 * 		undefined behavior.
 ******************************************************************************/
-int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func,\
+int DLLForEach(dll_iter_t from, dll_iter_t to, action_t act_func,\
 			   void *params);
 
 /******************************************************************************
@@ -204,7 +204,7 @@ int DLLForEach(dll_iter_t *from, dll_iter_t *to, action_t act_func,\
 * 		sending "to" that comes before "from" as parameters will lead to 
 * 		undefined behavior.
 ******************************************************************************/
-dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
+dll_iter_t DLLFind(dll_iter_t from, dll_iter_t to, is_match_t match_func,\
 					void *params);
 
 /******************************************************************************
@@ -224,7 +224,7 @@ dll_iter_t *DLLFind(dll_iter_t *from, dll_iter_t *to, is_match_t match_func,\
 *       nodes that came before "from" are connected to the nodes after "to" 
 *       (including "to").
 ******************************************************************************/
-void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where);
+void DLLSplice(dll_iter_t from, dll_iter_t to, dll_iter_t where);
 
 /******************************************************************************
 *Description: Finds any node that holds with the specified data in the given 
@@ -242,7 +242,7 @@ void DLLSplice(dll_iter_t *from, dll_iter_t *to, dll_iter_t* where);
 * 		sending "to" that comes before "from" as parameters leads to undefined
 * 		behavior.
 ******************************************************************************/
-int DLLMultiFind(dll_iter_t *from, dll_iter_t *to, is_match_t is_match_func,\
+int DLLMultiFind(dll_iter_t from, dll_iter_t to, is_match_t is_match_func,\
 				 void *params, dll_t *output);
 
 #endif /*__DLL_H__*/
