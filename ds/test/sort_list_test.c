@@ -22,8 +22,12 @@ static void TestHelper(int booll , char * calling_function, int test_no);
 int comparefunc(void * src, void *data);
 void TestSortedListInsertCount();
 int Print(void * this_node, void *node_counter);
-
-
+void TestSortedListRemove();
+void TestIsEmptyh();
+void TestSortedListNextPrevEnd();
+void TestSortedListFind();
+int Match(void * src, void *data);
+void TestPopBackFront();
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -31,7 +35,13 @@ int Print(void * this_node, void *node_counter);
 
 int main()
 {
+	TestPopBackFront();
+	TestSortedListFind();
+	TestSortedListNextPrevEnd();
+	TestIsEmptyh();
 	TestSortedListInsertCount();
+	TestSortedListRemove();
+	
 	return (0);
 }
 
@@ -47,7 +57,7 @@ void TestSortedListInsertCount()
 {
 	int input[5] = {50,1,20,10,21};
 	int i = 0; 
-	int Node_counter = 0;
+
 	sorted_list_t * test_list = SortedListCreate(&comparefunc);
 	
 	sorted_iter_t test_itr = SortedListBegin(test_list);
@@ -57,109 +67,101 @@ void TestSortedListInsertCount()
 		SortedListInsert(test_list, &input[i]);
 	}
 	
-	printf("-----------------------\nTestSortedListInsertCount\n");
-	printf("SortedList:");
-	SortedListForEach(SortedListBegin(test_list), SortedListEnd(test_list), &Print, &Node_counter);
+	TestHelper(*(int *)SortedListGetData(SortedListBegin(test_list)) == input[1], "TestSortedListInsert" , 1);
 	
-	TestHelper(*(int *)SortedListGetData(SortedListBegin(test_list)) == input[0], "TestSortedListInsert" , 1);
-	
-	TestHelper(SortedListSize(test_list) == 5, "TestSortedListSize " , 1);
+	TestHelper(SortedListSize(test_list) == 5, "TestSortedListSize  " , 1);
 		
-	SortedListDestroy(test_list);
-}
-
-/*
-void TestSortedListSetData()
-{
-	int input[5] = {50,30,20,10,1};
-	
-	sorted_iter_t test_itr = NULL;
-	
-	sorted_list_t * test_list = SortedListCreate();
-	
-	test_itr = SortedListInsert(test_list, SortedListBegin(test_list), &input[1]);
-	test_itr = SortedListInsert(test_list, SortedListBegin(test_list), &input[2]);
-	test_itr = SortedListInsert(test_list, SortedListBegin(test_list), &input[3]);
-	
-	SortedListSet(test_itr,&input[4]);
-	
-	TestHelper(*(int *)SortedListGet(test_itr) == input[4], "TestSortedListSetData" , 1);
 	SortedListDestroy(test_list);
 }
 
 
 void TestSortedListRemove()
 {
-	int input[5] = {50,30,20,10,1};
-	sorted_iter_t  test_itr = NULL;
-	sorted_list_t * test_list = SortedListCreate();
-	test_itr = SortedListInsert(test_list, SortedListBegin(test_list), &input[0]);
-	test_itr = SortedListInsert(test_list, test_itr, &input[1]);
-	test_itr = SortedListInsert(test_list, test_itr, &input[2]);
-	test_itr = SortedListPrev(SortedListInsert(test_list, test_itr, &input[3]));
+	int input[5] = {50,1,120,12,10};
+	int i = 0; 
+	sorted_list_t * test_list = SortedListCreate(&comparefunc);
+	sorted_iter_t test_itr = SortedListBegin(test_list);
 	
-	TestHelper(*(int *)SortedListGet(test_itr) == 10, "TestSortedListRemove" , 1);
+	for(i = 0 ; i < 5  ; i++)
+	{
+		SortedListInsert(test_list, &input[i]);
+	}
 	
-	test_itr = SortedListRemove(SortedListPrev(test_itr));
+	TestHelper(*(int *)SortedListGetData(SortedListBegin(test_list)) == 1, "TestSortedListRemove" , 1);
 	
-	TestHelper(*(int *)SortedListGet(SortedListPrev(test_itr)) == 30, "TestSortedListRemove" , 2);
+	SortedListRemove(SortedListBegin(test_list));
+	
+	TestHelper(*(int *)SortedListGetData(SortedListBegin(test_list)) == 10, "TestSortedListRemove" , 2);
+	
 	SortedListDestroy(test_list);
 }
 
 
+
 void TestIsEmptyh()
 {
-	int input[5] = {50,30,20,10,1};
-	sorted_list_t * test_list = SortedListCreate();
-	TestHelper(SortedListIsEmpty(test_list) == 1, "TestIsEmptyh" , 1);
+	int input[5] = {50,1,120,12,10};
+	int i = 0; 
+	sorted_list_t * test_list = SortedListCreate(&comparefunc);
+	sorted_iter_t test_itr = SortedListBegin(test_list);
 	
-	SortedListInsert(test_list, SortedListBegin(test_list), &input[1]);
-	SortedListInsert(test_list, SortedListBegin(test_list), &input[2]);
-	SortedListInsert(test_list, SortedListBegin(test_list), &input[3]);
+	TestHelper(SortedListIsEmpty(test_list) == 1, "TestIsEmptyh \t\t" , 1);
 	
-	TestHelper(SortedListIsEmpty(test_list) == 0, "TestIsEmptyh" , 2);
+	for(i = 0 ; i < 5  ; i++)
+	{
+		SortedListInsert(test_list, &input[i]);
+	}
+	
+	TestHelper(SortedListIsEmpty(test_list) == 0, "TestIsEmptyh \t\t" , 2);
 	SortedListDestroy(test_list);
-	
 }
 
 
 void TestSortedListNextPrevEnd()
 {
-	int input[5] = {50,30,20,10,1};
-	sorted_iter_t test_itr = NULL;
-	sorted_list_t * test_list = SortedListCreate();
-	SortedListInsert(test_list, SortedListBegin(test_list), &input[1]);
-	SortedListInsert(test_list, SortedListBegin(test_list), &input[2]);
-	test_itr = SortedListInsert(test_list, SortedListBegin(test_list), &input[3]);
+	int input[5] = {5021,1,120,12,10};
+	int i = 0; 
+	sorted_list_t * test_list = SortedListCreate(&comparefunc);
+	sorted_iter_t test_itr = {0};
 	
-	TestHelper(*(int *)SortedListGet(test_itr) == 20, "TestSortedListNext " , 1);
+	for(i = 0 ; i < 5  ; i++)
+	{
+		SortedListInsert(test_list, &input[i]);
+	}
+	
+	test_itr = SortedListBegin(test_list);
+	
+	TestHelper(*(int *)SortedListGetData(test_itr) == 1, "TestSortedListNext \t" , 1);
+	
 	test_itr = SortedListNext(test_itr);
-	TestHelper(*(int *)SortedListGet(test_itr) == 30, "TestSortedListNext " , 2);
+	
+	TestHelper(*(int *)SortedListGetData(test_itr) == 10, "TestSortedListNext \t" , 2);
+	
 	test_itr = SortedListPrev(test_itr);
-	TestHelper(*(int *)SortedListGet(test_itr) == 20, "TestSortedListPrev " , 1);
+	
+	TestHelper(*(int *)SortedListGetData(test_itr) == 1, "TestSortedListPrev \t" , 1);
 	
 	test_itr = SortedListPrev(SortedListEnd(test_list));
-	TestHelper(*(int *)SortedListGet(test_itr) == 30, "TestSortedListPrev " , 1);
+	
+	TestHelper(*(int *)SortedListGetData(test_itr) == 5021, "TestSortedListPrev \t" , 1);
 	
 	SortedListDestroy(test_list);
-	
 }
-
 
 void TestSortedListFind()
 {
-	int input[5] = {50,30,20,10,1};
-	sorted_iter_t test_itr = NULL;
-	sorted_list_t *test_list = SortedListCreate();
+	int input[5] = {5021,1,120,12,10};
+	int i = 0; 
+	sorted_list_t * test_list = SortedListCreate(&comparefunc);
+	sorted_iter_t test_itr = {0};
 	
-	test_itr = SortedListInsert(test_list, SortedListBegin(test_list), &input[0]);
-	test_itr = SortedListInsert(test_list, test_itr, &input[1]);
-	test_itr = SortedListInsert(test_list, test_itr, &input[2]);
-	test_itr = SortedListPrev(SortedListInsert(test_list, test_itr, &input[3]));
+	for(i = 0 ; i < 5  ; i++)
+	{
+		SortedListInsert(test_list, &input[i]);
+	}	
 	
-	test_itr = SortedListFind(SortedListBegin(test_list),SortedListEnd(test_list), &Match , &input[1]);
-	
-	TestHelper(*(int *)SortedListGet(test_itr) == 30, "TestSortedListFind " , 1);
+	test_itr = SortedListFind(SortedListBegin(test_list),SortedListEnd(test_list), &input[0] , test_list);
+	TestHelper(*(int *)SortedListGetData(test_itr) == 5021, "TestSortedListFind " , 1);
 	SortedListDestroy(test_list);
 }
 
@@ -177,25 +179,26 @@ int Match(void * src, void *data)
 
 
 
-void TestPushPopBackFront()
+void TestPopBackFront()
 {
-	int input[5] = {50,30,20,10,1};
 	int Node_counter = 0;
-
-	sorted_list_t *test_list = SortedListCreate();
-	SortedListPushfront(test_list, &input[0]);
-	SortedListPushfront(test_list, &input[1]);
-	SortedListPushback(test_list, &input[2]);
-	SortedListPushback(test_list, &input[3]);	
-	printf("\n-----------------------\nTestPushBackFront\n");
-	SortedListForEach(SortedListBegin(test_list), SortedListEnd(test_list), &Print, &Node_counter);
-	printf("\n-----------------------");
+	int input[5] = {5021,1,120,12,10};
+	int i = 0; 
+	void * res = NULL;
+	sorted_list_t * test_list = SortedListCreate(&comparefunc);
+	sorted_iter_t test_itr = {0};
 	
-	SortedListPopfront(test_list);
-	SortedListPopback(test_list);
-	printf("\n-----------------------\nTestPopBackFront\n");
-	SortedListForEach(SortedListBegin(test_list), SortedListEnd(test_list), &Print, &Node_counter);
-	printf("\n-----------------------");
+	for(i = 0 ; i < 5  ; i++)
+	{
+		SortedListInsert(test_list, &input[i]);
+	}	
+	
+	res = SortedListPopFront(test_list);
+	TestHelper(*(int *)res == 1, "TestPopFront " , 1);
+	
+	res = SortedListPopBack(test_list);
+	TestHelper(*(int *)res == 5021, "TestPopBack " , 2);
+	
 	
 	SortedListDestroy(test_list);
 }
@@ -205,13 +208,17 @@ void TestPushPopBackFront()
 
 void TestSortedListIsEqual()
 {
-	int input[5] = {50,30,20,10,1};
-	sorted_iter_t test_itr1 = NULL;
-	sorted_iter_t test_itr2 = NULL;
-	sorted_list_t * test_list = SortedListCreate();
-	SortedListInsert(test_list, SortedListBegin(test_list), &input[3]);
-	SortedListInsert(test_list, SortedListBegin(test_list), &input[2]);
-	SortedListInsert(test_list, SortedListBegin(test_list), &input[1]);
+	int Node_counter = 0;
+	int input[5] = {5021,1,120,12,10};
+	int i = 0; 
+	void * res = NULL;
+	sorted_list_t * test_list = SortedListCreate(&comparefunc);
+	sorted_iter_t test_itr = {0};
+	
+	for(i = 0 ; i < 5  ; i++)
+	{
+		SortedListInsert(test_list, &input[i]);
+	}	
 	
 	test_itr1 = SortedListFind(SortedListBegin(test_list),SortedListEnd(test_list), &Match, &input[1]);
 	test_itr1 = SortedListNext(test_itr1);
@@ -222,7 +229,7 @@ void TestSortedListIsEqual()
 	
 }
 
-
+/*
 
 void TestSortedListSplice()
 {
@@ -353,6 +360,10 @@ int Print(void * this_node, void *node_counter)
 
 int comparefunc(void * src, void *data)
 {
+	if(NULL == src)
+	{
+		return 1;
+	}
 	return (*(int *)src - *(int *)data);
 }
 
