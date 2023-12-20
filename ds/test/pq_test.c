@@ -24,7 +24,9 @@ void TestPQEnqueueCount();
 void TestIsEmptyh();
 void TestPQEnqueue();
 void TestPQClear();
+void TestPQErase();
 int Print(void * this_node, void *node_counter);
+int Match(void * src, void *data);
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -37,18 +39,7 @@ int main()
 	TestPQEnqueueCount();
 	TestIsEmptyh();
 	TestPQEnqueue();
-	/*
-	TestIsEmptyh();
-	TestPQInsertCount();
-	TestForEach();
-	TestPQRemove();
-	TestPQIsEqual();
-	TestPQNextPrevEnd();
-	TestPQFindIf();
-	TestPQFind();
-	TestPopBackFront();
-	*/
-	
+	TestPQErase();
 	return (0);
 }
 
@@ -141,12 +132,29 @@ void TestPQClear()
 }
 
 
-
-
-
-int Match(void * src, void *data)
+void TestPQErase()
 {
-	if (*(int *)src < *(int *)data)
+	void * return_data = NULL;
+	int input[5] = {1,2,120,150,190};
+	int i = 0; 
+	pq_t * test_list = PQCreate(&comparefunc);
+	
+	for(i = 0 ; i < 5  ; i++)
+	{
+		PQEnqueue(test_list, &input[i]);
+	}
+	TestHelper(PQSize(test_list) == 5, "TestPQErase  " , 1);
+	return_data = PQErase(test_list, &Match, &input[3]);
+	TestHelper(*(int *)return_data == 190, "TestPQErase  " , 3);
+	TestHelper(PQSize(test_list) == 4, "TestPQErase  " , 2);
+	
+	PQDestroy(test_list);
+}
+
+
+int Match(void * node_data, void *params)
+{
+	if (*(int *)node_data > *(int *)params)
 	{
 		return 1;
 	}
@@ -163,13 +171,13 @@ int Match(void * src, void *data)
 ******************************************************************************/
 
 
-int comparefunc(void * src, void *data)
+int comparefunc(void * node_data, void *params)
 {
-	if ((*(int *)src - *(int *)data) == 0)
+	if ((*(int *)node_data - *(int *)params) == 0)
 	{
 		return 1;
 	} 
-	return (*(int *)src - *(int *)data);
+	return (*(int *)node_data - *(int *)params);
 }
 
 
