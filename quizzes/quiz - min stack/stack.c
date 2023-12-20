@@ -27,7 +27,7 @@ stack_t *StackCreate(size_t capacity, size_t element_size)
 	stack_t * this_stack = (stack_t *)malloc(sizeof(stack_t)); 
 	
 	assert(element_size != 0);
-	assert(cpacity != 0);
+	assert(capacity != 0);
 	
 	if (NULL == this_stack)
 	{
