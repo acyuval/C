@@ -8,30 +8,36 @@
 #define MAX2(a,b) (a > b) ? a : b
 char lut[256] = {0};
 
-int foo(char * lut, char c)
+long * foo(int ints[], size_t no_of_ele)
 {
-	int i = 0;
-	size_t maximun = 0 
-	if(c=0)
+	int i =0 ; 
+	long sum = 0;
+	int * int_ptr = NULL;
+	
+	while(i<no_of_ele)
 	{
-		while(i<256)
-		{
-			maximun = MAX2(maximun, lut[i]);
-			lut[i] = 0;
-		}
-		printf("%d" , maximun);
+		sum = (long)ints[i] + ints[i+1];
+		int_ptr = (int *)&sum;
+		
+		ints[i] = int_ptr[0];
+        ints[i + 1] = int_ptr[1];
+        i += 2;
 	}
-	lut[c] += 1; 
-
-	return 0;
 }
+
+
 
 int main()
 {
-	input[5] = {1,4,6,3,0};
-	int i = -1; 
+	int input[4] = {1222333444,1222333444,1222333444,1222333444};
+	long * longs= (long *)input;
+	int i = 0;
+	foo(input, 4);
 	
-	for(i )
+	for(i=0;i<2;i++)
+	{
+		printf("long: %ld " , longs[i]);
+	}
 	return 0;
 }
 
