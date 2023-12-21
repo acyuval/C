@@ -21,7 +21,7 @@ dll_t *DLLCreate(void);
 /******************************************************************************
 *Description: Deletes the entire doubly linked list.
 *Arguments: Pointer to a doubly linked list.
-*Return Value: void.
+*Return Value: Void.
 *Time Complexity: O(n)
 *Space Complexity: O(1)
 ******************************************************************************/
@@ -29,7 +29,7 @@ void DLLDestroy(dll_t *dll);
 
 /******************************************************************************
 *Description: Checks whether the given doubly linked list is empty.
-*Arguments: buffer - pointer to a doubly linked list.
+*Arguments: Buffer - pointer to a doubly linked list.
 *Return Value: 1 if the doubly linked list is empty, 0 otherwise.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
@@ -38,7 +38,7 @@ int DLLIsEmpty(const dll_t *dll);
 
 /******************************************************************************
 *Description: Returns the amount of nodes in the given doubly linked list.
-*Arguments: buffer - pointer to a doubly linked list.
+*Arguments: Buffer - pointer to a doubly linked list.
 *Time Complexity: O(n)
 *Space Complexity: O(1)
 ******************************************************************************/
@@ -50,7 +50,7 @@ size_t DLLSize(const dll_t *dll);
 *Return Value: The data pointed to by the iterator.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
-*Note: Calling the function on the end of the list leads to undefined behavior
+*Note: Calling the function on the end of the list leads to undefined behavior.
 ******************************************************************************/
 void *DLLGet(const dll_iter_t iter);
 
@@ -60,15 +60,15 @@ void *DLLGet(const dll_iter_t iter);
 *Return Value: Void.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
-*Note: Calling the function on the end of the list leads to undefined behavior
+*Note: Calling the function on the end of the list leads to undefined behavior.
 ******************************************************************************/
 void DLLSet(dll_iter_t iter, void *data);
 
 /******************************************************************************
 *Description: Creates a new node with the given data, and inserts it before
-*			  the given iterator
+*			  the given iterator.
 *Parameters: Data to insert, and iterator that points to the insertion location.
-*Return Value: Iterator pointing to the inserted node
+*Return Value: Iterator pointing to the inserted node.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 *Notes: If memory allocation fails, returns the end of the list.
@@ -111,7 +111,7 @@ dll_iter_t DLLPushfront(dll_t *dll, void *data);
 /******************************************************************************
 *Description: Removes the current last node of the list.
 *Parameters: Pointer to the list.
-*Return Value: The data of the removed node
+*Return Value: The data of the removed node.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 *Notes: Popping from an enpty list leads to undefined behavior.
@@ -121,7 +121,7 @@ void *DLLPopback(dll_t *dll);
 /******************************************************************************
 *Description: Removes the current head of the list.
 *Parameters: Pointer to the list.
-*Return Value: The data of the removed node
+*Return Value: The data of the removed node.
 *Time Complexity: O(1)
 *Space Complexity: O(1)
 *Notes: Popping from an enpty list leads to undefined behavior.
@@ -150,7 +150,7 @@ dll_iter_t DLLPrev(const dll_iter_t iter);
 
 /******************************************************************************
 *Description: Updates the iterator to points to the beginning of the list
-			  (a viable node)
+			  (a viable node).
 *Parameters: Pointer to a list.
 *Return Value: Iterator that points to the beginning of the list.
 *Time Complexity: O(1)
@@ -182,7 +182,8 @@ int DLLIsEqual(dll_iter_t iter1, dll_iter_t iter2);
 *             to iterator "to" (non-inclusive) and acts on the data.
 *Parameters: 2 iterators that mark the range, an operation function,
 *			 and additional parameters.
-*Return Value: 0 if the action was successfull, -1 otherwise
+*Return Value: 0 if the action was successfull. Otherwise, return value error 
+*			   defined by act_func.
 *Time Complexity: O(n)
 *Space Complexity: O(1)
 *Notes: Sending "to" that comes before "from" as parameters will lead to 
@@ -199,8 +200,8 @@ int DLLForEach(dll_iter_t from, dll_iter_t to, action_t act_func,\
 *Return Value: Iterator pointing to the matching data.
 *Time Complexity: O(n)
 *Space Complexity: O(1)
-*Notes: returns "to" if no match was found.
-* 		sending "to" that comes before "from" as parameters will lead to 
+*Notes: Returns "to" if no match was found.
+* 		Sending "to" that comes before "from" as parameters will lead to 
 * 		undefined behavior.
 ******************************************************************************/
 dll_iter_t DLLFind(dll_iter_t from, dll_iter_t to, is_match_t match_func,\
@@ -235,7 +236,7 @@ void DLLSplice(dll_iter_t from, dll_iter_t to, dll_iter_t where);
 *            the output.
 *Return Value: Exit status - the function will an ERROR signal (-1) if it
 *			   fails to allocate the new nodes into the output, SUCCESS (0)
-*              otherwise
+*              otherwise.
 *Time Complexity: O(n)
 *Space Complexity: O(1)
 *Notes: The user is responsible for properly destroying the given output.

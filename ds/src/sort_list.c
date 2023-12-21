@@ -127,7 +127,6 @@ sorted_iter_t SortedListInsert(sorted_list_t *sorted_list, void *data)
 {
 	sorted_iter_t sorted_list_iter = SortedListBegin(sorted_list);
 	dll_iter_t  dll_iter = NULL;
-	sorted_iter_t failed = {NULL};
 	
 	if(TRUE != SortedListIsEmpty(sorted_list))
 	{
@@ -137,9 +136,9 @@ sorted_iter_t SortedListInsert(sorted_list_t *sorted_list, void *data)
 		
 	dll_iter = DLLInsert(GetDLLList(sorted_list), GetDLLIter(sorted_list_iter), data);
 	
-	if (NULL == dll_iter)
+	if (TRUE == DLLIsEqual(dll_iter, DLLEnd(GetDLLList(sorted_list))))
 	{
-		return failed;
+		return SortedListEnd(sorted_list);
 	}
 	
 	return (BuildIter(sorted_list, dll_iter));

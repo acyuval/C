@@ -72,18 +72,26 @@ size_t PQSize(const pq_t *pq)
 
 int PQEnqueue(pq_t *pq, void *data)
 {
-	sorted_iter_t status_itr = {0};
+	sorted_iter_t status_sorted_itr = {0};
+	int status = 0;
+
 	assert(pq != NULL);
-	assert(data != NULL);
+
+	status_sorted_itr = SortedListInsert(pq->sorted_list, data);
 	
-	status_itr = SortedListInsert(pq->sorted_list, data);
-	return status_itr.iter ? SUCCESS : FAIL;
+	status = SortedListIsEqual(status_sorted_itr, 
+								SortedListEnd(pq->sorted_list));
+	return status ? FAIL: SUCCESS;
 }
 
 void *PQDequeue(pq_t *pq)
 {
-	void * return_data = PQPeek(pq);
+	void * return_data = NULL;
+	
 	assert(pq != NULL);
+	assert(FALSE == PQIsEmpty(pq));
+	
+	return_data = PQPeek(pq);
 	SortedListRemove(SortedListBegin(pq->sorted_list));
 	return return_data;
 }	
@@ -91,13 +99,15 @@ void *PQDequeue(pq_t *pq)
 void *PQPeek(const pq_t *pq)
 {
 	assert(pq != NULL);
+	assert(FALSE == PQIsEmpty(pq));
+	
 	return SortedListGetData(SortedListBegin(pq->sorted_list));
 }
 
 void PQClear(pq_t *pq)
 {
 	assert(pq != NULL);
-	while(!PQIsEmpty(pq))
+	while(FALSE == PQIsEmpty(pq))
 	{
 		SortedListRemove(SortedListBegin(pq->sorted_list));
 	}
@@ -107,9 +117,10 @@ void *PQErase(pq_t *pq, pq_is_match_t is_match_func, void *params)
 {
 	sorted_iter_t found_itr = {0};
 	void * return_data = NULL;
+	
 	assert(pq != NULL);
 	assert(is_match_func != NULL);
-	assert(params != NULL);
+	
 	found_itr = SortedListFindIf(SortedListBegin(pq->sorted_list),
 					SortedListEnd(pq->sorted_list), is_match_func, params);
 	return_data = SortedListGetData(found_itr);
