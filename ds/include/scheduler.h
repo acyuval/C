@@ -5,16 +5,7 @@
 
 typedef struct scheduler scheduler_t;
 
-/* in scheduler.c
-#include "pq.h"
-#include "task.h"
 
-struct scheduler
-{
-	pq_t *pq;
-	int is_running;
-};
-*/
 enum return_values
 {
 	FAIL = -1,
@@ -121,7 +112,7 @@ int SchedulerRun(scheduler_t *scheduler);
 *Space Complexity: O(1)
 *Notes:
 ******************************************************************************/
-void SchedulerStop(const scheduler_t *scheduler);
+void SchedulerStop(scheduler_t *scheduler);
 
 
 /******************************************************************************

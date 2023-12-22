@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include "uid.h"
+#include "task.h"
 
 #define TRUE (1)
 #define FALSE (0)
@@ -19,7 +20,6 @@
 ******************************************************************************/
 
 
-typedef struct task task_t;
 
 struct task
 {
@@ -30,16 +30,6 @@ struct task
 	void *clean_up_params;
 	time_t time_to_run;
 	size_t interval;
-};
-
-
-typedef void (*clean_up_t)(void *);
-typedef int (*op_func_t)(void *);
-
-enum repeat_values
-{
-	NO_REPEAT = 0,
-	REPEAT = 1
 };
 
 
@@ -54,20 +44,21 @@ task_t *TaskCreate(op_func_t op_func, void* params,
                         time_t time_to_run, size_t intervals, 
 						clean_up_t clean_up_func, void *clean_up_params)
 {
-	assert(time_to_run != 0);
-	
 	task_t * task = (task_t *)malloc(sizeof(task_t));
+	
+	assert(time_to_run != 0);
 	
 	if(NULL == task)
 	{
 		return NULL;
 	}
+	task->uid = UIDCreate();
 	task->op_func = op_func;
 	task->params = params;
 	task->time_to_run = time_to_run;
-	task->intervals = intervals;
-	time->clean_up_func = clean_up_func;
-	time->clean_up_params = clean_up_params;
+	task->interval = intervals;
+	task->clean_up_func = clean_up_func;
+	task->clean_up_params = clean_up_params;
 	
 	return task;
 }
@@ -109,17 +100,14 @@ int TaskIsBefore(const task_t *task1,const task_t *task2)
 	assert(NULL != task1);
 	assert(NULL != task2);
 	return (TaskGetTimeToRun(task1) - TaskGetTimeToRun(task2));
-	
-	
 }
 
 
 int TaskIsMatch(const task_t *task,const ilrd_uid_t uid)
 {
-	assert(NULL != task1);
-	assert(NULL != uid);
+	assert(NULL != task);
 	
-	return (UIDIsEqual(task->uid, uid2));
+	return (UIDIsEqual(task->uid, uid));
 }
 
 
@@ -128,6 +116,15 @@ void TaskUpdateTimeToRun(task_t *task)
 	assert(NULL != task);
 	
 	task->time_to_run += task->interval;
+}
+
+
+ilrd_uid_t GetUIDFromTask(task_t * task)
+{
+	assert(NULL != task);
+	
+	return task->uid;
+
 }
 
 
