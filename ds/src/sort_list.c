@@ -126,7 +126,7 @@ void *SortedListGetData(sorted_iter_t iter)
 sorted_iter_t SortedListInsert(sorted_list_t *sorted_list, void *data)
 {
 	sorted_iter_t sorted_list_iter = SortedListBegin(sorted_list);
-	dll_iter_t  dll_iter = NULL;
+	dll_iter_t dll_iter = NULL;
 	
 	if(TRUE != SortedListIsEmpty(sorted_list))
 	{

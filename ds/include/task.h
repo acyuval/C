@@ -96,6 +96,5 @@ int TaskIsMatch(const task_t *task,const ilrd_uid_t uid);
 void TaskUpdateTimeToRun(task_t *task);
 
 
-ilrd_uid_t GetUIDFromTask(task_t * task);
 
 #endif /*__TASK_H__*/

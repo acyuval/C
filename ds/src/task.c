@@ -67,8 +67,11 @@ task_t *TaskCreate(op_func_t op_func, void* params,
 void TaskDestroy(task_t *task)
 {
 	assert(NULL != task);
-	
+	if (task->clean_up_func != NULL)
+	{
 	task->clean_up_func(task->clean_up_params);
+	}
+
 	free(task);
 }
 
@@ -82,7 +85,6 @@ ilrd_uid_t TaskGetUid(const task_t *task)
 int TaskRun(task_t *task)
 {
 	assert(NULL != task);
-	
 	return (task->op_func(task->params));
 }
 
@@ -115,17 +117,10 @@ void TaskUpdateTimeToRun(task_t *task)
 {
 	assert(NULL != task);
 	
-	task->time_to_run += task->interval;
+	task->time_to_run = task->interval;
 }
 
 
-ilrd_uid_t GetUIDFromTask(task_t * task)
-{
-	assert(NULL != task);
-	
-	return task->uid;
-
-}
 
 
 

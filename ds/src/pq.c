@@ -79,8 +79,8 @@ int PQEnqueue(pq_t *pq, void *data)
 
 	status_sorted_itr = SortedListInsert(pq->sorted_list, data);
 	
-	status = SortedListIsEqual(status_sorted_itr, 
-								SortedListEnd(pq->sorted_list));
+	status = SortedListIsEqual(status_sorted_itr, SortedListEnd(pq->sorted_list));
+	status = status && (data != PQPeek(pq));
 	return status ? FAIL: SUCCESS;
 }
 
@@ -123,6 +123,11 @@ void *PQErase(pq_t *pq, pq_is_match_t is_match_func, void *params)
 	
 	found_itr = SortedListFindIf(SortedListBegin(pq->sorted_list),
 					SortedListEnd(pq->sorted_list), is_match_func, params);
+	if (TRUE == SortedListIsEqual(found_itr,SortedListEnd(pq->sorted_list)))	
+	{
+		return NULL;
+	}
+	
 	return_data = SortedListGetData(found_itr);
 	SortedListRemove(found_itr);
 	return return_data;
