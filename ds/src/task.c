@@ -101,7 +101,7 @@ int TaskIsBefore(const task_t *task1,const task_t *task2)
 {
 	assert(NULL != task1);
 	assert(NULL != task2);
-	return (TaskGetTimeToRun(task1) - TaskGetTimeToRun(task2));
+	return (TaskGetTimeToRun(task2) > TaskGetTimeToRun(task1));
 }
 
 
@@ -116,8 +116,7 @@ int TaskIsMatch(const task_t *task,const ilrd_uid_t uid)
 void TaskUpdateTimeToRun(task_t *task)
 {
 	assert(NULL != task);
-	
-	task->time_to_run = task->interval;
+	task->time_to_run = time(NULL) + task->interval;
 }
 
 

@@ -4,7 +4,8 @@
 *	Date:      
 ******************************************************************************/
 #include <stdio.h>  /* printf()  	  */
-
+#include <assert.h> /* assert			  */
+#include <time.h>
 #include "pq.h"
 #include "uid.h"
 #include "task.h"
@@ -26,6 +27,7 @@ void TestScheduler();
 int Print(void * this_node, void *node_counter);
 int Match(void * src, void *data);
 int PrintMyName(void * name);
+int StopTest(void * scheduler);
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -47,13 +49,21 @@ int main()
 
 void TestScheduler()
 {
+	
 	scheduler_t * scheduler = SchedulerCreate();
-	SchedulerAdd(scheduler,&PrintMyName, (void *)"yuval", 2, 4, NULL, 
+	SchedulerAdd(scheduler,&PrintMyName, (void *)"yuval", time(NULL) + 2, 2, NULL, 
 							NULL);
-	SchedulerRun(scheduler);					
+	
+	SchedulerAdd(scheduler,&PrintMyName, (void *)"Einav", time(NULL) + 1, 5, NULL, 
+							NULL);
+	
+	
+	SchedulerRun(scheduler);	
+					
 	SchedulerDestroy(scheduler);
 
 }
+
 
 int Match(void * node_data, void *params)
 {
@@ -75,20 +85,30 @@ int Match(void * node_data, void *params)
 
 int PrintMyName(void * name)
 {
+	assert(name != NULL);
 	printf("this is my name: %s\n", (char *)name);
 	return 1;
 
 }
 
-int comparefunc(void * node_data, void *params)
+int StopTest(void * scheduler)
 {
-	if ((*(int *)node_data - *(int *)params) == 0)
-	{
-		return 1;
-	} 
-	return (*(int *)node_data - *(int *)params);
+	scheduler = (scheduler_t *)scheduler;
+	SchedulerStop(scheduler);
+	return 0;
+
 }
 
+
+/*
+int SaveTimeInHeap(void * time)
+{
+	assert(time != NULL);
+	time = (time_t)time;
+	
+	
+}
+*/
 
 
 

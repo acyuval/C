@@ -7,6 +7,7 @@
 #include <assert.h> /* assert			  */
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "uid.h"
 #include "task.h"
@@ -19,6 +20,7 @@
 #define FAIL (-1)
 #define REPEAT (1)
 #define NO_REPEAT (0)
+#define STOP (0)
 /******************************************************************************
 *							 DECLRATION								  * 
 ******************************************************************************/
@@ -105,6 +107,7 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler,	op_func_t op_func,
 	
 	if (FAIL == status)
 	{
+		TaskDestroy(task);
 		return bad_uid;
 	}
 	return TaskGetUid(task);
@@ -133,7 +136,7 @@ int SchedulerRun(scheduler_t *scheduler)
 	task_t * task = NULL;
 	time_t time_to_run = 0;
 	int status = SUCCESS;
-	int is_stoped = 0;
+	int is_failed = 0;
 	assert(scheduler != NULL); 
 	
 	scheduler->is_running = 1;
@@ -143,7 +146,7 @@ int SchedulerRun(scheduler_t *scheduler)
 		task = (task_t *)PQPeek(scheduler->pq);
 		time_to_run = TaskGetTimeToRun(task);
 		
-		while (time_to_run--)
+		while (time_to_run-time(NULL))
 		{
 			
 			sleep(1);
@@ -153,10 +156,6 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		status = TaskRun(task);
 		
-		if (0 == scheduler->is_running)
-		{
-			return STOPPED;
-		}
 		
 		if (REPEAT == status)
 		{
@@ -165,11 +164,16 @@ int SchedulerRun(scheduler_t *scheduler)
 			
 			if (FAIL == status)
 			{
-				is_stoped = 1;
+				is_failed = 1;
 			}
 		}
+		
+		if (STOP == scheduler->is_running)
+		{
+			return STOPPED;
+		}
 	}
-	return (!is_stoped && SUCCESS == status) ? SUCCESS : STOPPED;
+	return (!is_failed && SUCCESS == status) ? SUCCESS : STOPPED;
 }
 
 
@@ -200,7 +204,7 @@ int CompareFunc(void *task1,void *task2)
 	
 	return_value = TaskIsBefore((const task_t *)task1,(const task_t *) task2);
 	
-	return return_value ? SUCCESS : FAIL;
+	return return_value ? FAIL : SUCCESS;
 }
 
 
