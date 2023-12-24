@@ -53,6 +53,7 @@ task_t *TaskCreate(op_func_t op_func, void* params,
 		return NULL;
 	}
 	task->uid = UIDCreate();
+
 	task->op_func = op_func;
 	task->params = params;
 	task->time_to_run = time_to_run;
@@ -69,7 +70,7 @@ void TaskDestroy(task_t *task)
 	assert(NULL != task);
 	if (task->clean_up_func != NULL)
 	{
-	task->clean_up_func(task->clean_up_params);
+		task->clean_up_func(task->clean_up_params);
 	}
 
 	free(task);

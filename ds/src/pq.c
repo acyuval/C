@@ -73,12 +73,13 @@ size_t PQSize(const pq_t *pq)
 int PQEnqueue(pq_t *pq, void *data)
 {
 	int status = 0;
-
+	size_t size = 0;
 	assert(pq != NULL);
-
+	size = SortedListSize(pq->sorted_list);
 	SortedListInsert(pq->sorted_list, data);
 	
-	status = (data == PQPeek(pq));
+	status = SortedListSize(pq->sorted_list) - size;
+	
 	return status ? SUCCESS: FAIL;
 }
 

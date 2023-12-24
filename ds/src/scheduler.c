@@ -47,7 +47,7 @@ scheduler_t *SchedulerCreate(void)
 	{
 		return NULL;	
 	}
-
+	scheduler->is_running = 0;
 	scheduler->pq = PQCreate(&CompareFunc);
 	if (NULL == scheduler->pq)
 	{
@@ -136,26 +136,23 @@ int SchedulerRun(scheduler_t *scheduler)
 	task_t * task = NULL;
 	time_t time_to_run = 0;
 	int status = SUCCESS;
-	int is_failed = 0;
 	assert(scheduler != NULL); 
 	
 	scheduler->is_running = 1;
 	
-	while (FALSE == PQIsEmpty(scheduler->pq))
+	while (FALSE == PQIsEmpty(scheduler->pq) && STOP != scheduler->is_running)
 	{
 		task = (task_t *)PQPeek(scheduler->pq);
 		time_to_run = TaskGetTimeToRun(task);
 		
 		while (time_to_run-time(NULL))
 		{
-			
 			sleep(1);
 		}
 		
 		PQDequeue(scheduler->pq);
 		
 		status = TaskRun(task);
-		
 		
 		if (REPEAT == status)
 		{
@@ -164,16 +161,20 @@ int SchedulerRun(scheduler_t *scheduler)
 			
 			if (FAIL == status)
 			{
-				is_failed = 1;
+				TaskDestroy(task);
+				return FAIL;
 			}
 		}
 		
-		if (STOP == scheduler->is_running)
+		else
 		{
-			return STOPPED;
+			TaskDestroy(task);
 		}
 	}
-	return (!is_failed && SUCCESS == status) ? SUCCESS : STOPPED;
+
+	scheduler->is_running = 0;
+	
+	return  SchedulerIsEmpty(scheduler) ? SUCCESS : STOPPED;
 }
 
 
