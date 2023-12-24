@@ -47,16 +47,13 @@ scheduler_t *SchedulerCreate(void)
 	{
 		return NULL;	
 	}
-	
 	scheduler->is_running = 0;
 	scheduler->pq = PQCreate(&CompareFunc);
-	
 	if (NULL == scheduler->pq)
 	{
 		free(scheduler);
 		return NULL;	
 	}
-	
 	return scheduler;
 }
 
@@ -76,7 +73,7 @@ int SchedulerIsEmpty(const scheduler_t *scheduler)
 {
 	assert(scheduler != NULL);
 	
-	return (PQIsEmpty(scheduler->pq) && FALSE == scheduler->is_running);
+	return (PQIsEmpty(scheduler->pq) || scheduler->is_running);
 }
 
 
@@ -101,15 +98,8 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler,	op_func_t op_func,
 	
 	task = TaskCreate(op_func, params, time_to_run, intervals,
 											 clean_up_func, clean_up_params);
-		
 	if (NULL == task)
 	{
-		return bad_uid;
-	}
-	
-	if(UIDIsEqual(TaskGetUid(task), bad_uid))
-	{
-		free(task);
 		return bad_uid;
 	}
 	
@@ -120,7 +110,6 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler,	op_func_t op_func,
 		TaskDestroy(task);
 		return bad_uid;
 	}
-	
 	return TaskGetUid(task);
 }		
 					
@@ -137,7 +126,6 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 	{
 		return FAIL;	
 	}
-	
 	TaskDestroy(task);
 	
 	return SUCCESS;
@@ -157,7 +145,7 @@ int SchedulerRun(scheduler_t *scheduler)
 		task = (task_t *)PQPeek(scheduler->pq);
 		time_to_run = TaskGetTimeToRun(task);
 		
-		while (time_to_run - time(NULL))
+		while (time_to_run-time(NULL))
 		{
 			sleep(1);
 		}
@@ -199,13 +187,10 @@ void SchedulerStop(scheduler_t *scheduler)
 
 void SchedulerClear(scheduler_t *scheduler)
 {
-	task_t * task = NULL;
 	assert(NULL != scheduler);
-	
-	while(FALSE == PQIsEmpty(scheduler->pq))
+	while(FALSE == SchedulerIsEmpty(scheduler))
 	{
-		task = (task_t *)PQDequeue(scheduler->pq);
-		TaskDestroy(task);
+		SchedulerRemove(scheduler, TaskGetUid((task_t *)PQPeek(scheduler->pq)));
 	}
 
 }

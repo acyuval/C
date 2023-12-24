@@ -44,16 +44,17 @@ task_t *TaskCreate(op_func_t op_func, void* params,
                         time_t time_to_run, size_t intervals, 
 						clean_up_t clean_up_func, void *clean_up_params)
 {
-	task_t * task = (task_t *)malloc(sizeof(task_t));
+	task_t * task = NULL;
 	
 	assert(time_to_run != 0);
-	
+
+	task = (task_t *)malloc(sizeof(task_t));	
+
 	if(NULL == task)
 	{
 		return NULL;
 	}
 	task->uid = UIDCreate();
-
 	task->op_func = op_func;
 	task->params = params;
 	task->time_to_run = time_to_run;

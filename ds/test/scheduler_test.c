@@ -75,14 +75,14 @@ void TestSchedulerADDSizeIsEmpty()
 							NULL);
 							
 	TestHelper(0 == SchedulerIsEmpty(scheduler),"TestSchedulerIsEmpty" , 2);	
-	TestHelper(3 == SchedulerSize(scheduler),"TestSchedulerSize " , 1);
+	TestHelper(3 == SchedulerSize(scheduler),"TestSchedulerSize   " , 1);
 				
 	SchedulerRun(scheduler);	
 	
 	SchedulerClear(scheduler);
 		
 	TestHelper(1 == SchedulerIsEmpty(scheduler),"TestSchedulerIsEmpty" , 2);
-	TestHelper(0 == SchedulerSize(scheduler),"TestSchedulerSize " , 3);	
+	TestHelper(0 == SchedulerSize(scheduler),"TestSchedulerSize   " , 3);	
 					
 	SchedulerDestroy(scheduler);
 
