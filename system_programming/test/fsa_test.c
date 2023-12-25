@@ -44,24 +44,26 @@ int main()
 void TestFSA()
 {
 	size_t total_to_allocate = 0;
-	size_t num_of_blocks = 12;
-	size_t block_size = 8;
+	size_t num_of_blocks = 10;
+	size_t block_size = 12;
+	
 	void * ptr_to_data = NULL;
 	void * pool = NULL;
 	fsa_t * fsa = NULL;
 	size_t i = 0;
-	void *ptrs[8] = {NULL};
+	void *ptrs[10] = {NULL};
 	
 	total_to_allocate = FSASuggestSize(num_of_blocks,block_size);
+	
 	pool = malloc(total_to_allocate);
 	
-	fsa = FSAInit(pool, 8 , total_to_allocate);
+	fsa = FSAInit(pool, block_size , total_to_allocate);
 	
 	
 	TestHelper(FSACountFree(fsa) == num_of_blocks ,"TestFSACountFree", 1);
 	
 	
-	for(i=0; i < num_of_blocks; i++)
+	for( i=0 ; i < num_of_blocks ; i++)
 	{
 		ptrs[i] = FSAAlloc(fsa);
 	}
@@ -75,7 +77,6 @@ void TestFSA()
 	}
 
 	TestHelper(FSACountFree(fsa) == num_of_blocks ,"TestFSAFree   ", 4);
-	
 	
 	free(pool);
 	
