@@ -5,17 +5,10 @@
 ******************************************************************************/
 
 #include <assert.h> /* assert			  */
-#include <stdlib.h>
 #include <stdio.h>
-
 
 #include "fsa.h"
 
-#define NO_SPACE (0)
-#define TRUE (1)
-#define FALSE (0)
-#define SUCCESS (0)
-#define FAIL (-1)
 #define WORD_SIZE (sizeof(size_t))
 /******************************************************************************
 *							 DECLRATION								  * 
@@ -34,26 +27,26 @@ static size_t CalcAllingedBlock(size_t block_size);
 
 size_t FSASuggestSize(size_t num_of_blocks, size_t block_size)
 {
-	size_t extra_space = 0; 
 	assert(num_of_blocks != 0);
 	assert(block_size != 0);
 	
 	block_size = CalcAllingedBlock(block_size);
-	(block_size < WORD_SIZE) ? (extra_space = WORD_SIZE) : (extra_space = block_size); /* save more space to struct when block is smaller then struct */ 
-	return ((num_of_blocks*block_size) + extra_space);
+	return ((num_of_blocks*block_size) + WORD_SIZE);
 }
 
 
 fsa_t *FSAInit(void *pool, size_t block_size, size_t pool_size)
 {
-	fsa_t * fsa = NULL; 
-	char * pool_char_runner = pool;
+	
+	char * pool_char_runner = (char *)pool;
 	size_t block_counter = 0;
 	size_t * size_t_ptr = 0;
 	size_t alligned_block_size =  CalcAllingedBlock(block_size);
-	assert(pool != NULL);
 	
-	while(pool_size != ((block_counter*alligned_block_size)+ WORD_SIZE))
+	assert(pool != NULL);
+	assert(pool_size % WORD_SIZE == 0);
+	
+	while(pool_size != (((block_counter+1)*alligned_block_size) + WORD_SIZE))
 	{
 		size_t_ptr = (size_t *)(pool_char_runner + WORD_SIZE +
 										 (block_counter * alligned_block_size));
@@ -63,31 +56,31 @@ fsa_t *FSAInit(void *pool, size_t block_size, size_t pool_size)
 	
 	*(size_t *)(pool_char_runner +  WORD_SIZE + (block_counter * alligned_block_size)) = 0;
 	
-	fsa = (fsa_t *)pool;
-	fsa->next_available = WORD_SIZE;
-	
-	return fsa;
-	 
+	*(size_t *)pool = WORD_SIZE;
+	return (fsa_t *)pool;
 }	
 
 
 void *FSAAlloc(fsa_t *fsa)
 {
-	size_t this_next_available = 0;
+	size_t next_available = 0;
 	char * char_ptr = (char *)fsa;
-	
+	char * available = NULL;
 	assert(fsa != NULL);
 	
-	this_next_available = fsa->next_available;
+	next_available = fsa->next_available;
 	
-	if (this_next_available == 0)
+	if (0 == next_available)
 	{
 		return NULL;
 	}
 	
-	fsa->next_available = *(size_t *)(char_ptr + this_next_available);
-	assert(((char *)fsa + this_next_available) != NULL);
-	return (void *)(char_ptr + this_next_available);
+	available = char_ptr + next_available;
+	
+	fsa->next_available = *(size_t *)(available);
+	
+	
+	return (void *)available;
 }
 
 
@@ -115,12 +108,12 @@ size_t FSACountFree(fsa_t *fsa)
 	assert(fsa != NULL);
 	next_offset = fsa->next_available;
 	
-	if (next_offset == 0)
+	if (0 == next_offset)
 	{
 		return 0;
 	}
 	
-	while((*(size_t *)(char_ptr + next_offset)) != 0)
+	while(0 != (*(size_t *)(char_ptr + next_offset)))
 	{
 		next_offset = *(size_t *)(char_ptr + next_offset);
 		++counter;
@@ -136,10 +129,5 @@ size_t FSACountFree(fsa_t *fsa)
 static size_t CalcAllingedBlock(size_t block_size)
 {
 	
-	block_size > WORD_SIZE ?(block_size += WORD_SIZE - (block_size % WORD_SIZE))
-													: (block_size = WORD_SIZE);
-										
-	
-	return block_size;
-
+	return ((((block_size - 1) / WORD_SIZE) + 1) * WORD_SIZE) ;
 }
