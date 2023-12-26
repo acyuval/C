@@ -54,9 +54,11 @@ fsa_t *FSAInit(void *pool, size_t block_size, size_t pool_size)
 		block_counter++;
 	}
 	
-	*(size_t *)(pool_char_runner +  WORD_SIZE + (block_counter * alligned_block_size)) = 0;
+	*(size_t *)(pool_char_runner +  WORD_SIZE + 
+									(block_counter * alligned_block_size)) = 0;
 	
 	*(size_t *)pool = WORD_SIZE;
+	
 	return (fsa_t *)pool;
 }	
 

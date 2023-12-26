@@ -5,17 +5,6 @@
 
 typedef struct vsa vsa_t;
 
-/*
-
-in c
- 
-struct vsa {
-    long block_size;
-#ifndef NDEBUG
-    long magic_number;
-#endif
-    }
-*/
 
 /****************************************************************************
  * Description: Initializes the variable size allocator with the given pool. 
