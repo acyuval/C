@@ -1,6 +1,6 @@
 /******************************************************************************
 *	Author:    Yuval 
-*	Reviewer : 
+*	Reviewer : igal
 *	Date:      
 ******************************************************************************/
 
@@ -18,7 +18,7 @@
 ******************************************************************************/
 vsa_t * SructInit(char * vsa ,long block_size);
 static size_t CalcAllingedBlock(size_t block_size);
-static long CheckDefagram(char * char_pool_runner);
+static void CheckDefagram(char * char_pool_runner);
 static long GetBlockSize(char * char_ptr);
 char * FindAvailableSpot(char * char_ptr);
 static int IsAvilableWithMeta(size_t size_to_alloc,long available_block);
@@ -44,6 +44,7 @@ vsa_t *VSAInit(void *pool, size_t pool_size)
 	vsa_t *vsa_start = pool;
 	char * char_ptr = (char *)pool;
 	long real_available_size = 0;
+	
 	assert(NULL != pool);
 	
 	assert(0 == ((size_t)&pool % 8) );
@@ -55,7 +56,6 @@ vsa_t *VSAInit(void *pool, size_t pool_size)
 
 	real_available_size =  ((long)pool_size - (2 * VSA_SIZE)) - 
 														(pool_size % WORD_SIZE);
-														
 	SructInit(pool, real_available_size);
 	SructInit((char_ptr + (pool_size - VSA_SIZE)), 0);
 	
@@ -99,7 +99,6 @@ void *VSAAlloc(vsa_t *vsa, size_t size_to_alloc)
 
 void VSAFree(void *to_free)
 {
-	
 	char * char_ptr = (char *)to_free;
 	vsa_t * vsa_ptr = NULL;
 	
@@ -110,11 +109,8 @@ void VSAFree(void *to_free)
 	
 	char_ptr -= VSA_SIZE;
 	vsa_ptr = (vsa_t *)char_ptr;
-	
 	assert(MAGIC_NUMBER == vsa_ptr->magic_number);
-	
 	assert(vsa_ptr->block_size < 0);
-	
 	vsa_ptr->block_size *= -1;
 }
 
@@ -122,37 +118,32 @@ size_t VSALargestFreeSize(vsa_t *vsa)
 {
 	long max_block = 0;
 	long block_available = 0;
-	char * char_ptr = NULL;
+	char * char_ptr = (char *)vsa;
+	
 	assert(MAGIC_NUMBER == vsa->magic_number);
 	assert(vsa != NULL);
 	
-	char_ptr = (char *)vsa;
 	
 	while(GetBlockSize(char_ptr) != FALSE)
 	{
-		block_available = GetABSBlockSize(char_ptr);
 		
 		if (FALSE == IsFreeBlock(char_ptr))
 		{
-			char_ptr += block_available +VSA_SIZE;
-			continue;
+			char_ptr = GetNextBlock(char_ptr);
 		}
-		
-		CheckDefagram(char_ptr);
-		block_available = GetBlockSize(char_ptr);
-		(max_block < block_available) ? (max_block = block_available) : (0) ;
-		char_ptr += block_available +VSA_SIZE;
-	}
-	
-	if (0 == max_block)
-	{
-		return 0;
+		else 
+		{
+			CheckDefagram(char_ptr);
+			block_available = GetABSBlockSize(char_ptr);
+			(max_block < block_available) ? (max_block = block_available) : (0) ;
+			char_ptr = GetNextBlock(char_ptr);
+		}
 	}
 	
 	return (max_block);
 }
 
-static long CheckDefagram(char * char_pool_runner)
+static void CheckDefagram(char * char_pool_runner)
 {
 	vsa_t * vsa_ptr = NULL;
 
@@ -165,7 +156,7 @@ static long CheckDefagram(char * char_pool_runner)
 		next_block = GetNextBlock(char_pool_runner);
 	}
 	
-	return 1;
+	return;
 }
 
 static size_t CalcAllingedBlock(size_t block_size)
@@ -211,7 +202,7 @@ static char * MakeAllocation(char * char_ptr, size_t size_to_alloc)
 
 static char * GetNextBlock(char * char_ptr)
 {
-	long block_size = GetBlockSize(char_ptr);
+	long block_size = GetABSBlockSize(char_ptr);
 	return (char_ptr + block_size + VSA_SIZE);
 }
 
