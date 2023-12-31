@@ -71,6 +71,10 @@ void TestSchedulerADDSizeIsEmpty()
 	SchedulerAdd(scheduler,&PrintMyName, (void *)"Einav", time(NULL) + 1, 2, NULL, 
 							NULL);
 	
+							
+	SchedulerAdd(scheduler,&SchedulerRemove, (void *)scheduler, time(NULL) + 4, 5, NULL, 
+							NULL);
+							
 	SchedulerAdd(scheduler,&StopTest, (void *)scheduler, time(NULL) + 4, 5, NULL, 
 							NULL);
 							
@@ -133,6 +137,15 @@ int StopTest(void * scheduler)
 {
 	scheduler = (scheduler_t *)scheduler;
 	SchedulerStop(scheduler);
+	return 0;
+
+}
+
+
+int RemoveTest(void * scheduler)
+{
+	scheduler = (scheduler_t *)scheduler;
+	SchedulerRemove(scheduler->);
 	return 0;
 
 }

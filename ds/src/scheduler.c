@@ -30,6 +30,7 @@ struct scheduler
 {
 	pq_t *pq;
 	int is_running;
+	task_t * cur_task;
 };
 		
 
@@ -43,6 +44,7 @@ int IsMatchFunc(void *task,void *uid);
 scheduler_t *SchedulerCreate(void)
 {
 	scheduler_t * scheduler = (scheduler_t *)malloc(sizeof(scheduler_t));
+	
 	if (NULL == scheduler)
 	{
 		return NULL;	
@@ -130,7 +132,13 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 {
 	task_t *task = NULL;
 	assert(scheduler != NULL);
-
+	
+	if (TRUE == TaskIsMatch(scheduler->cur_task , uid))
+	{
+		scheduler->cur_task = NULL;
+		return SUCCESS;
+	}
+	
 	task = PQErase(scheduler->pq, &IsMatchFunc, &uid);
 	
   	if (NULL == task)
@@ -139,7 +147,6 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 	}
 	
 	TaskDestroy(task);
-	
 	return SUCCESS;
 }
 
@@ -155,6 +162,7 @@ int SchedulerRun(scheduler_t *scheduler)
 	while (FALSE == PQIsEmpty(scheduler->pq) && STOP != scheduler->is_running)
 	{
 		task = (task_t *)PQPeek(scheduler->pq);
+		scheduler->cur_task = task;
 		time_to_run = TaskGetTimeToRun(task);
 		
 		while (time_to_run - time(NULL))
@@ -168,8 +176,15 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		if (REPEAT == status)
 		{
+			if(NULL == scheduler->cur_task)
+			{
+				TaskDestroy(task);
+				continue;			
+			}
+
 			TaskUpdateTimeToRun(task);	
 			status = PQEnqueue(scheduler->pq, task);
+			
 			
 			if (FAIL == status)
 			{
@@ -202,12 +217,16 @@ void SchedulerClear(scheduler_t *scheduler)
 	task_t * task = NULL;
 	assert(NULL != scheduler);
 	
+	if (TRUE == TaskIsMatch(scheduler->cur_task , uid))
+	{
+		scheduler->cur_task = NULL;
+	}
+		
 	while(FALSE == PQIsEmpty(scheduler->pq))
 	{
 		task = (task_t *)PQDequeue(scheduler->pq);
 		TaskDestroy(task);
 	}
-
 }
 
 
