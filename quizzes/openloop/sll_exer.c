@@ -40,7 +40,33 @@ node_t * HasLoop(node_t * head)
 		fast = fast->next->next;
 		slow = slow->next;
 	}
-	return NULL;
+	return slow;
+}	
+
+int OpenLoop(node_t * head)
+{
+	node_t * runner = head;
+	node_t * late_runner = head;
+	node_t * temp = head;
+	int counter = 0 ; 
+	head = HasLoop(head);
+	temp = head;
+
+	while(head != temp )
+	{
+		head = head->next; 
+		counter++;
+	}
+	while(counter--)
+	{
+		runner = runner->next;
+	}
+
+	while(runner->next != late_runner->next)
+	{
+		runner = runner->next;
+		late_runner = late_runner->next;
+	}
+	printf("loop open");
+	return 1;
 }
-
-
