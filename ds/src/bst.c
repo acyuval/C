@@ -69,17 +69,15 @@ bst_t *BSTCreate(compare_t cmp_func)
 void BSTDestroy(bst_t *bst)
 {
     bst_iter_t iter = NULL;
-    bst_iter_t iter_next = NULL;
-    
     assert(bst != NULL);
 
     iter = BSTBegin(bst);
     while(BSTIsEmpty(bst) != TRUE)
     {
-        iter_next = BSTNext(iter);
-        BSTRemove(iter);
-        iter = iter_next; 
+        iter = BSTRemove(iter); 
     }
+    free(bst->root);
+    free(bst);
 }
 
 bst_iter_t BSTInsert(bst_t *bst, const void *data)
@@ -87,7 +85,7 @@ bst_iter_t BSTInsert(bst_t *bst, const void *data)
     bst_iter_t node = NULL;
     bst_iter_t iter = bst->root->left;
     bst_iter_t parent = NULL;
-    int status = 0;
+    int diffrential = 0;
     assert(NULL != bst);
     assert(NULL != data);
 
@@ -96,18 +94,20 @@ bst_iter_t BSTInsert(bst_t *bst, const void *data)
     {
         return NULL;
     }      
-                                    /* insert to empty tree*/
+     /* insert to empty tree*/
     if(iter == NULL)
     {
         bst->root->left = node;
+        node->parent = bst->root;
         return iter;
     }
 
     while(iter != NULL)
     {    
-        status = bst->cmp_func(iter->data,(void *)data);
+        diffrential = bst->cmp_func(iter->data,(void *)data);
+        assert(diffrential != 0);
         parent = iter;
-        if(status > 0)
+        if(diffrential > 0)
         {
             iter = iter->left;
         }
@@ -121,7 +121,7 @@ bst_iter_t BSTInsert(bst_t *bst, const void *data)
     {
         ConnectTwoNodes(node, parent, LEFT);
     }
-    else if (status > 0)
+    else if (diffrential > 0)
     {
         ConnectTwoNodes(node, parent, LEFT);
     }
@@ -138,10 +138,12 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     bst_iter_t iter_right_most_chiled = NULL;
     bst_iter_t iter_next = NULL;
     bst_iter_t iter_child = NULL;
-    assert(NULL == iter);
+    assert(NULL != iter);
+    
+    iter_next = BSTNext(iter);
     
     /*delete node with one or no children*/
-
+    
     if (iter->left == NULL)
     {
         iter_child = iter->right;
@@ -159,13 +161,14 @@ bst_iter_t BSTRemove(bst_iter_t iter)
         iter_child = iter->left;
         if(FindChiledSide(iter) == LEFT)
         {
-            iter->parent->right = iter->left;
+            iter->parent->left = iter->left;
         }
         else
         {
             iter->parent->right = iter->left;
         }    
     }
+    /* if chiled exist */
     if(iter_child != NULL)
     {
         iter_child->parent = iter->parent;
@@ -189,7 +192,7 @@ bst_iter_t BSTRemove(bst_iter_t iter)
         iter_next->left = iter->left;
     }
 
-    iter_next = BSTNext(iter);
+    
     free(iter);
     return iter_next;
 }
@@ -198,22 +201,23 @@ bst_iter_t BSTRemove(bst_iter_t iter)
 bst_iter_t BSTFind(const bst_t *bst, const void *to_find)
 {
     bst_iter_t iter = NULL;
-    int status = 0;
+    int diffrential = 0;
     
     assert(bst != to_find);
     assert(bst != NULL);
     
-    iter = BSTBegin(bst);
-    status = bst->cmp_func(iter->data ,(void *)to_find);
+    iter = bst->root->left;
 
-    while (status == FALSE)
+    diffrential = bst->cmp_func(iter->data ,(void *)to_find);
+
+    while (diffrential != 0 && iter != NULL)
     {
-        status = bst->cmp_func(iter->data , (void *)to_find);
-        if (status > 0)
+        diffrential = bst->cmp_func(iter->data , (void *)to_find);
+        if (diffrential > 0)
         {
             iter = iter->left;
         }
-        else
+        if (diffrential < 0)
         {
             iter = iter->right;
         }   
@@ -242,7 +246,7 @@ size_t BSTSize(const bst_t *bst)
     size_t counter = 0; 
     assert(NULL != bst);
     iter = BSTBegin(bst);
-    while(iter->parent == NULL)
+    while(iter->parent != NULL)
     {
         iter = BSTNext(iter);
         ++counter;
@@ -252,8 +256,6 @@ size_t BSTSize(const bst_t *bst)
 
 int BSTIsEqual(bst_iter_t iter1, bst_iter_t iter2)
 {
-    assert(iter1 != NULL);
-    assert(iter2 != NULL);
     return (iter1 == iter2);
 }
 
@@ -261,7 +263,7 @@ bst_iter_t BSTBegin(const bst_t *bst)
 {
     bst_iter_t iter = NULL;
     assert(NULL != bst);
-    iter = bst->root->left;
+    iter = bst->root;
     while(NULL != iter->left)
     {
         iter = iter->left;
@@ -273,13 +275,15 @@ bst_iter_t BSTEnd(const bst_t *bst)
 {
     assert(NULL != bst);
 
-    return bst->root->right;
+    return bst->root;
 }
 
 bst_iter_t BSTNext(bst_iter_t iter)
 {
     bst_iter_t next = NULL;
+    
     assert(NULL != iter);
+
     if (NULL == iter->parent)
     {
         return NULL;
@@ -296,7 +300,7 @@ bst_iter_t BSTNext(bst_iter_t iter)
     }    
     else 
     {
-        while(FindChiledSide(iter) == LEFT)
+        while(FindChiledSide(iter) == RIGHT)
         {
             iter = iter->parent;
         }
@@ -311,7 +315,7 @@ bst_iter_t BSTPrev(bst_iter_t iter)
     bst_iter_t prev = NULL;
     assert(NULL != iter);
 
-    if (NULL == iter->parent)
+    if (NULL == iter->left && FindChiledSide(iter) == LEFT)
     {
         return NULL;
     }
@@ -327,7 +331,7 @@ bst_iter_t BSTPrev(bst_iter_t iter)
     }    
     else 
     {
-        while(BSTIsEqual((iter->parent)->right, iter))
+        while(FindChiledSide(iter) == LEFT)
         {
             iter = iter->parent;
         }
@@ -340,15 +344,20 @@ bst_iter_t BSTPrev(bst_iter_t iter)
 int BSTForEach(bst_iter_t from, bst_iter_t to, action_t action_func, const void *params)
 {
     bst_iter_t iter = NULL;
-    
+    int status = 0;
     assert(NULL != action_func);
     assert(NULL != from);
     assert(NULL != to);
     
     iter = from;
-    while(iter->parent == NULL)
+    while(iter != to)
     {
-        action_func(iter->data, (void *)params);
+        status = action_func(iter->data, (void *)params);
+        if(status == FAIL)
+        {
+            return FAIL;
+        }
+
         iter = BSTNext(iter);
     }
 
