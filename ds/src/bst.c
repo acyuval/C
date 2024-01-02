@@ -15,8 +15,7 @@
 #define FAIL (-1)
 #define FALSE (0)
 #define TRUE (1)
-#define LEFT (-1)
-#define RIGHT (1)
+
 /******************************************************************************
 *							 DECLRATION								  * 
 ******************************************************************************/
@@ -120,11 +119,11 @@ bst_iter_t BSTInsert(bst_t *bst, const void *data)
     assert(found.diffrential != 0);
     if (found.diffrential > 0)
     {
-        ConnectTwoNodes(node, found.parent, LEFT);
+        ConnectTwoNodes(node, found.parent, L);
     }
     else
     {
-        ConnectTwoNodes(node, found.parent, RIGHT);
+        ConnectTwoNodes(node, found.parent, R);
     }    
     return node; 
 }
@@ -134,41 +133,11 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     bst_iter_t iter_right_most_chiled = NULL;
     bst_iter_t iter_next = NULL;
     bst_iter_t iter_child = NULL;
+    int side = 0; 
     assert(NULL != iter);
     
     iter_next = BSTNext(iter);
     
-    /*delete node with one or no children*/
-    
-    if (iter->child[L] == NULL)
-    {
-        iter_child = iter->child[R];
-        if(FindChiledSide(iter) == RIGHT)
-        {
-            iter->parent->child[R] = iter->child[R];
-        }
-        else
-        {
-            iter->parent->child[L] = iter->child[R];
-        }
-    }
-    else if(iter->child[R] == NULL)
-    {
-        iter_child = iter->child[L];
-        if(FindChiledSide(iter) == LEFT)
-        {
-            iter->parent->child[L] = iter->child[L];
-        }
-        else
-        {
-            iter->parent->child[R] = iter->child[L];
-        }    
-    }
-    /* if chiled exist */
-    if(iter_child != NULL)
-    {
-        iter_child->parent = iter->parent;
-    }
 
     /* delete node with two children */
 
@@ -176,11 +145,24 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     {
         iter_next = BSTNext(iter);
         iter_right_most_chiled = iter_next; 
-        iter_right_most_chiled = DeepDive(iter_right_most_chiled, RIGHT);
+        iter_right_most_chiled = DeepDive(iter_right_most_chiled, R);
         iter_right_most_chiled->child[R] = iter->child[R];
         iter_next->parent->child[L] = NULL;
         iter_next->parent = iter->parent;
         iter_next->child[L] = iter->child[L];
+    }
+    else  
+    {
+        /*delete node with one or no children*/
+        iter_child = (bst_iter_t)((size_t)iter->child[L] ^ (size_t)iter->child[R]);
+        side = FindChiledSide(iter);
+        iter->parent->child[side] = iter_child;
+        
+        /* if chiled exist */
+        if(iter_child != NULL)
+        {
+            iter_child->parent = iter->parent;
+        }
     }
     
     free(iter);
@@ -277,7 +259,7 @@ bst_iter_t BSTNext(bst_iter_t iter)
     }    
     else 
     {
-        while(FindChiledSide(iter) == RIGHT)
+        while(FindChiledSide(iter) == R)
         {
             iter = iter->parent;
         }
@@ -292,7 +274,7 @@ bst_iter_t BSTPrev(bst_iter_t iter)
     bst_iter_t prev = NULL;
     assert(NULL != iter);
 
-    if (NULL == iter->child[L] && FindChiledSide(iter) == LEFT)
+    if (NULL == iter->child[L] && FindChiledSide(iter) == L)
     {
         return NULL;
     }
@@ -308,7 +290,7 @@ bst_iter_t BSTPrev(bst_iter_t iter)
     }    
     else 
     {
-        while(FindChiledSide(iter) == LEFT)
+        while(FindChiledSide(iter) == L)
         {
             iter = iter->parent;
         }
@@ -350,12 +332,12 @@ int BSTForEach(bst_iter_t from, bst_iter_t to, action_t action_func, const void 
 
 static void ConnectTwoNodes(bst_iter_t child,bst_iter_t parent, int type )
 {
-    if(type == LEFT)
+    if(type == L)
     {
         parent->child[L] = child;
         child->parent = parent;
     }
-    if(type == RIGHT)
+    if(type == R)
     {
         parent->child[R] = child;
         child->parent = parent;
@@ -383,17 +365,17 @@ static int FindChiledSide(bst_iter_t iter)
 {
     if(BSTIsEqual((iter->parent)->child[L], iter))
     {
-        return LEFT;
+        return L;
     }
     else
     {
-        return RIGHT;
+        return R;
     }
 }
 
 static bst_iter_t DeepDive(bst_iter_t iter , int type)
 {
-    if(type == LEFT)
+    if(type == L)
     {
        while(iter->child[L] == NULL)
        {
