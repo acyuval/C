@@ -9,21 +9,7 @@ typedef struct bst bst_t;
 typedef int (*compare_t)(void *, void *);
 typedef int (*action_t)(void *, void *);
 
-/*
-struct node
-{
-    void *data;
-    bst_iter_t parent;
-    bst_iter_t right;
-    bst_iter_t left;
-};
 
-struct bst
-{
-    bst_iter_t root;
-    compare_t compare_func;
-};
-*/
 
 /******************************************************************************
 *Description: Creates a new binary search tree.

@@ -20,11 +20,6 @@
 /******************************************************************************
 *							 DECLRATION								  * 
 ******************************************************************************/
-struct bst
-{
-    bst_iter_t root;
-    compare_t cmp_func;
-};
 
 struct node
 {
@@ -34,10 +29,29 @@ struct node
     bst_iter_t left;
 };
 
+typedef struct node node_t;
+
+struct bst
+{
+    node_t root;
+    compare_t cmp_func;
+};
+
+struct family
+{
+    bst_iter_t parent;
+    bst_iter_t child;
+    long diffrential;
+};
+    
+
+
 static bst_iter_t CreateNewNode(void * data);
 
 static void ConnectTwoNodes(bst_iter_t child,bst_iter_t parent, int type );
 static int FindChiledSide(bst_iter_t iter);
+static bst_iter_t DeepDive(bst_iter_t iter , int type);
+static struct family FindSpot(bst_iter_t iter, void * data , compare_t cmp_func);
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
@@ -48,21 +62,17 @@ bst_t *BSTCreate(compare_t cmp_func)
 
     assert(NULL != cmp_func);
     bst = (bst_t *)malloc(sizeof(bst_t));
-    
     if (NULL == bst)
     {
         return NULL;
     }
-    
 
-    bst->root = CreateNewNode(NULL);
+    bst->root.data = NULL;
+    bst->root.left = NULL;
+    bst->root.right = NULL;
+    bst->root.parent = NULL;
+
     bst->cmp_func = cmp_func;
-    if (bst->root == NULL)
-    {
-        free(bst);
-        return NULL;
-    }
-
     return bst; 
 }
 
@@ -76,16 +86,14 @@ void BSTDestroy(bst_t *bst)
     {
         iter = BSTRemove(iter); 
     }
-    free(bst->root);
     free(bst);
 }
 
 bst_iter_t BSTInsert(bst_t *bst, const void *data)
 {
     bst_iter_t node = NULL;
-    bst_iter_t iter = bst->root->left;
-    bst_iter_t parent = NULL;
-    int diffrential = 0;
+    bst_iter_t iter = bst->root.left;
+    struct family found = {0};
     assert(NULL != bst);
     assert(NULL != data);
 
@@ -97,39 +105,22 @@ bst_iter_t BSTInsert(bst_t *bst, const void *data)
      /* insert to empty tree*/
     if(iter == NULL)
     {
-        bst->root->left = node;
-        node->parent = bst->root;
+        bst->root.left = node;
+        node->parent = &(bst->root);
         return iter;
     }
 
-    while(iter != NULL)
-    {    
-        diffrential = bst->cmp_func(iter->data,(void *)data);
-        assert(diffrential != 0);
-        parent = iter;
-        if(diffrential > 0)
-        {
-            iter = iter->left;
-        }
-        else
-        {
-            iter = iter->right;
-        }
-    }
-        
-    if(NULL == parent)
+    found = FindSpot(iter, (void *)data, bst->cmp_func);
+ 
+    assert(found.diffrential != 0);
+    if (found.diffrential > 0)
     {
-        ConnectTwoNodes(node, parent, LEFT);
-    }
-    else if (diffrential > 0)
-    {
-        ConnectTwoNodes(node, parent, LEFT);
+        ConnectTwoNodes(node, found.parent, LEFT);
     }
     else
     {
-        ConnectTwoNodes(node, parent, RIGHT);
-    }
-
+        ConnectTwoNodes(node, found.parent, RIGHT);
+    }    
     return node; 
 }
 
@@ -179,19 +170,13 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     if(iter->right != NULL && iter->left != NULL)
     {
         iter_next = BSTNext(iter);
-        
         iter_right_most_chiled = iter_next; 
-        while(iter_right_most_chiled->right != NULL)
-        {
-            iter_right_most_chiled = iter_right_most_chiled->right;
-        }
-
+        iter_right_most_chiled = DeepDive(iter_right_most_chiled, RIGHT);
         iter_right_most_chiled->right = iter->right;
         iter_next->parent->left = NULL;
         iter_next->parent = iter->parent;
         iter_next->left = iter->left;
     }
-
     
     free(iter);
     return iter_next;
@@ -201,28 +186,15 @@ bst_iter_t BSTRemove(bst_iter_t iter)
 bst_iter_t BSTFind(const bst_t *bst, const void *to_find)
 {
     bst_iter_t iter = NULL;
-    int diffrential = 0;
-    
+
+    struct family found = {0};
     assert(bst != to_find);
     assert(bst != NULL);
     
-    iter = bst->root->left;
+    iter = bst->root.left;
 
-    diffrential = bst->cmp_func(iter->data ,(void *)to_find);
-
-    while (diffrential != 0 && iter != NULL)
-    {
-        diffrential = bst->cmp_func(iter->data , (void *)to_find);
-        if (diffrential > 0)
-        {
-            iter = iter->left;
-        }
-        if (diffrential < 0)
-        {
-            iter = iter->right;
-        }   
-    }
-    return iter;
+    found = FindSpot(iter, (void *)to_find, bst->cmp_func);
+    return found.child;
 }
 
 
@@ -237,7 +209,7 @@ void *BSTGetData(bst_iter_t iter)
 int BSTIsEmpty(const bst_t *bst)
 {
     assert(NULL != bst);
-    return (NULL == bst->root->left);
+    return (NULL == bst->root.left);
 }
 
 size_t BSTSize(const bst_t *bst)
@@ -263,7 +235,7 @@ bst_iter_t BSTBegin(const bst_t *bst)
 {
     bst_iter_t iter = NULL;
     assert(NULL != bst);
-    iter = bst->root;
+    iter = (bst_iter_t)&(bst->root);
     while(NULL != iter->left)
     {
         iter = iter->left;
@@ -275,12 +247,12 @@ bst_iter_t BSTEnd(const bst_t *bst)
 {
     assert(NULL != bst);
 
-    return bst->root;
+    return (bst_iter_t)&bst->root;
 }
 
 bst_iter_t BSTNext(bst_iter_t iter)
 {
-    bst_iter_t next = NULL;
+    node_t *next = NULL;
     
     assert(NULL != iter);
 
@@ -353,7 +325,7 @@ int BSTForEach(bst_iter_t from, bst_iter_t to, action_t action_func, const void 
     while(iter != to)
     {
         status = action_func(iter->data, (void *)params);
-        if(status == FAIL)
+        if(status != SUCCESS)
         {
             return FAIL;
         }
@@ -413,3 +385,49 @@ static int FindChiledSide(bst_iter_t iter)
         return RIGHT;
     }
 }
+
+static bst_iter_t DeepDive(bst_iter_t iter , int type)
+{
+    if(type == LEFT)
+    {
+       while(iter->left == NULL)
+       {
+            iter = iter->left;
+       }
+    }
+    else
+    {
+        while(iter->right == NULL)
+       {
+            iter = iter->right;
+       }
+    }
+    return iter;
+}
+
+static struct family FindSpot(bst_iter_t iter, void * data , compare_t cmp_func)
+{
+    long diffrential = cmp_func(iter->data,(void *)data);
+    struct family found = {NULL};
+
+    while(diffrential != 0 && iter != NULL )
+    {    
+        diffrential = cmp_func(iter->data,(void *)data);
+        found.parent = iter;
+        if(diffrential > 0)
+        {
+            iter = iter->left;
+        }
+        if(diffrential < 0)
+        {
+            iter = iter->right;
+        }
+    }
+    found.diffrential = diffrential;
+    found.child = iter;
+    return found;
+}
+
+
+
+  
