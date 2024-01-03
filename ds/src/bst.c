@@ -9,12 +9,7 @@
 #include <stdlib.h>
 
 #include "../include/bst.h"
-
-
-#define SUCCESS (0)
-#define FAIL (-1)
-#define FALSE (0)
-#define TRUE (1)
+#include "../include/utiles.h"
 
 /******************************************************************************
 *							 DECLRATION								  * 
@@ -51,7 +46,8 @@ struct family
 
 
 static bst_iter_t CreateNewNode(void * data);
-
+static node_t * IterToNode(bst_iter_t iter);
+static bst_iter_t NodeToIter(node_t * node);
 static void ConnectTwoNodes(bst_iter_t child,bst_iter_t parent, int type );
 static int FindChiledSide(bst_iter_t iter);
 static bst_iter_t DeepDive(bst_iter_t iter , int type);
@@ -137,15 +133,12 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     assert(NULL != iter);
     
     iter_next = BSTNext(iter);
-    
 
     /* delete node with two children */
 
     if(iter->child[R] != NULL && iter->child[L] != NULL)
     {
-        iter_next = BSTNext(iter);
-        iter_right_most_chiled = iter_next; 
-        iter_right_most_chiled = DeepDive(iter_right_most_chiled, R);
+        iter_right_most_chiled = DeepDive(iter_next, R);
         iter_right_most_chiled->child[R] = iter->child[R];
         iter_next->parent->child[L] = NULL;
         iter_next->parent = iter->parent;
@@ -173,13 +166,11 @@ bst_iter_t BSTRemove(bst_iter_t iter)
 bst_iter_t BSTFind(const bst_t *bst, const void *to_find)
 {
     bst_iter_t iter = NULL;
-
     struct family found = {0};
+    
     assert(bst != to_find);
     assert(bst != NULL);
-    
     iter = bst->root.child[L];
-
     found = FindSpot(iter, (void *)to_find, bst->cmp_func);
     return found.child;
 }
@@ -240,33 +231,31 @@ bst_iter_t BSTEnd(const bst_t *bst)
 bst_iter_t BSTNext(bst_iter_t iter)
 {
     node_t *next = NULL;
-    
-    assert(NULL != iter);
+    node_t * this_node = NULL;
 
-    if (NULL == iter->parent)
+    assert(NULL != iter);
+    
+    this_node = IterToNode(iter);
+    
+    if (NULL == this_node->parent)
     {
         return NULL;
     }
 
     if(iter->child[R] != NULL)
-    {
-        iter = iter->child[R];
-        while(NULL != iter->child[L])
-        {
-            iter = iter->child[L];
-        }
-        next = iter; 
+    {     
+        next = DeepDive(this_node->child[R] , L);
     }    
     else 
     {
-        while(FindChiledSide(iter) == R)
+        while(FindChiledSide(this_node) == R)
         {
-            iter = iter->parent;
+            this_node = this_node->parent;
         }
-        next = iter->parent;
+        next = this_node->parent;
     }
 
-    return next;
+    return NodeToIter(next);
 }
 
 bst_iter_t BSTPrev(bst_iter_t iter)
@@ -281,12 +270,7 @@ bst_iter_t BSTPrev(bst_iter_t iter)
 
     if(iter->child[L] != NULL)
     {
-        iter = iter->child[L];
-        while(NULL != iter->child[R])
-        {
-            iter = iter->child[R];
-        }
-        prev = iter; 
+        prev = DeepDive(iter->child[L] , R); 
     }    
     else 
     {
@@ -303,27 +287,20 @@ bst_iter_t BSTPrev(bst_iter_t iter)
 int BSTForEach(bst_iter_t from, bst_iter_t to, action_t action_func, const void *params)
 {
     bst_iter_t iter = NULL;
-    int status = 0;
+    int status = SUCCESS;
     assert(NULL != action_func);
     assert(NULL != from);
     assert(NULL != to);
     
     iter = from;
-    while(iter != to)
+    while(iter != to && status == SUCCESS)
     {
         status = action_func(iter->data, (void *)params);
-        if(status != SUCCESS)
-        {
-            return FAIL;
-        }
-
         iter = BSTNext(iter);
     }
 
-    return SUCCESS;
+    return status;
 }
-
-
 
 
 /******************************************************************************
@@ -377,14 +354,14 @@ static bst_iter_t DeepDive(bst_iter_t iter , int type)
 {
     if(type == L)
     {
-       while(iter->child[L] == NULL)
+       while(iter->child[L] != NULL)
        {
             iter = iter->child[L];
        }
     }
     else
     {
-        while(iter->child[R] == NULL)
+        while(iter->child[R] != NULL)
        {
             iter = iter->child[R];
        }
@@ -416,5 +393,13 @@ static struct family FindSpot(bst_iter_t iter, void * data , compare_t cmp_func)
 }
 
 
+static node_t * IterToNode(bst_iter_t iter)
+{
+    return (node_t *) iter;
+}
 
+static bst_iter_t NodeToIter(node_t * node)
+{
+    return (bst_iter_t)node;
+}
   
