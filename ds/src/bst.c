@@ -11,6 +11,8 @@
 #include "../include/bst.h"
 #include "../include/utiles.h"
 
+#define NEXT (1)
+#define PREV (-1)
 /******************************************************************************
 *							 DECLRATION								  * 
 ******************************************************************************/
@@ -43,14 +45,14 @@ struct family
     long diffrential;
 };
     
-
-
+static node_t * MoveOne (node_t * node , int side);
+static void InitNode(node_t * node, void * data);
 static bst_iter_t CreateNewNode(void * data);
 static node_t * IterToNode(bst_iter_t iter);
 static bst_iter_t NodeToIter(node_t * node);
 static void ConnectTwoNodes(bst_iter_t child,bst_iter_t parent, int type );
 static int FindChiledSide(bst_iter_t iter);
-static bst_iter_t DeepDive(bst_iter_t iter , int type);
+static bst_iter_t DeepDive(bst_iter_t iter , int side);
 static struct family FindSpot(bst_iter_t iter, void * data , compare_t cmp_func);
 /******************************************************************************
 *							 FUNCTIONS 										  * 
@@ -100,7 +102,7 @@ bst_iter_t BSTInsert(bst_t *bst, const void *data)
     node = CreateNewNode((void *)data);
     if (node == NULL)
     {
-        return NULL;
+        return BSTEnd(bst);
     }      
      /* insert to empty tree*/
     if(iter == NULL)
@@ -162,7 +164,6 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     return iter_next;
 }
 
-
 bst_iter_t BSTFind(const bst_t *bst, const void *to_find)
 {
     bst_iter_t iter = NULL;
@@ -175,14 +176,12 @@ bst_iter_t BSTFind(const bst_t *bst, const void *to_find)
     return found.child;
 }
 
-
 void *BSTGetData(bst_iter_t iter)
 {
     assert(iter != NULL);
 
     return iter->data;
 }
-
 
 int BSTIsEmpty(const bst_t *bst)
 {
@@ -230,37 +229,23 @@ bst_iter_t BSTEnd(const bst_t *bst)
 
 bst_iter_t BSTNext(bst_iter_t iter)
 {
-    node_t *next = NULL;
+   
     node_t * this_node = NULL;
 
     assert(NULL != iter);
     
     this_node = IterToNode(iter);
     
-    if (NULL == this_node->parent)
+    if (NULL == this_node->parent )
     {
         return NULL;
     }
 
-    if(iter->child[R] != NULL)
-    {     
-        next = DeepDive(this_node->child[R] , L);
-    }    
-    else 
-    {
-        while(FindChiledSide(this_node) == R)
-        {
-            this_node = this_node->parent;
-        }
-        next = this_node->parent;
-    }
-
-    return NodeToIter(next);
+    return NodeToIter(MoveOne(iter, NEXT));
 }
 
 bst_iter_t BSTPrev(bst_iter_t iter)
 {
-    bst_iter_t prev = NULL;
     assert(NULL != iter);
 
     if (NULL == iter->child[L] && FindChiledSide(iter) == L)
@@ -268,20 +253,7 @@ bst_iter_t BSTPrev(bst_iter_t iter)
         return NULL;
     }
 
-    if(iter->child[L] != NULL)
-    {
-        prev = DeepDive(iter->child[L] , R); 
-    }    
-    else 
-    {
-        while(FindChiledSide(iter) == L)
-        {
-            iter = iter->parent;
-        }
-        prev = iter->parent;
-    }
-
-    return prev;
+    return MoveOne(iter, PREV);
 }
 
 int BSTForEach(bst_iter_t from, bst_iter_t to, action_t action_func, const void *params)
@@ -323,20 +295,25 @@ static void ConnectTwoNodes(bst_iter_t child,bst_iter_t parent, int type )
 
 static bst_iter_t CreateNewNode(void * data)
 {
-    bst_iter_t node = NULL; 
+    node_t * node = NULL; 
 
-    node = (bst_iter_t)malloc(sizeof(struct node));
+    node = (node_t *)malloc(sizeof(node_t));
     if (NULL == node)
     {
         return NULL;
     }
+    InitNode(node, data);
+    return node;
+}
 
+static void InitNode(node_t * node, void * data)
+{ 
     node->data = data;
     node->child[L] = NULL;
     node->child[R] = NULL;
     node->parent = NULL; 
-    return node;
 }
+
 
 static int FindChiledSide(bst_iter_t iter)
 {
@@ -350,21 +327,11 @@ static int FindChiledSide(bst_iter_t iter)
     }
 }
 
-static bst_iter_t DeepDive(bst_iter_t iter , int type)
+static bst_iter_t DeepDive(bst_iter_t iter , int side)
 {
-    if(type == L)
+    while(iter->child[side] != NULL)
     {
-       while(iter->child[L] != NULL)
-       {
-            iter = iter->child[L];
-       }
-    }
-    else
-    {
-        while(iter->child[R] != NULL)
-       {
-            iter = iter->child[R];
-       }
+        iter = iter->child[side];
     }
     return iter;
 }
@@ -392,6 +359,29 @@ static struct family FindSpot(bst_iter_t iter, void * data , compare_t cmp_func)
     return found;
 }
 
+static node_t * MoveOne (node_t * node , int type)
+{ 
+    node_t * found = NULL;
+    int side = 0; 
+    int miror_to_side = 0;
+
+    side = (type == NEXT) ? R : L; 
+    miror_to_side = 1-side;
+
+    if(node->child[side] != NULL)
+    {
+        found = DeepDive(node->child[side] , miror_to_side); 
+    }    
+    else 
+    {
+        while(FindChiledSide(node) == side)
+        {
+            node = node->parent;
+        }
+        found = node->parent;
+    }
+    return found;
+}
 
 static node_t * IterToNode(bst_iter_t iter)
 {
