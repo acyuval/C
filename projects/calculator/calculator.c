@@ -19,62 +19,64 @@
 
 typedef enum State
 {
-    WAITING_FOR_NUM = 0, 
-    WAITING_FOR_OP, 
-    INVALID, 
-    STATE_END
+    S_WAITING2NUM = 0, 
+    S_WAITING2OP, 
+    S_INVALID, 
+    NUM_OF_STATES
 }State;
 
-
-typedef enum Input
+typedef enum EVENTS
 {
-    ANY_OTHER = 0,
-    DIGITS, 
-    OPERATORS, 
-    OPEN_PARAN,
-    CLOSE_PARAN,
-    TERMINATE,
-    NUM_OF_INPUTS
-}Input;
+    E_DIGITS = 0,
+    E_PLUS,
+    E_MINUS, 
+    E_MULTI,
+    E_DIV, 
+    E_OPEN_PARAN,
+    E_CLOSE_PARAN,
+    E_TERMINATE,
+    E_ANY_OTHER,
+    NUM_OF_EVENTS
+}EVENTS;
 
-typedef struct statechange 
+typedef struct params 
 {
-    const Input in;
-    const State out;
-}statechange;
+    stack_t * ops_stack;
+    stack_t * nums_stack;
+    char * expression;
+    EVENTS char2ENUM[256];
+    operations op2func[NUM_OF_EVENTS];
+    double * result;
+}params;
 
-typedef struct FSM 
-{
-    const State state;
-    void (*Action)(void *, void *, void *);
-    const statechange table[NUM_OF_INPUTS];
-}FSM;
+typedef State (*operations)(params *);
 
+
+static int Exit(params * params_struct);
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
 int Calculate(const char * expression , double * result)
 {
-    State cur_state = WAITING_FOR_NUM;
+    State state = S_WAITING2NUM;
     size_t expre_len = strlen(expression); 
-    stack_t * stack_ops = StackCreate(expre_len, sizeof(double));
+    int status = 0; 
+    char * this_char = expression;
+    stack_t * ops_stack = StackCreate(expre_len, sizeof(double));
     stack_t * nums_stack = StackCreate(expre_len, sizeof(double));
-    enum Input in = ANY_OTHER;
+    EVENTS change2ENUM[256] = {E_ANY_OTHER};
+    operations op2func[256] = {NULL};
+    operations OperationVSEvent[NUM_OF_STATES][NUM_OF_EVENTS] = {Exit};
+    params params = {ops_stack, nums_stack , this_char, change2ENUM, op2func ,result};
+    
+    status = InitChangeToEnums(change2ENUM);
+    status = InitOP2Func(op2func);
+    status = InitOperationVSEvent2Func(OperationVSEvent);
 
-    const FSM fsm[] =
-    {
-    { WAITING_FOR_NUM,  &number_func,       {{DIGITS,WAITING_FOR_OP}, {OPEN_PARAN,WAITING_FOR_NUM}, {CLOSE_PARAN,INVALID},          {OPERATORS,INVALID},        {ANY_OTHER,INVALID }, {TERMINATE,INVALID}}},
-    { WAITING_FOR_OP,   &operation_func,    {{DIGITS,INVALID},        {OPEN_PARAN,INVALID},         {CLOSE_PARAN,WAITING_FOR_OP},   {OPERATORS,WAITING_FOR_NUM},{ANY_OTHER,INVALID }, {TERMINATE,STATE_END}}},
-    { INVALID,          &invalid_func,      {{DIGITS,INVALID},        {OPEN_PARAN,INVALID},         {CLOSE_PARAN,INVALID},          {OPERATORS,INVALID},        {ANY_OTHER,INVALID }, {TERMINATE,INVALID}}},
-    { STATE_END,        &Show,              {{DIGITS,STATE_END},      {OPEN_PARAN,STATE_END},       {CLOSE_PARAN,STATE_END},        {OPERATORS,STATE_END},      {ANY_OTHER,STATE_END },{TERMINATE,STATE_END}}},
-    };
-
-
-    while(cur_state != INVALID) 
+    while(state != S_INVALID) 
     {   
-        double token = strtod(expression, &expression);
-        fsm[cur_state].Action(expression);
-        cur_state = fsm[cur_state].table[in].out;
+        operations this_operation = OperationVSEvent[state][Change2ENUM[*this_char]];
+        state = this_operation(&params);
     }   
 
 }
@@ -85,22 +87,132 @@ int Calculate(const char * expression , double * result)
 /******************************************************************************
 *							STATIC FUNCTIONS								  * 
 ******************************************************************************/
-static void BuildStatesLUT()
+static int InitChangeToEnums(EVENTS * CHANGE2ENUM)
 {
-
+    int status = 0; 
+    int i = 0; 
+    EVENTS LUT[256] = {E_ANY_OTHER};
+    
+    for(i = 30; i< 40 ; i ++)
+    {
+         LUT[i] = E_DIGITS;
+    }
+    
+    LUT['*'] =  E_MULTI;
+    LUT['/'] =  E_DIV;
+    LUT['+'] =  E_PLUS;
+    LUT['-'] =  E_MINUS;
+    LUT['('] =  E_OPEN_PARAN;
+    LUT[')'] =  E_CLOSE_PARAN;
+    
+    status = memcpy(CHANGE2ENUM, &LUT, sizeof(LUT));
+    return status;
 }
 
-static int NumberFunc(void *ptr, void *nums_stack)
+
+
+static int InitOP2Func(operations * OP2Func)
+{
+   int status = 0; 
+   operations LUT[NUM_OF_EVENTS] = {NULL,Add, Substract, Multi, Divide , NULL , NULL , NULL,NULL};
+   
+    status = memcpy(OP2Func,&LUT, sizeof(LUT));
+    return status;
+}
+
+static int InitOperationVSEvent2Func(operations ** OperationVSEvent)
+{
+   int status = 0; 
+   operations LUT[NUM_OF_STATES][NUM_OF_EVENTS] = {{PushDigit, Invalid,Invalid,Invalid,Invalid,PushOBracket, Invalid,Invalid,Invalid},
+                                                    {Invalid, NumHandler,OPHandler,OPHandler,OPHandler,Invalid, Invalid,CloseBracket,Invalid},
+                                                    {Exit, Exit,Exit,Exit,Exit,Exit, Exit,Exit,Exit}};
+                                                    
+   
+    status = memcpy(OperationVSEvent,&LUT, sizeof(LUT));
+    return status;
+}
+
+static int PushDigit(params * params_struct)
+{
+    double num = 0;
+    num = strtod(params_struct->expression, params_struct->expression);
+    StackPush(params_struct->nums_stack, (const void *)&num);
+}
+
+
+static int NumHandler(params * params_struct)
+{
+    double num = 0;
+    num = strtod(params_struct->expression, params_struct->expression);
+    StackPush(params_struct->nums_stack, &num);
+}
+
+
+static int OPHandler(params * params_struct)
+{
+    EVENTS operator  = params_struct->char2ENUM[*(params_struct->expression)];
+    StackPush(params_struct->ops_stack, &operator);
+    
+}
+
+static int Add(params * params_struct)
 {
      
 }
-static int OperatorFunc(void *ptr, void *operator_stack)
+
+
+static int END(params * params_struct)
 {
      
 }
 
-static int InvalidFunc(void *ptr, void *nums_stack, void *nums_stack)
+static int Substract(params * params_struct)
 {
-    (void)ptr;
+     
+}
+
+static int Divide(params * params_struct)
+{
+     
+}
+
+static int Multi(params * params_struct)
+{
+     
+}
+static int Exit(params * params_struct)
+{
+     
+}
+
+static int PushOBracket(params * params_struct)
+{
+     
+}
+
+static int CloseBracket(params * params_struct)
+{
+     
+}
+
+static int PushCBracket(params * params_struct)
+{
+     
+}
+static int IN(params * params_struct)
+{
+     
+}
+
+static int Invalid(params * params_struct)
+{
+    (void)params_struct;
     printf("INVALID!!!"); 
+}
+
+static int Show(params_struct)
+{
+    (void)params_struct;
+
+    printf("result!!!"); 
 }
