@@ -4,8 +4,7 @@
 *	Date:      
 ******************************************************************************/
 
-#include <assert.h> /* assert			  */
-#include <stdio.h>
+#include <assert.h> /* assert */
 #include <stdlib.h>
 
 #include "../include/bst.h"
@@ -51,7 +50,7 @@ static bst_iter_t CreateNewNode(void * data);
 static node_t * IterToNode(bst_iter_t iter);
 static bst_iter_t NodeToIter(node_t * node);
 static void ConnectTwoNodes(bst_iter_t child,bst_iter_t parent, int type );
-static int FindChiledSide(bst_iter_t iter);
+static int FindChildSide(bst_iter_t iter);
 static bst_iter_t DeepDive(bst_iter_t iter , int side);
 static struct family FindSpot(bst_iter_t iter, void * data , compare_t cmp_func);
 /******************************************************************************
@@ -63,16 +62,15 @@ bst_t *BSTCreate(compare_t cmp_func)
     bst_t * bst = NULL;
 
     assert(NULL != cmp_func);
+
     bst = (bst_t *)malloc(sizeof(bst_t));
+    
     if (NULL == bst)
     {
         return NULL;
     }
 
-    bst->root.data = NULL;
-    bst->root.child[L] = NULL;
-    bst->root.child[R] = NULL;
-    bst->root.parent = NULL;
+    InitNode(&bst->root, NULL);
 
     bst->cmp_func = cmp_func;
     return bst; 
@@ -81,21 +79,25 @@ bst_t *BSTCreate(compare_t cmp_func)
 void BSTDestroy(bst_t *bst)
 {
     bst_iter_t iter = NULL;
+
     assert(bst != NULL);
 
     iter = BSTBegin(bst);
+
     while(BSTIsEmpty(bst) != TRUE)
     {
         iter = BSTRemove(iter); 
     }
+
     free(bst);
 }
 
 bst_iter_t BSTInsert(bst_t *bst, const void *data)
 {
     bst_iter_t node = NULL;
-    bst_iter_t iter = bst->root.child[L];
+    bst_iter_t iter = NULL;
     struct family found = {0};
+
     assert(NULL != bst);
     assert(NULL != data);
 
@@ -103,7 +105,10 @@ bst_iter_t BSTInsert(bst_t *bst, const void *data)
     if (node == NULL)
     {
         return BSTEnd(bst);
-    }      
+    }     
+
+    iter = bst->root.child[L];
+
      /* insert to empty tree*/
     if(iter == NULL)
     {
@@ -115,6 +120,7 @@ bst_iter_t BSTInsert(bst_t *bst, const void *data)
     found = FindSpot(iter, (void *)data, bst->cmp_func);
  
     assert(found.diffrential != 0);
+
     if (found.diffrential > 0)
     {
         ConnectTwoNodes(node, found.parent, L);
@@ -132,6 +138,7 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     bst_iter_t iter_next = NULL;
     bst_iter_t iter_child = NULL;
     int side = 0; 
+
     assert(NULL != iter);
     
     iter_next = BSTNext(iter);
@@ -150,7 +157,7 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     {
         /*delete node with one or no children*/
         iter_child = (bst_iter_t)((size_t)iter->child[L] ^ (size_t)iter->child[R]);
-        side = FindChiledSide(iter);
+        side = FindChildSide(iter);
         iter->parent->child[side] = iter_child;
         
         /* if chiled exist */
@@ -186,20 +193,25 @@ void *BSTGetData(bst_iter_t iter)
 int BSTIsEmpty(const bst_t *bst)
 {
     assert(NULL != bst);
+
     return (NULL == bst->root.child[L]);
 }
 
 size_t BSTSize(const bst_t *bst)
 {
     bst_iter_t iter = NULL;
-    size_t counter = 0; 
+    size_t counter = 0;
+
     assert(NULL != bst);
+    
     iter = BSTBegin(bst);
+
     while(iter->parent != NULL)
     {
         iter = BSTNext(iter);
         ++counter;
     }
+
     return counter;
 }
 
@@ -211,20 +223,19 @@ int BSTIsEqual(bst_iter_t iter1, bst_iter_t iter2)
 bst_iter_t BSTBegin(const bst_t *bst)
 {
     bst_iter_t iter = NULL;
+
     assert(NULL != bst);
-    iter = (bst_iter_t)&(bst->root);
-    while(NULL != iter->child[L])
-    {
-        iter = iter->child[L];
-    }
-    return iter;
+
+    iter = &((bst_t *)bst)->root;
+
+    return DeepDive(iter,L);
 }
 
 bst_iter_t BSTEnd(const bst_t *bst)
 {
     assert(NULL != bst);
 
-    return (bst_iter_t)&bst->root;
+    return &((bst_t *)bst)->root;
 }
 
 bst_iter_t BSTNext(bst_iter_t iter)
@@ -248,7 +259,7 @@ bst_iter_t BSTPrev(bst_iter_t iter)
 {
     assert(NULL != iter);
 
-    if (NULL == iter->child[L] && FindChiledSide(iter) == L)
+    if (NULL == iter->child[L] && FindChildSide(iter) == L)
     {
         return NULL;
     }
@@ -260,11 +271,13 @@ int BSTForEach(bst_iter_t from, bst_iter_t to, action_t action_func, const void 
 {
     bst_iter_t iter = NULL;
     int status = SUCCESS;
-    assert(NULL != action_func);
+
     assert(NULL != from);
     assert(NULL != to);
+    assert(NULL != action_func);
     
     iter = from;
+
     while(iter != to && status == SUCCESS)
     {
         status = action_func(iter->data, (void *)params);
@@ -314,8 +327,7 @@ static void InitNode(node_t * node, void * data)
     node->parent = NULL; 
 }
 
-
-static int FindChiledSide(bst_iter_t iter)
+static int FindChildSide(bst_iter_t iter)
 {
     if(BSTIsEqual((iter->parent)->child[L], iter))
     {
@@ -374,7 +386,7 @@ static node_t * MoveOne (node_t * node , int type)
     }    
     else 
     {
-        while(FindChiledSide(node) == side)
+        while(FindChildSide(node) == side)
         {
             node = node->parent;
         }

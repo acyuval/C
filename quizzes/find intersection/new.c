@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../ds/include/sll_exer.h"
+#include "../../ds/include/sll_exer.h"
 #define ROWS 8
 #define COLS 8
 
@@ -54,13 +54,18 @@ node_t * FindIntersection(node_t *node_1 ,node_t *node_2)
 	return NULL;
 }
 
-void seperate(node_t iterA, node_t iterB)
+void seperate(node_t * iterA, node_t * iterB)
 {
-    node_t 
+    node_t * intersec = FindIntersection(iterA,iterB);
+
+	while(iterA->next != intersec)
+	{
+		iterA = iterA->next;
+	}	
+	iterA->next = NULL;
 }
 
 int main() {
   
-
     return 0;
 }
