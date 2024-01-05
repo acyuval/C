@@ -33,8 +33,8 @@ typedef enum Events
     E_MINUS, 
     E_MULTI,
     E_DIV, 
-    E_OPEN_PARAN,
-    E_CLOSE_PARAN,
+    E_OPEN_BRACKER,
+    E_CLOSE_BRACKET,
     E_TERMINATE,
     E_ANY_OTHER,
     NUM_OF_EVENTS
@@ -43,6 +43,7 @@ typedef enum Events
 struct params;
 typedef state_t (*handlers)(struct params *);
 typedef int (*computation_funcs)(struct params *);
+
 typedef struct params 
 {
     stack_t * ops_stack;
@@ -51,6 +52,7 @@ typedef struct params
     events_t * char2ENUM;
     computation_funcs * op2func;
     double * result;
+    status_t status; 
 }params;
 
 static void InitChangeToEnums(events_t * CHANGE2ENUM);
@@ -61,9 +63,9 @@ static state_t NumHandler(params * params_struct);
 static state_t OPHandler(params * params_struct);
 static state_t END(params * params_struct);
 static state_t Exit(params * params_struct);
-static state_t PushOBracket(params * params_struct);
+static state_t OpenBracketHandler(params * params_struct);
 static state_t Invalid(params * params_struct);
-static state_t CloseBracket(params * params_struct);
+static state_t CloseBracketHandler(params * params_struct);
 static state_t Show(params * params_struct);
 static state_t Exit(params * params_struct);
 
@@ -72,7 +74,7 @@ static int Add(params * params_struct);
 static int Divide(params * params_struct);
 static int Multi(params * params_struct);
 
-static void ComputeTwo(params * params_struct);
+static void ComputeTwoNums(params * params_struct);
 static void PopTwoNums(params * params_struct, double nums[]);
 
 /******************************************************************************
@@ -81,9 +83,12 @@ static void PopTwoNums(params * params_struct, double nums[]);
 status_t Calculate(const char * expression , double * result)
 {
     state_t state = S_WAITING4NUM;
+    
     size_t expre_len = strlen(expression); 
+    
     char * string = (char *)expression;
-    stack_t * ops_stack = StackCreate(expre_len, sizeof(double));
+
+    stack_t * ops_stack = StackCreate(expre_len, sizeof(events_t));
     stack_t * nums_stack = StackCreate(expre_len, sizeof(double));
     
     events_t change2ENUM[256] = {E_ANY_OTHER};
@@ -99,10 +104,10 @@ status_t Calculate(const char * expression , double * result)
 
     while(state != S_INVALID) 
     {   
-        handlers this_operation = operation_vs_event[state][change2ENUM[*(params.expression)]];
+        handlers this_operation = operation_vs_event[state][change2ENUM[*params.expression]];
         state = this_operation(&params);
-    }   
-
+    }
+    return SUCCESS; 
 }
     
 
@@ -126,23 +131,22 @@ static void InitChangeToEnums(events_t * CHANGE2ENUM)
     LUT['-'] =  E_MINUS;
     LUT['*'] =  E_MULTI;
     LUT['/'] =  E_DIV;
-    LUT['('] =  E_OPEN_PARAN;
-    LUT[')'] =  E_CLOSE_PARAN;
+    LUT['('] =  E_OPEN_BRACKER;
+    LUT[')'] =  E_CLOSE_BRACKET;
     LUT['\0'] =  E_TERMINATE;
     
     memcpy(CHANGE2ENUM, &LUT, sizeof(LUT));
     return;
 }
-static void InitStructParmms(params * params, stack_t * ops_stack, stack_t * nums_stack , char * expression, events_t char2ENUM[256], computation_funcs op2func[NUM_OF_EVENTS], double * result)
+static void InitStructParmms(params * params, stack_t * ops_stack, stack_t * nums_stack ,char * expression, events_t char2ENUM[256], computation_funcs op2func[NUM_OF_EVENTS], double * result)
 {
-     
     params->ops_stack = ops_stack;
     params->nums_stack = nums_stack;
     params->expression = expression;
     params->char2ENUM = char2ENUM;
     params->op2func = op2func;
     params->result = result;
-  
+    params->status = SUCCESS;
 }
 
 static void InitOP2Func(computation_funcs * op2func)
@@ -156,7 +160,7 @@ static void InitOP2Func(computation_funcs * op2func)
 
 static void InitOperationVSEvent2Func(handlers operation_vs_event[][NUM_OF_EVENTS])
 {
-    handlers LUT[NUM_OF_STATES][NUM_OF_EVENTS] = {{NumHandler, Invalid,Invalid,Invalid,Invalid,PushOBracket, Invalid,Invalid,Invalid},
+    handlers LUT[NUM_OF_STATES][NUM_OF_EVENTS] = {{NumHandler, Invalid,Invalid,Invalid,Invalid,OpenBracketHandler, Invalid,Invalid,Invalid},
                                                     {Invalid, OPHandler,OPHandler,OPHandler,OPHandler,Invalid, Invalid,Show,Invalid},
                                                     {Exit, Exit,Exit,Exit,Exit,Exit,Exit,Exit,Exit}};
                                                     
@@ -177,32 +181,38 @@ static state_t NumHandler(params * params_struct)
 }
 
 
-static void ComputeTwo(params * params_struct)
+static void ComputeTwoNums(params * params_struct)
 {
     events_t poped_op = 0;
     computation_funcs this_function = NULL;
+
     poped_op = *(events_t *)StackPeek(params_struct->ops_stack);
+    
     this_function = params_struct->op2func[poped_op];
+    
     this_function(params_struct);
 }
 
 static state_t OPHandler(params * params_struct)
 {
-    events_t operator  = params_struct->char2ENUM[*(params_struct->expression)];
-    events_t poped_op = 0;
+    events_t operator  = params_struct->char2ENUM[*params_struct->expression];
+    events_t prev_opreator = *(events_t *)StackPeek(params_struct->ops_stack);
 
-    while (operator < poped_op && FALSE == StackIsEmpty(params_struct->ops_stack))
+    while ((FALSE == StackIsEmpty(params_struct->ops_stack)) && operator <= prev_opreator)
     {
-        ComputeTwo(params_struct);
+        ComputeTwoNums(params_struct);
+        prev_opreator = *(events_t *)StackPeek(params_struct->ops_stack);
     }
     StackPush(params_struct->ops_stack, &operator);
     ++(params_struct->expression);
     return S_WAITING4NUM;
 }
 
+
 static state_t END(params * params_struct)
 {
-     return S_INVALID;
+    (void)params_struct;
+    return S_INVALID;
 }
 
 
@@ -212,7 +222,6 @@ static void PopTwoNums(params * params_struct, double nums[])
     StackPop(params_struct->nums_stack); 
     nums[2] = *(double *)StackPeek(params_struct->nums_stack);
     StackPop(params_struct->nums_stack); 
-    StackPop(params_struct->ops_stack);
 }
 
 
@@ -224,6 +233,7 @@ static int Add(params * params_struct)
     PopTwoNums(params_struct, nums);
     res = nums[2] + nums[1];
     StackPush(params_struct->nums_stack, &res);
+    StackPop(params_struct->ops_stack);
     return 0;
 }
 
@@ -232,10 +242,11 @@ static int Substract(params * params_struct)
 {
     double nums[2] = {0};
     double res = 0 ;
-
     PopTwoNums(params_struct, nums);
+
     res = nums[2] - nums[1];
     StackPush(params_struct->nums_stack, &res);
+    StackPop(params_struct->ops_stack);
     return 0;
 }
 
@@ -247,6 +258,7 @@ static int Divide(params * params_struct)
     PopTwoNums(params_struct, nums);
     res = nums[2] / nums[1];
     StackPush(params_struct->nums_stack, &res);
+    StackPop(params_struct->ops_stack);
     return 0;
 }
 
@@ -258,43 +270,50 @@ static int Multi(params * params_struct)
     PopTwoNums(params_struct, nums);
     res = nums[2] * nums[1];
     StackPush(params_struct->nums_stack, &res);
+    StackPop(params_struct->ops_stack);
+    return res;
 }
 
 
 static state_t Exit(params * params_struct)
 {
-     
+    (void)params_struct;
+    return S_INVALID;
 }
 
 
-static state_t PushOBracket(params * params_struct)
+static state_t OpenBracketHandler(params * params_struct)
 {
-     
+    (void)params_struct;
+    return S_INVALID;
 }
 
-static state_t CloseBracket(params * params_struct)
+static state_t CloseBracketHandler(params * params_struct)
 {
-     
+    (void)params_struct;
+    return S_INVALID;
 }
 
 static state_t PushCBracket(params * params_struct)
 {
-     
+    (void)params_struct;
+    return S_INVALID;
 }
 
 static state_t Invalid(params * params_struct)
 {
     (void)params_struct;
-    printf("INVALID!!!"); 
+    printf("INVALID!!!");
+    return S_INVALID; 
 }
 
 static state_t Show(params * params_struct)
 {
     while (FALSE  == StackIsEmpty(params_struct->ops_stack))
     {
-        ComputeTwo(params_struct);
+        ComputeTwoNums(params_struct);
     }
-
+    
     params_struct->result = (double *)StackPeek(params_struct->nums_stack);
 
     printf("result: %f", *params_struct->result); 
