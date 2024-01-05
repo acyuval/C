@@ -143,6 +143,11 @@ bst_iter_t BSTRemove(bst_iter_t iter)
     
     iter_next = BSTNext(iter);
 
+    if(NULL == iter->parent)
+    {
+        return (NULL);
+    }
+
     /* delete node with two children */
 
     if(iter->child[R] != NULL && iter->child[L] != NULL)
@@ -186,7 +191,7 @@ bst_iter_t BSTFind(const bst_t *bst, const void *to_find)
 void *BSTGetData(bst_iter_t iter)
 {
     assert(iter != NULL);
-
+    assert(NULL != iter->parent);
     return iter->data;
 }
 

@@ -6,7 +6,8 @@
 int main()
 {
     double result = 0;
-    Calculate("a", &result);
+    const char * str = "200-5+223";
+    Calculate(str, &result);
     return (0);
 }
 
