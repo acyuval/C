@@ -22,7 +22,12 @@
 *							FUNCTION DECLRATION								  * 
 ******************************************************************************/
 void TestFibonaci();
-
+void TestSortedStack();
+void TestRecursiveStrLen();
+static void TestHelper(int booll , char * calling_function, int test_no);
+void TestRecursiveStrcmp();
+void TestRecursiveStrCpy();
+void TestRecursiveStrcat();
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -30,9 +35,13 @@ void TestFibonaci();
 
 int main()
 {
-
-    TestFibonaci();
-    return (0);
+    TestRecursiveStrcat();
+	/*
+	TestRecursiveStrCpy();
+	TestRecursiveStrcmp();
+	TestRecursiveStrLen();
+    */	
+	return (0);
 }
 
 
@@ -43,15 +52,71 @@ int main()
 ******************************************************************************/
 void TestFibonaci()
 {
-    int res = Fibonacci(8);
+    int res = RecursiveFibonacci(10);
+    printf("res is %d", res);
+	res = IterativeFibonacci(10);
     printf("res is %d", res);
 }
 
-TestFlipList()
+void TestFlipList()
 {
 
+}
+
+void TestSortedStack()
+{
+	stack_t * unsorted = StackCreate(20, sizeof(int));
+	int i = 0;
+	int randnum = 0;
+	 
+	for(i = 0 ; i < 10 ; i++)
+	{
+		randnum = rand()%10;
+		StackPush(unsorted , &randnum);
+	}
 
 }
+
+
+void TestRecursiveStrLen()
+{
+	char * str = "leangth is 8";
+
+	TestHelper(12 == RecursiveStrLen(str), "TestRecursiveStrLe" , 1 );
+}
+
+
+void TestRecursiveStrcmp()
+{
+	char * str1 = "leangth is 8";
+	char * str2 = "leangth is 8";
+	char * str3 = "leangth it 8";
+	TestHelper(0 == RecursiveStrcmp(str1, str2), "TestRecursiveStrLe" , 1 );
+	TestHelper(-1 == RecursiveStrcmp(str1, str3), "TestRecursiveStrLe" , 2);
+}
+
+
+void TestRecursiveStrCpy()
+{
+	char * src = "leangth is 8";
+	char dest[12] = {0};
+	RecursiveStrcpy(dest, src);
+	TestHelper(0 == RecursiveStrcmp(dest, src), "TestRecursiveStrCpy" , 1 );
+	
+}
+
+
+
+void TestRecursiveStrcat()
+{
+	char * src = " is 8";
+	char dest[12] = "length";
+	char * expected  = "length is 8";
+	RecursiveStrcat(dest, src);
+	TestHelper(0 == RecursiveStrcmp(dest, expected), "TestRecursiveStrcat" , 1 );
+	
+}
+
 
 /******************************************************************************
 *							STATIC FUNCTIONS								  * 
