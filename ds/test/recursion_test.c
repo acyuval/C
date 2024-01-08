@@ -10,13 +10,13 @@
 #include "../include/recursion.h"
 
 #include "../include/stack.h"
-
+#include "../include/utiles.h"
 
 /******************************************************************************
 *							TYPE DEFS / MACROS 								  * 
 ******************************************************************************/
 
-
+extern int counter;
 
 /******************************************************************************
 *							FUNCTION DECLRATION								  * 
@@ -29,6 +29,7 @@ void TestRecursiveStrCpy();
 void TestRecursiveStrcat();
 void TestSortedStack();
 void TestRecursiveStrstr();
+int TestRecursiveFlipList(void);
 static void TestHelper(int booll , char * calling_function, int test_no);
 /******************************************************************************
 *							MAIN											  * 
@@ -37,16 +38,18 @@ static void TestHelper(int booll , char * calling_function, int test_no);
 
 int main()
 {
-    
+    TestRecursiveFlipList();
+	
 	TestSortedStack();
 	
 	TestRecursiveStrstr();
-	
+	TestFibonaci();
 	TestRecursiveStrcat();
 	
 	TestRecursiveStrCpy();
 	TestRecursiveStrcmp();
 	TestRecursiveStrLen();
+	
 	return (0);
 }
 
@@ -58,15 +61,44 @@ int main()
 ******************************************************************************/
 void TestFibonaci()
 {
-    int res = RecursiveFibonacci(10);
-    printf("res is %d", res);
+    
+	int res = RecursiveFibonacci(10);
+    printf("\nres is recu %d counter: %d \n", res , counter);
+	counter = 0; 
 	res = IterativeFibonacci(10);
-    printf("res is %d", res);
+    printf("\nres iter is %d counter: %d\n", res , counter);
 }
 
-void TestFlipList()
+int TestRecursiveFlipList(void)
 {
+	int code = SUCCESS;
+	int i = 0;
+	int results[10] = {0};
+	node_t list[10];
+	node_t *tail;
 
+	for (i = 0; i < 10; ++i)
+	{
+		results[i] = i;
+		list[i].data = &results[i];
+		list[i].next = &list[i + 1];
+	}
+	list[9].next = NULL;
+
+	tail = RecursiveFlipList(list);
+
+	for (i = 9; i >= 0; --i)
+	{
+		if (*(int *)tail->data != results[i])
+		{
+			printf("Your Flipping list function is not flipping working, go fix your code!\n");
+			code = FAIL;
+		}
+
+		tail = tail->next;
+	}
+
+	return (printf("\nstatus = %d\n", code));
 }
 
 void TestSortedStack()

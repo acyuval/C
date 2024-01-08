@@ -17,6 +17,7 @@
 *							 DECLRATION								  * 
 ******************************************************************************/
 void SortedInsert(stack_t *stack, int peek);
+int counter = 0;
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
@@ -34,6 +35,7 @@ int IterativeFibonacci(int element_index)
         prevprev= prev; 
         prev = cur; 
         i++;
+        counter++;
     }
     return cur; 
 }
@@ -44,21 +46,24 @@ int RecursiveFibonacci(int element_index)
     {
         return element_index;
     }
+    counter++; 
     return (RecursiveFibonacci(element_index - 1) + RecursiveFibonacci(element_index - 2));
-
 }
 
 
 
 node_t *RecursiveFlipList(node_t *node)
 {
-    if(node->next == NULL)
+    node_t * new_head = NULL;
+    if(node == NULL || node->next == NULL)
     {
         return node;
     }
-    (RecursiveFlipList(node->next))->next = node;
+    new_head = RecursiveFlipList(node->next);
+    node->next->next = node;
     node->next = NULL;
-    return node;
+
+    return new_head;
 }
 
 
