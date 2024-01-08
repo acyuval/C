@@ -24,10 +24,12 @@
 void TestFibonaci();
 void TestSortedStack();
 void TestRecursiveStrLen();
-static void TestHelper(int booll , char * calling_function, int test_no);
 void TestRecursiveStrcmp();
 void TestRecursiveStrCpy();
 void TestRecursiveStrcat();
+void TestSortedStack();
+void TestRecursiveStrstr();
+static void TestHelper(int booll , char * calling_function, int test_no);
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -35,12 +37,16 @@ void TestRecursiveStrcat();
 
 int main()
 {
-    TestRecursiveStrcat();
-	/*
+    
+	TestSortedStack();
+	
+	TestRecursiveStrstr();
+	
+	TestRecursiveStrcat();
+	
 	TestRecursiveStrCpy();
 	TestRecursiveStrcmp();
 	TestRecursiveStrLen();
-    */	
 	return (0);
 }
 
@@ -68,13 +74,25 @@ void TestSortedStack()
 	stack_t * unsorted = StackCreate(20, sizeof(int));
 	int i = 0;
 	int randnum = 0;
-	 
+	int l_peek = 0;
+	int s_peek = 0; 
+
 	for(i = 0 ; i < 10 ; i++)
 	{
 		randnum = rand()%10;
 		StackPush(unsorted , &randnum);
 	}
+	SortStack(unsorted);
 
+	for(i = 0 ; i < 10 ; i+=2)
+	{
+		l_peek = *(int *)StackPeek(unsorted);
+		StackPop(unsorted);
+		s_peek = *(int *)StackPeek(unsorted);
+		StackPop(unsorted);
+		TestHelper(l_peek >= s_peek, "TestSortedStack" , i/2);
+	}
+	StackDestroy(unsorted);
 }
 
 
@@ -82,7 +100,7 @@ void TestRecursiveStrLen()
 {
 	char * str = "leangth is 8";
 
-	TestHelper(12 == RecursiveStrLen(str), "TestRecursiveStrLe" , 1 );
+	TestHelper(12 == RecursiveStrLen(str), "TestRecursiveStrLen" , 1 );
 }
 
 
@@ -91,8 +109,8 @@ void TestRecursiveStrcmp()
 	char * str1 = "leangth is 8";
 	char * str2 = "leangth is 8";
 	char * str3 = "leangth it 8";
-	TestHelper(0 == RecursiveStrcmp(str1, str2), "TestRecursiveStrLe" , 1 );
-	TestHelper(-1 == RecursiveStrcmp(str1, str3), "TestRecursiveStrLe" , 2);
+	TestHelper(0 == RecursiveStrcmp(str1, str2), "TestRecursiveStrcmp" , 1 );
+	TestHelper(-1 == RecursiveStrcmp(str1, str3), "TestRecursiveStrcmp" , 2);
 }
 
 
@@ -114,6 +132,17 @@ void TestRecursiveStrcat()
 	char * expected  = "length is 8";
 	RecursiveStrcat(dest, src);
 	TestHelper(0 == RecursiveStrcmp(dest, expected), "TestRecursiveStrcat" , 1 );
+	
+}
+
+
+void TestRecursiveStrstr()
+{
+	char * needle = "is";
+	char * haystack  = "length is 8";
+	char * result = NULL;
+	result = RecursiveStrstr(haystack, needle);
+	TestHelper(0 == RecursiveStrcmp(result, "is 8"), "TestRecursiveStrstr" , 1 );
 	
 }
 

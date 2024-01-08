@@ -8,7 +8,7 @@
 #include <stdlib.h> /* malloc() , free()  */
 #include <assert.h> /* assert			  */
 #include <stdio.h>
-
+#include <string.h>
 #include "../include/recursion.h"
 #include "../include/stack.h"
 #include "../include/utiles.h"
@@ -64,31 +64,38 @@ node_t *RecursiveFlipList(node_t *node)
 
 void SortedInsert(stack_t *stack, int peek)
 {
-    int iter_peek = *(int *)StackPeek(stack);
+    int temp_peek = 0;
 
-    if (StackIsEmpty(stack) || iter_peek > peek )
+    if (StackIsEmpty(stack) || peek > *(int *)StackPeek(stack))
     {
         StackPush(stack, &peek);
         return;
     }
-    SortedInsert(stack, peek);
-}
 
+    temp_peek = *(int *)StackPeek(stack);
+
+    StackPop(stack);
+
+    SortedInsert(stack, peek);
+    
+    StackPush(stack, &temp_peek);
+
+}
 
 void SortStack(stack_t *stack)
 {
-    int peek = *(int *)StackPeek(stack);
-    StackPop(stack); 
+    int peek = 0;
 
     if(StackIsEmpty(stack))
     {
         return;
     }
+    peek = *(int *)StackPeek(stack);
+    StackPop(stack); 
     
     SortStack(stack);
-
+    
     SortedInsert(stack , peek);
-
 }
 
 
@@ -104,11 +111,18 @@ size_t RecursiveStrLen(const char *s)
 
 int RecursiveStrcmp(const char *s1, const char *s2)
 {
-    if (*s1 != *s2 || *s1 == '\0')
+    if (*s1 < *s2)
     {
-        return *s1-*s2;
+        return -1;
+    }  
+    if (*s1 > *s2)
+    {
+        return +1;
     }
-
+    if (*s1  == '\0')
+    {
+        return 0;
+    }
     return RecursiveStrcmp(s1+1, s2+1);
 }
 
@@ -129,14 +143,14 @@ char *RecursiveStrcat(char *dest, const char *src)
 
     if (*dest != '\0')
     {
-        RecursiveStrcat(++dest,src);
+        RecursiveStrcat(dest+1,src);
     }
     else 
     {
         *dest = *src;
         if(*dest != '\0')
         {
-            RecursiveStrcat(++dest, src+1);
+            RecursiveStrcat(dest+1, src+1);
         }
         else
         {
@@ -145,6 +159,18 @@ char *RecursiveStrcat(char *dest, const char *src)
     }
     return dest;
 
+}
+
+char *RecursiveStrstr(const char *haystack, const char *needle)
+{
+    int needle_len = RecursiveStrLen(needle); 
+
+    if (strncmp(needle, haystack, needle_len) == 0)
+    {
+        return (char *)haystack;
+    }
+
+    return RecursiveStrstr(haystack + 1 ,needle);;
 }
 
 /******************************************************************************
