@@ -8,9 +8,12 @@
 #include <stdlib.h>
 
 #include "../include/avl.h"
-#include "../include/utiles.h"
+
 
 #define MAX(a,b) (b>a) ? b : a ;
+
+#define FALSE (0)
+#define TRUE (1)
 
 /*size - pre oreder , destroy - post order*/
 
@@ -31,7 +34,7 @@ typedef struct avl
 {
 	node_t *root;
 	compare_t cmp_func;
-} avl_t;
+}avl_t;
 
 struct node
 {
@@ -41,14 +44,16 @@ struct node
 }
 
 
-
+/*
+typedef status_t (*for_each_t)(status_t * for_each_t[3]);
+*/
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
 
 
 
-avl_t *AVLCreate(compare_t compare_func)
+avl_t * AVLCreate(compare_t compare_func)
 {
     avl_t * avl = NULL;
     
@@ -63,7 +68,7 @@ avl_t *AVLCreate(compare_t compare_func)
     avl->cmp_func = compare_func;
     avl->root = NULL;
 
-    retrun avl;
+    return avl;
 
 }
 
@@ -71,6 +76,7 @@ void AVLDestroy(avl_t *avl)
 {
     assert(NULL != avl);
     destroyHandler(avl->root);
+    free(avl);
 }
 
 status_t AVLInsert(avl_t *avl, const void *data);
@@ -87,26 +93,31 @@ status_t AVLInsert(avl_t *avl, const void *data);
     {
         return FAIL;
     }
+    
     new_node->data = data;
     new_node->height = 0;
+
     if (NULL == avl->root)
     {
-        avl->root = new_node
-
+        avl->root = new_node;
     }
     else
     {
-        found_node = StaticInsert(avl->root ,(void *)data ,compare, &side);
+        StaticInsert(avl->root ,(void *)data ,compare, new_node);
     }
-    
 
-
+    return SUCCESS;
 }
 
 
 void AVLRemove(avl_t *avl, void *data)
 {
-
+    /*
+    if(avl->root->data == data)
+    {
+        free();
+    }
+    */
 }
 
 void *AVLFind(const avl_t *avl, const void *to_find);
@@ -135,20 +146,19 @@ size_t AVLHeight(const avl_t *avl)
 int AVLForEach(avl_t *avl, traversal_t mode, action_t act_func, void *params)
 {
     assert(NULL != avl);
-    assert(NULL != action_t);
-
+    assert(NULL != act_func);
+    
     switch (mode)
     {
     case PRE_ORDER:
-        /* code */
+        StaticForEachPreOrder(avl->root,act_func ,params);
         break;
     case IN_ORDER:
-        /* code */
+        StaticForEachInOrder(avl->root,act_func ,params);
         break;
     case POST_ORDER:
-        /* code */
+        StaticForEachPostOrder(avl->root,act_func ,params);
         break;
-    
     default:
         break;
     }
@@ -167,27 +177,38 @@ static void StaticDestroy(node_t  *node)
         return;
     }
 
-    StaticDestroy(node->children[LEFT])
-    StaticDestroy(node->children[RIGHT])
+    StaticDestroy(node->child[LEFT]);
+    StaticDestroy(node->child[RIGHT]);
     free(node);
 }
 
 static node_t * StaticRemove(node_t *node, void *data, compare_t compare)
 {
     node_t *found_node = NULL;
+    node_t *next_node = NULL;
+    node_t *found_child = NULL;
+
+    child_t side = (compare(node->data, data) > 0);
 
     if (compare(node->data, data) == SUCCESS)
     {
         return node;
     }
-    
-    
-    found_node = StaticRemove(node->children[LEFT], data, compare)
-    
-    if (NULL == found_node)
+    found_node = StaticRemove(node->child[side], data, compare);
+
+    if(found_node != NULL && HasBothChildren(found_node))
     {
-        found_node = StaticRemove(node->children[RIGHT], data, compare)       
+        next_node = GetNextForRemove(node);
+
     }
+    if(found_node != NULL && HasBothChildren(found_node) == FALSE)
+    {
+        found_child = (node_t *)((size_t)found_node->child[LEFT] ^ (size_t)found_node->child[RIGHT]);
+        node->child[side] = found_child;
+        free(found_node); 
+    }
+
+    return NULL;
 }
 
 
@@ -200,11 +221,11 @@ static void * StaticFind(node_t *node, void *to_find, compare_t compare)
         return node;
     }
 
-    found_node = StaticFind(node->children[LEFT],data,compare);
+    found_node = StaticFind(node->child[LEFT],to_find,compare);
     
     if (NULL == found_node)
     {
-        found_node = StaticFind(node->children[RIGHT],data,compare);       
+        found_node = StaticFind(node->child[RIGHT],to_find,compare);       
     }
     
     return found_node; 
@@ -218,7 +239,7 @@ static size_t StaticSize(node_t *node)
         return 0;
     }
     
-    return (1 + ((StaticSize(node->children[RIGHT])) + (StaticSize(node->children[LEFT]))))
+    return (1 + ((StaticSize(node->child[RIGHT])) + (StaticSize(node->child[LEFT]))));
 }
 
 static size_t StaticHeight(node_t *node)
@@ -229,43 +250,175 @@ static size_t StaticHeight(node_t *node)
     {
         return 0;
     }
-    height = 1 + MAX(StaticHeight(node->children[RIGHT]), StaticHeight(node->children[LEFT]))
+    height = 1 + MAX(StaticHeight(node->child[RIGHT]), StaticHeight(node->child[LEFT]));
     return height;
 }
 
 
-static void StaticInsert(node_t *node ,void * data , compare_t compare , node_t new_node)
+static node_t * StaticInsert(node_t *node ,void * data , compare_t compare , node_t *new_node)
 {
-    node_t * found_spot = NULL ;
+    node_t * found_node = NULL ;
     
+    child_t side =  (compare(node->data,data) > 0);   
 
-    if (compare(node->data,data) > 0)
+    if(NULL == node->child[side] )
     {
-        if(NULL == node->children[LEFT] )
-        {
-            found_node->children[LEFT] = new_node;
-            return;
-        }
-        found_spot =StaticInsert(node->children[LEFT],data ,compare)
+        found_node->child[side] = new_node;
+        return;
     }
-    else if(compare(node->data,data) < 0)
-    {
-        if(NULL == node->children[RIGHT] )
-        {
-            found_node->children[Right] = new_node;
-            return;
-        }
-        found_spot = StaticInsert(node->children[RIGHT] ,data ,compare)
-    }
-    node->height = (1 + MAX(node->children[right]->height, node->children[Left]->height));
+
+    found_node = StaticInsert(node->child[side],data ,compare, new_node);
+
+    node->height = (1 + GetMaxHieght(node));
+    
     return;
 }
 
-
-static size_t StaticForEachInOrder(node_t *node, action_t action_func , void * params)
+static status_t StaticForEachInOrder(node_t *node, action_t action_func , void * params)
 {
-    StaticForEachInOrder(node_t *node, action_t action_func)
+    status_t status = SUCCESS;
 
-    return ;
+    status = StaticForEachInOrder(node->child[LEFT],action_func, params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+
+    status = action_func(node, params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+
+    status = StaticForEachInOrder(node->child[RIGHT],action_func, params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+
+    return status;
+}
+
+/*
+static status_t StaticForEach(status_t *for_each_t[3])
+{
+    int i = 0; 
+
+    for(i = 0 ; i < 3 ; i++)
+    {
+
+    }
+    return status;
+}
+*/
+
+
+static status_t StaticForEachPreOrder(node_t *node, action_t action_func , void * params)
+{
+    status_t status = SUCCESS;
+    
+    status = action_func(node, params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+    
+    status = StaticForEachInOrder(node->child[LEFT],action_func , params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+    
+    status = StaticForEachInOrder(node->child[RIGHT],action_func, params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+
+    return status;
+}
+
+
+static status_t StaticForEachPostOrder(node_t *node, action_t action_func , void * params)
+{
+    status_t status = SUCCESS;
+    
+    status = StaticForEachInOrder(node->child[LEFT],action_func, params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+    
+    status = StaticForEachInOrder(node->child[RIGHT],action_func, params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+
+    status = action_func(node, params);
+    if (status != SUCCESS)
+    {
+        return status;
+    }
+    
+    return status;
+}
+
+
+static size_t GetMaxHieght(node_t * node)
+{
+    size_t left_height = 0;
+    size_t right_height = 0;
+
+    if (node->child[RIGHT] != NULL)
+    {
+        right_height = node->child[RIGHT]->height;
+    }
+    if (node->child[LEFT] != NULL)
+    {
+        left_height = node->child[LEFT]->height;
+    }
+    return MAX(right_height, left_height);
+}
+
+
+
+static node_t * GetNextForRemove(node_t *node , node_t *parent)
+{
+    node_t * next = NULL;
+    if (NULL == node->child[LEFT])
+    {
+        return node; 
+    }
+    next = GetNext(node->child[LEFT]);
+    
+    return next;
+}
+
+
+static node_t * DeepDive(node_t *node , child_t side)
+{
+    node_t * last = NULL;
+    if (NULL == last->child[side])
+    {
+        return node; 
+    }
+    last = GetNext(node->child[LEFT]);
+    
+    return next;
+}
+
+
+
+
+static size_t HasBothChildren(node_t * node)
+{
+    assert(NULL != node);
+    if (NULL == node->child[LEFT] || NULL == node->child[RIGHT] )
+    {
+        return FALSE; 
+    }
+
+    return SUCCESS;
 }
 
