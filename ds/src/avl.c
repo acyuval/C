@@ -207,6 +207,7 @@ static node_t * StaticRemove(node_t *node, void *data, compare_t compare)
     node_t *found_node = NULL;
     node_t *found_child = NULL;
     void * data_to_replace = NULL;
+
     child_t side = (compare(node->data, data) < 0);
 
     if (compare(node->data, data) == 0)
@@ -234,27 +235,6 @@ static node_t * StaticRemove(node_t *node, void *data, compare_t compare)
     SetMaxHeight(node);
     return NULL;
 }
-
-/*
-static node_t * StaticRemoveWithOneChild(node_t *node, node_t * found)
-{
-    node_t *found_node = NULL;
-    node_t *next_node = NULL;
-    node_t *found_child = NULL;
-    if (NULL == node->child[LEFT])
-    {
-        return node;
-    }
-    next_node = StaticRemoveWithOneChild(node->child[LEFT]);
-
-    if (NULL != next_node)
-    {
-
-    }
-    return NULL;
-}
-
-*/
 
 static void * StaticFind(node_t *node, void *to_find, compare_t compare)
 {
