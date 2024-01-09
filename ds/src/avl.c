@@ -6,11 +6,11 @@
 
 #include <assert.h> /* assert */
 #include <stdlib.h>
-
+#include <stdio.h>
 #include "../include/avl.h"
 
 
-#define MAX(a,b) (b>a) ? b : a ;
+#define MAX(a,b) ((b>a) ? b : a)
 
 #define FALSE (0)
 #define TRUE (1)
@@ -30,23 +30,46 @@ typedef enum children
 } child_t;
 
 
-typedef struct avl
+struct avl
 {
 	node_t *root;
 	compare_t cmp_func;
-}avl_t;
+};
 
 struct node
 {
 	void *data;
 	node_t *child[MAX_CHILDREN];
 	size_t height;
-}
+};
 
 
 /*
 typedef status_t (*for_each_t)(status_t * for_each_t[3]);
 */
+avl_t * AVLCreate(compare_t compare_func);
+void AVLDestroy(avl_t *avl);
+status_t AVLInsert(avl_t *avl, const void *data);
+void AVLRemove(avl_t *avl, void *data);
+void *AVLFind(const avl_t *avl, const void *to_find);
+int AVLIsEmpty(const avl_t *avl);
+size_t AVLSize(const avl_t *avl);
+size_t AVLHeight(const avl_t *avl);
+int AVLForEach(avl_t *avl, traversal_t mode, action_t act_func, void *params);
+static void StaticDestroy(node_t  *node);
+static node_t * StaticRemove(node_t *node, void *data, compare_t compare);
+static void * StaticFind(node_t *node, void *to_find, compare_t compare);
+static size_t StaticSize(node_t *node);
+static size_t StaticHeight(node_t *node);
+static node_t * StaticInsert(node_t *node, compare_t compare , node_t *new_node);
+static status_t StaticForEachInOrder(node_t *node, action_t action_func , void * params);
+static status_t StaticForEachPreOrder(node_t *node, action_t action_func , void * params);
+static status_t StaticForEachPostOrder(node_t *node, action_t action_func , void * params);
+static size_t SetMaxHeight(node_t * node);
+static void * DeepDive(node_t *node , child_t side);
+static void * GetNextData(node_t *node);
+static size_t HasBothChildren(node_t * node);
+static node_t * InitNode(void * data);
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
@@ -75,27 +98,22 @@ avl_t * AVLCreate(compare_t compare_func)
 void AVLDestroy(avl_t *avl)
 {
     assert(NULL != avl);
-    destroyHandler(avl->root);
+    StaticDestroy(avl->root);
     free(avl);
 }
 
-status_t AVLInsert(avl_t *avl, const void *data);
+status_t AVLInsert(avl_t *avl, const void *data)
 {
     node_t * new_node = NULL;
-    node_t * found_spot = NULL;
-    child_t side = 0;
     assert(NULL != avl);
     assert(NULL != data);
 
-    new_node = (node_t *)malloc(sizeof(node_t));
-    
+
+    new_node = InitNode((void *)data);
     if(NULL == new_node)
     {
         return FAIL;
     }
-    
-    new_node->data = data;
-    new_node->height = 0;
 
     if (NULL == avl->root)
     {
@@ -103,9 +121,9 @@ status_t AVLInsert(avl_t *avl, const void *data);
     }
     else
     {
-        StaticInsert(avl->root ,(void *)data ,compare, new_node);
+        StaticInsert(avl->root,avl->cmp_func, new_node);
     }
-
+    
     return SUCCESS;
 }
 
@@ -118,17 +136,19 @@ void AVLRemove(avl_t *avl, void *data)
         free();
     }
     */
+
+    StaticRemove(avl->root, data, avl->cmp_func);
 }
 
-void *AVLFind(const avl_t *avl, const void *to_find);
+void *AVLFind(const avl_t *avl, const void *to_find)
 {
-
+    StaticFind(avl->root, (void *)to_find, avl->cmp_func);
 }
 
 int AVLIsEmpty(const avl_t *avl)
 {
     assert(NULL != avl);
-    return ((NULL == avl->root)? 1 : 0 )
+    return ((NULL == avl->root)? 1 : 0 );
 }
 
 size_t AVLSize(const avl_t *avl)
@@ -185,48 +205,73 @@ static void StaticDestroy(node_t  *node)
 static node_t * StaticRemove(node_t *node, void *data, compare_t compare)
 {
     node_t *found_node = NULL;
-    node_t *next_node = NULL;
     node_t *found_child = NULL;
+    void * data_to_replace = NULL;
+    child_t side = (compare(node->data, data) < 0);
 
-    child_t side = (compare(node->data, data) > 0);
-
-    if (compare(node->data, data) == SUCCESS)
+    if (compare(node->data, data) == 0)
     {
         return node;
     }
-    found_node = StaticRemove(node->child[side], data, compare);
-
-    if(found_node != NULL && HasBothChildren(found_node))
+    else
     {
-        next_node = GetNextForRemove(node);
-
+        found_node = StaticRemove(node->child[side], data, compare);
     }
-    if(found_node != NULL && HasBothChildren(found_node) == FALSE)
+
+    if(found_node != NULL && HasBothChildren(found_node) == TRUE)
+    {
+        data_to_replace = GetNextData(found_node);
+        found_node->data = data_to_replace;
+        StaticRemove(found_node->child[RIGHT], data_to_replace, compare);
+    }
+    else if(found_node != NULL && HasBothChildren(found_node) == FALSE)
     {
         found_child = (node_t *)((size_t)found_node->child[LEFT] ^ (size_t)found_node->child[RIGHT]);
         node->child[side] = found_child;
         free(found_node); 
     }
 
+    SetMaxHeight(node);
     return NULL;
 }
 
+/*
+static node_t * StaticRemoveWithOneChild(node_t *node, node_t * found)
+{
+    node_t *found_node = NULL;
+    node_t *next_node = NULL;
+    node_t *found_child = NULL;
+    if (NULL == node->child[LEFT])
+    {
+        return node;
+    }
+    next_node = StaticRemoveWithOneChild(node->child[LEFT]);
+
+    if (NULL != next_node)
+    {
+
+    }
+    return NULL;
+}
+
+*/
 
 static void * StaticFind(node_t *node, void *to_find, compare_t compare)
 {
     node_t *found_node = NULL;
-    
-    if (NULL == node || compare(node->data, to_find) == SUCCESS)
+    child_t side = 0;
+    if (NULL == node)
     {    
-        return node;
+        return NULL;
+    }
+    else if(compare(node->data, to_find) == SUCCESS)
+    {
+        return node->data;
     }
 
-    found_node = StaticFind(node->child[LEFT],to_find,compare);
-    
-    if (NULL == found_node)
-    {
-        found_node = StaticFind(node->child[RIGHT],to_find,compare);       
-    }
+    side = (compare(node->data, to_find) < 0);
+
+    found_node = StaticFind(node->child[side],to_find,compare);
     
     return found_node; 
 }   
@@ -255,28 +300,31 @@ static size_t StaticHeight(node_t *node)
 }
 
 
-static node_t * StaticInsert(node_t *node ,void * data , compare_t compare , node_t *new_node)
-{
-    node_t * found_node = NULL ;
-    
-    child_t side =  (compare(node->data,data) > 0);   
+static node_t * StaticInsert(node_t *node, compare_t compare , node_t *new_node)
+{    
+    child_t side = (compare(node->data,new_node->data) < 0);   
 
-    if(NULL == node->child[side] )
+    if(NULL == node->child[side])
     {
-        found_node->child[side] = new_node;
-        return;
+        
+        node->child[side] = new_node;
+    }
+    else
+    {
+        node->child[side] = StaticInsert(node->child[side] ,compare, new_node);
     }
 
-    found_node = StaticInsert(node->child[side],data ,compare, new_node);
-
-    node->height = (1 + GetMaxHieght(node));
-    
-    return;
+    SetMaxHeight(node);   
+    return node;
 }
 
 static status_t StaticForEachInOrder(node_t *node, action_t action_func , void * params)
 {
     status_t status = SUCCESS;
+    if(NULL == node)
+    {
+        return status;
+    }
 
     status = StaticForEachInOrder(node->child[LEFT],action_func, params);
     if (status != SUCCESS)
@@ -284,7 +332,7 @@ static status_t StaticForEachInOrder(node_t *node, action_t action_func , void *
         return status;
     }
 
-    status = action_func(node, params);
+    status = action_func(node->data, params);
     if (status != SUCCESS)
     {
         return status;
@@ -316,20 +364,23 @@ static status_t StaticForEach(status_t *for_each_t[3])
 static status_t StaticForEachPreOrder(node_t *node, action_t action_func , void * params)
 {
     status_t status = SUCCESS;
-    
-    status = action_func(node, params);
+    if(NULL == node)
+    {
+        return status;
+    }
+    status = action_func(node->data, params);
     if (status != SUCCESS)
     {
         return status;
     }
     
-    status = StaticForEachInOrder(node->child[LEFT],action_func , params);
+    status = StaticForEachPreOrder(node->child[LEFT],action_func , params);
     if (status != SUCCESS)
     {
         return status;
     }
     
-    status = StaticForEachInOrder(node->child[RIGHT],action_func, params);
+    status = StaticForEachPreOrder(node->child[RIGHT],action_func, params);
     if (status != SUCCESS)
     {
         return status;
@@ -342,20 +393,23 @@ static status_t StaticForEachPreOrder(node_t *node, action_t action_func , void 
 static status_t StaticForEachPostOrder(node_t *node, action_t action_func , void * params)
 {
     status_t status = SUCCESS;
-    
-    status = StaticForEachInOrder(node->child[LEFT],action_func, params);
+    if(NULL == node)
+    {
+        return status;
+    }
+    status = StaticForEachPostOrder(node->child[LEFT],action_func, params);
     if (status != SUCCESS)
     {
         return status;
     }
     
-    status = StaticForEachInOrder(node->child[RIGHT],action_func, params);
+    status = StaticForEachPostOrder(node->child[RIGHT],action_func, params);
     if (status != SUCCESS)
     {
         return status;
     }
 
-    status = action_func(node, params);
+    status = action_func(node->data, params);
     if (status != SUCCESS)
     {
         return status;
@@ -365,11 +419,15 @@ static status_t StaticForEachPostOrder(node_t *node, action_t action_func , void
 }
 
 
-static size_t GetMaxHieght(node_t * node)
+static size_t SetMaxHeight(node_t * node)
 {
     size_t left_height = 0;
     size_t right_height = 0;
 
+    if (NULL == node)
+    {
+        return 0;
+    }
     if (node->child[RIGHT] != NULL)
     {
         right_height = node->child[RIGHT]->height;
@@ -378,36 +436,28 @@ static size_t GetMaxHieght(node_t * node)
     {
         left_height = node->child[LEFT]->height;
     }
-    return MAX(right_height, left_height);
+    node->height = 1 + MAX(right_height, left_height);
+    return node->height;
 }
 
 
 
-static node_t * GetNextForRemove(node_t *node , node_t *parent)
+static void * GetNextData(node_t *node)
 {
-    node_t * next = NULL;
-    if (NULL == node->child[LEFT])
-    {
-        return node; 
-    }
-    next = GetNext(node->child[LEFT]);
-    
-    return next;
+    void * data_to_replace = NULL;
+    data_to_replace = DeepDive(node->child[RIGHT], LEFT);
+    return data_to_replace;
 }
 
 
-static node_t * DeepDive(node_t *node , child_t side)
+static void * DeepDive(node_t *node , child_t side)
 {
-    node_t * last = NULL;
-    if (NULL == last->child[side])
+    if (NULL == node->child[side])
     {
-        return node; 
+        return node->data; 
     }
-    last = GetNext(node->child[LEFT]);
-    
-    return next;
+    return DeepDive(node->child[side], side);
 }
-
 
 
 
@@ -421,4 +471,25 @@ static size_t HasBothChildren(node_t * node)
 
     return SUCCESS;
 }
+
+static node_t * InitNode(void * data)
+{
+    node_t * new_node = NULL; 
+
+    new_node = (node_t *)malloc(sizeof(node_t));
+    
+    if(NULL == new_node)
+    {
+        return NULL;
+    }
+    
+    new_node->data = (void *)data;
+    new_node->height = 1;
+    new_node->child[RIGHT] = NULL;
+    new_node->child[LEFT] = NULL;
+
+    return new_node;
+}
+
+
 
