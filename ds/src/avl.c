@@ -5,16 +5,16 @@
  ******************************************************************************/
 
 #include <assert.h> /* assert */
-#include <stdlib.h>
+#include <stdlib.h> /* malloc */
 #include <stdio.h>
 #include <math.h>
+
 #include "../include/avl.h"
 
 #define MAX(a, b) ((b > a) ? b : a)
 
 #define FALSE (0)
 #define TRUE (1)
-
 
 
 /******************************************************************************
@@ -94,6 +94,7 @@ avl_t *AVLCreate(compare_t compare_func)
 void AVLDestroy(avl_t *avl)
 {
     assert(NULL != avl);
+
     StaticDestroy(avl->root);
     free(avl);
 }
@@ -101,8 +102,8 @@ void AVLDestroy(avl_t *avl)
 status_t AVLInsert(avl_t *avl, const void *data)
 {
     node_t *new_node = NULL;
+
     assert(NULL != avl);
-    assert(NULL != data);
 
     new_node = InitNode((void *)data);
     if (NULL == new_node)
@@ -135,24 +136,28 @@ void *AVLFind(const avl_t *avl, const void *to_find)
 int AVLIsEmpty(const avl_t *avl)
 {
     assert(NULL != avl);
+
     return ((NULL == avl->root) ? 1 : 0);
 }
 
 size_t AVLSize(const avl_t *avl)
 {
     assert(NULL != avl);
+
     return StaticSize(avl->root);
 }
 
 size_t AVLHeight(const avl_t *avl)
 {
     assert(NULL != avl);
+
     return ((AVLIsEmpty(avl))) ? 0 : avl->root->height;
 }
 
 int AVLForEach(avl_t *avl, traversal_t mode, action_t act_func, void *params)
 {
     int status = 0;
+
     assert(NULL != avl);
     assert(NULL != act_func);
 
@@ -213,18 +218,19 @@ static node_t *StaticRemove(node_t *node, void *data, compare_t compare)
         {
             data_to_replace = GetNextData(node);
             node->data = data_to_replace;
-            node->child[RIGHT] = StaticRemove(node->child[RIGHT], data_to_replace, compare);
+            node->child[RIGHT] = StaticRemove(node->child[RIGHT],
+                                              data_to_replace, compare);
         }
         else
         {
-            found_child = (node_t *)((size_t)node->child[LEFT] ^ (size_t)node->child[RIGHT]);
+            found_child = (node_t *)((size_t)node->child[LEFT] ^
+                                     (size_t)node->child[RIGHT]);
             free(node);
             return found_child;
         }
     }
 
     SetMaxHeight(node);
-
     return Balance(node);
 }
 
@@ -232,6 +238,7 @@ static void *StaticFind(node_t *node, void *to_find, compare_t compare)
 {
     node_t *found_node = NULL;
     child_t side = 0;
+
     if (NULL == node)
     {
         return NULL;
@@ -255,7 +262,8 @@ static size_t StaticSize(node_t *node)
         return 0;
     }
 
-    return (1 + ((StaticSize(node->child[RIGHT])) + (StaticSize(node->child[LEFT]))));
+    return (1 + ((StaticSize(node->child[RIGHT])) +
+                 (StaticSize(node->child[LEFT]))));
 }
 
 static node_t *StaticInsert(node_t *node, compare_t compare, node_t *new_node)
@@ -275,7 +283,8 @@ static node_t *StaticInsert(node_t *node, compare_t compare, node_t *new_node)
     return Balance(node);
 }
 
-static status_t StaticForEachInOrder(node_t *node, action_t action_func, void *params)
+static status_t StaticForEachInOrder(node_t *node, action_t action_func,
+                                     void *params)
 {
     status_t status = SUCCESS;
     if (NULL == node)
@@ -304,13 +313,16 @@ static status_t StaticForEachInOrder(node_t *node, action_t action_func, void *p
     return status;
 }
 
-static status_t StaticForEachPreOrder(node_t *node, action_t action_func, void *params)
+static status_t StaticForEachPreOrder(node_t *node, action_t action_func,
+                                      void *params)
 {
     status_t status = SUCCESS;
+
     if (NULL == node)
     {
         return status;
     }
+
     status = action_func(node->data, params);
     if (status != SUCCESS)
     {
@@ -332,7 +344,8 @@ static status_t StaticForEachPreOrder(node_t *node, action_t action_func, void *
     return status;
 }
 
-static status_t StaticForEachPostOrder(node_t *node, action_t action_func, void *params)
+static status_t StaticForEachPostOrder(node_t *node, action_t action_func,
+                                       void *params)
 {
     status_t status = SUCCESS;
     if (NULL == node)
@@ -443,7 +456,9 @@ static node_t *RotateSIDE(node_t *old_root, child_t side)
 static node_t *Balance(node_t *node)
 {
     long balance = 0;
+
     assert(NULL != node);
+
     balance = GetBalance(node);
     if (balance > 1)
     {
@@ -487,7 +502,8 @@ static long GetBalance(node_t *node)
     ;
 }
 
-static void SetTreeMatrix(node_t *node, int *matrix, size_t level, size_t x, size_t step, size_t row)
+static void SetTreeMatrix(node_t *node, int *matrix, size_t level, size_t x,
+                             size_t step, size_t row)
 {
     if (NULL == node)
     {
@@ -500,7 +516,7 @@ static void SetTreeMatrix(node_t *node, int *matrix, size_t level, size_t x, siz
     SetTreeMatrix(node->child[LEFT], matrix, level + 1, x - step, step, row);
 }
 
-void PrintTree(avl_t *tree)
+static void PrintTree(avl_t *tree)
 {
     size_t height = AVLHeight(tree);
     size_t row = (size_t)pow(2, height + 1);
