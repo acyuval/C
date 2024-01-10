@@ -121,4 +121,6 @@ size_t AVLHeight(const avl_t *avl);
 status_t AVLForEach(avl_t *avl, traversal_t mode, action_t act_func,
 					void *params);
 
+void PrintTree(avl_t *tree);
+
 #endif /* __AVL_H__ */

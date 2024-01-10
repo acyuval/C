@@ -1,8 +1,8 @@
 #include <assert.h> /*assert*/
 #include <stdio.h> /*printf*/
-
+#include <math.h>
 #include "avl.h"
-
+#include <stdlib.h>
 #define TRUE (1)
 #define FALSE (0)
 
@@ -12,22 +12,21 @@ static void TestAVLFind(void);
 static void TestAVLIsEmptyAndSize(void);
 static void TestAVLForEach(void);
 static void TestAVLHeight(void);
+static void TestBalance(void);
 
 static int Compare(void *data1, void *data2);
 static int Mult2(void *data1, void *data2);
 
 int main(void)
 {
-	/*
-    TestAVLCreate();
-	TestAVLInsert();
-    
-	TestAVLFind();
 	TestAVLIsEmptyAndSize();
-    */
+
+	TestAVLCreate();
+	TestAVLInsert();
+	TestAVLFind();
 	TestAVLForEach();
-    
 	TestAVLHeight();
+	TestBalance();
 	return(0);
 }
 
@@ -92,11 +91,12 @@ static void TestAVLIsEmptyAndSize(void)
 		assert(i == AVLSize(avl));
 		assert(SUCCESS == AVLInsert(avl, &arr[i]));
 	}
+	
 
 	assert(FALSE == AVLIsEmpty(avl));
+	
 	for(i = 0; i < sizeof(arr) / sizeof(arr[0]); ++i)
 	{
-		
 		assert(sizeof(arr) / sizeof(arr[0]) - i == AVLSize(avl));
 		AVLRemove(avl, &arr[i]);
 	}
@@ -164,6 +164,32 @@ static void TestAVLHeight(void)
 	printf("AVLHeight: success\n");
 }
 
+static void TestBalance(void)
+{
+	avl_t *avl =AVLCreate(Compare);
+	int arr[] = {1, 2, 3, 4, 5, 6, 7, 8};
+	int arr_expected_height1[] = {1, 2, 2, 3, 3, 3, 3, 4};
+	int arr_expected_height2[] = {4, 4, 3, 3, 3, 2, 2, 1};
+	size_t i = 0 , size = sizeof(arr) / sizeof(arr[0]);
+
+	assert(0 == AVLHeight(avl));
+	for(i = 0; i < size; ++i)
+	{
+		assert(SUCCESS == AVLInsert(avl, &arr[i]));
+		assert(arr_expected_height1[i] == (int)AVLHeight(avl));
+	}
+
+	for(i = 0; i < size; ++i)
+	{
+		assert(arr_expected_height2[i] == (int)AVLHeight(avl));
+		AVLRemove(avl, &arr[i]);
+	}
+	
+	assert(0 == AVLHeight(avl));
+	AVLDestroy(avl);
+	printf("AVL balancing is successful\n");
+}
+
 static int Mult2(void *data1, void *data2)
 {
 	*(int*)data1 *= *(int*)data2;
@@ -174,3 +200,5 @@ static int Compare(void *data1, void *data2)
 {
 	return(*(int*)data1 - *(int*)data2);
 }
+
+
