@@ -121,7 +121,7 @@ status_t AVLInsert(avl_t *avl, const void *data)
     }
     else
     {
-        StaticInsert(avl->root,avl->cmp_func, new_node);
+        avl->root = StaticInsert(avl->root,avl->cmp_func, new_node);
     }
     
     return SUCCESS;
@@ -285,8 +285,7 @@ static node_t * StaticInsert(node_t *node, compare_t compare , node_t *new_node)
     child_t side = (compare(node->data,new_node->data) < 0);   
 
     if(NULL == node->child[side])
-    {
-        
+    {   
         node->child[side] = new_node;
     }
     else
@@ -295,7 +294,7 @@ static node_t * StaticInsert(node_t *node, compare_t compare , node_t *new_node)
     }
 
     SetMaxHeight(node);   
-    return node;
+    return Balance(node);
 }
 
 static status_t StaticForEachInOrder(node_t *node, action_t action_func , void * params)
@@ -327,18 +326,6 @@ static status_t StaticForEachInOrder(node_t *node, action_t action_func , void *
     return status;
 }
 
-/*
-static status_t StaticForEach(status_t *for_each_t[3])
-{
-    int i = 0; 
-
-    for(i = 0 ; i < 3 ; i++)
-    {
-
-    }
-    return status;
-}
-*/
 
 
 static status_t StaticForEachPreOrder(node_t *node, action_t action_func , void * params)
@@ -473,3 +460,110 @@ static node_t * InitNode(void * data)
 
 
 
+static node_t * RotateSIDE(node_t * old_root, child_t side)
+{
+    child_t miror_side = (1-side);
+
+    node_t * new_root = old_root->child[side];
+
+    old_root->child[side] = new_root->child[miror_side];
+    new_root->child[miror_side] = old_root; 
+    SetMaxHeight(old_root);
+    SetMaxHeight(new_root);
+    return new_root; 
+}
+
+
+
+static node_t * Balance(node_t * node)
+{
+    long balance = 0; 
+    assert(NULL != node);
+    balance = GetBalance(node);
+    if (balance > 1)
+    {
+        balance = GetBalance(node->child[LEFT]);
+        if (balance < 0)
+        {
+            node->child[LEFT] = RotateSIDE(node->child[LEFT], RIGHT);   /*LR*/
+        }
+        return (RotateSIDE(node, LEFT));                                /* LL*/
+
+    }
+    else if (balance < -1)
+    {
+        balance = GetBalance(node->child[RIGHT]);
+        if (balance > 0)
+        {
+            node->child[RIGHT] = RotateSIDE(node->child[RIGHT], LEFT);  /*RL*/
+        }
+        return (RotateSIDE(node, RIGHT));                               /* RR*/
+    }
+
+
+   return (node);
+}
+
+static long GetBalance(node_t *node)
+{
+    long left_height = 0;
+    long right_height = 0;
+
+    
+    assert(NULL != node);
+
+    left_height = node->child[LEFT]->height;
+    right_height = node->child[RIGHT]->height;
+    return left_height - right_height;;
+}
+
+
+static void SetTreeMatrix(node_t *node, int *matrix, size_t level, size_t x, size_t step, size_t row)
+{
+	if (NULL == node)
+	{
+		return;
+	}
+	step = 2;
+	printf("x:%ld, y:%ld, val=%d, height: %ld\n", x, level, *(int *)node->data, node->height);
+	matrix[level * row + x] = *(int *)node->data;
+	SetTreeMatrix(node->child[RIGHT], matrix, level + 1, x + step, step, row);
+	SetTreeMatrix(node->child[LEFT], matrix, level + 1, x - step, step, row);
+}
+
+static void PrintTree(avl_t *tree)
+{
+	size_t height = AVLHeight(tree);
+	size_t row = (size_t)pow(2, height + 1);
+	int *matrix = (int *)calloc((row * (height + 1)), sizeof(int)); 
+	size_t i = 0, j = 0;
+
+	SetTreeMatrix(tree->root, matrix, 0, row / 2, row / 2, row);
+	
+	printf("height: %ld\n", height);
+	printf("row: %ld\n", row);
+
+	printf("    ");
+	for (i = 0; i < row; ++i)
+	{
+		printf("%3ld", i);
+	}
+	printf("\n\n");
+	for (i = 0; i < height; ++i)
+	{
+		printf("%3ld:", i);
+		for (j = 0; j < row; ++j)
+		{
+			if (0 != matrix[i * row + j])
+			{
+				printf("%3d", matrix[i * row + j]);
+			}
+			else
+			{
+				printf("   ");
+			}
+		}
+		printf("\n\n");
+	}
+	free(matrix);
+}
