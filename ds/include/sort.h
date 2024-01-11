@@ -55,4 +55,29 @@ int CountingSort(int *arr, size_t arr_size);
 ******************************************************************************/
 int RadixSort(int *arr, size_t arr_size);
 
+/******************************************************************************
+ *Description: Sorts the array using the MergeSort algorithm.
+ *Arguments: arr - and array of ints.
+ *	         arr_size - the size of the array
+ *Return Value: None.
+ *Time Complexity: O(n * long(n))
+ *Space Complexity: O(n)
+ *Notes: undefined behavior if arr is NULL.
+ ******************************************************************************/
+void MergeSort(int *arr, size_t arr_size);
+
+/******************************************************************************
+ *Description: sorts the array using the QuickSort algorithm.
+ *Arguments: arr - and array of ints.
+ *	         arr_size - the size of the array
+ *Return Value: None.
+ *Time Complexity: O(n * long(n))
+ *Space Complexity: O(log(n))
+ *Notes: undefined behavior if arr is NULL.
+ ******************************************************************************/
+void QuickSort(int *arr, size_t arr_size);
+
+int IterativeBinarySearch(int* sorted_arr, size_t arr_size, int to_find);
+
+int RecursiveBinarySearch(int* sorted_arr, size_t arr_size, int to_find);
 #endif

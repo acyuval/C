@@ -23,6 +23,11 @@
 static int RadixCountSort(int *arr, int size, int exp);
 static size_t FindMaxInArr(int * arr , size_t size);
 static void swap(int* xp, int* yp);
+static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra);
+int MergeSort(int *arr, size_t arr_size);
+
+static int *StaticMergeSort(int * arr, size_t start , size_t end , int * arr_extra);
+static int StaticRecursiveBS(int * sorted ,int* start, int* end, int to_find);
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
@@ -48,7 +53,6 @@ int RadixSort(int *arr, size_t arr_size)
     }    
     return SUCCESS;
 }
-
 
 int CountingSort(int *arr, size_t arr_size)
 {
@@ -93,9 +97,6 @@ int CountingSort(int *arr, size_t arr_size)
     return SUCCESS;
 }
 
-
-
-
 void BubbleSort(int *arr, size_t arr_size)
 {
     size_t i = 0;
@@ -124,7 +125,6 @@ void BubbleSort(int *arr, size_t arr_size)
     }
 }
 
-
 void SelectionSort(int *arr, size_t arr_size)
 {
     size_t i = 0;
@@ -149,7 +149,6 @@ void SelectionSort(int *arr, size_t arr_size)
         }
     }
 }
-
 
 void InsertionSort(int *arr, size_t arr_size)
 {
@@ -176,10 +175,142 @@ void InsertionSort(int *arr, size_t arr_size)
 }
 
 
+int IterativeBinarySearch(int* sorted_arr, size_t arr_size, int to_find)
+{
+    int * start_arr= sorted_arr;
+    int * end_arr = sorted_arr+arr_size;
+    int * guess = NULL;
+
+    assert(NULL != sorted_arr);
+
+    while ((end_arr != start_arr))
+    {
+        guess = start_arr + (end_arr - start_arr)/2;    
+        if (to_find == *guess)
+        {
+            return guess-sorted_arr;
+        }
+        else if(to_find > *guess)
+        {
+            start_arr = guess;
+        }
+        else 
+        {
+            end_arr = guess;
+        }    
+    }
+    return FALSE; 
+}
+
+
+int RecursiveBinarySearch(int* sorted_arr, size_t arr_size, int to_find)
+{
+    int * start_arr= sorted_arr;
+    int * end_arr = sorted_arr+arr_size;
+    int result = 0 ; 
+
+    result = StaticRecursiveBS(sorted_arr, start_arr, end_arr, to_find);
+
+    return result;
+
+}
+
+
+int MergeSort(int *arr, size_t arr_size)
+{
+    int * arr_extra = (int *)malloc(sizeof(int) * arr_size);
+
+    arr_extra = StaticMergeSort(arr, 0 , arr_size, arr_extra);
+
+
+}
 
 /******************************************************************************
 *							STATIC FUNCTIONS								  * 
 ******************************************************************************/
+
+static int *StaticMergeSort(int * arr, size_t start , size_t end , int * arr_extra)
+{
+    size_t mid = end - (start-end);
+
+    if (start == end)
+    {
+        return arr;
+    }
+    
+    StaticMergeSort(arr,start, mid, arr_extra);
+    StaticMergeSort(arr,mid+1, end, arr_extra);
+    
+    arr = MergeTwoHalf(arr, start,mid ,end, arr_extra);
+    
+    return arr_extra;
+
+}
+
+static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra)
+{
+    size_t first_index = start, last_index = mid, counter = 0;
+    
+    while (first_index < mid && last_index < end)
+    {
+        if(arr[first_index] < arr[last_index])
+        {
+            arr_extra[counter] = arr[first_index];
+            ++first_index;
+        }
+        else 
+        {
+            arr_extra[counter] = arr[last_index];
+            ++last_index;
+        }
+        ++counter;    
+    }
+
+    while(first_index < mid)
+    {
+        arr_extra[counter] = arr[first_index];
+        ++counter;
+        ++first_index;
+    }
+
+    while(last_index < end)
+    {
+        arr_extra[counter] = arr[last_index];
+        ++counter;
+        ++last_index;
+    }
+    
+    while(start != end)
+    {
+        arr[start] = arr_extra[start];
+        start++;
+    }
+
+    return arr;
+}
+
+
+static int StaticRecursiveBS(int * sorted ,int* start, int* end, int to_find)
+{
+    int * guess = start + (end - start)/2;
+    if (*guess == to_find)
+    {
+        return (guess - sorted);
+    }
+    else if(to_find > *guess)
+    {
+        start = guess;
+    }
+    else 
+    {
+        end = guess;
+    }    
+
+    return StaticRecursiveBS(sorted, start, end, to_find);
+}
+
+
+
 
 static int RadixCountSort(int *arr, int size, int exp)
 {

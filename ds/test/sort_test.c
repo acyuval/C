@@ -29,7 +29,7 @@ void TestSelectionSort();
 void TestBubbleSort();
 void TestCountingSort();
 void TestRadixSort();
-
+void TestMergeSort();
 /******************************************************************************
 *							MAIN											  * 
 ******************************************************************************/
@@ -37,12 +37,15 @@ void TestRadixSort();
 
 int main()
 {
-	TestRadixSort();
+	
+    TestMergeSort();
+    /*
+    TestRadixSort();
     TestCountingSort();
     TestSelectionSort();
     TestInsertionSort();
 	TestBubbleSort();
-
+    */
     return (0);
 }
 
@@ -239,6 +242,41 @@ void TestBubbleSort()
     printf("\ntest time = %f, qsort = %f\n", time_test , time_exp);
 }
 
+
+
+void TestMergeSort()
+{
+    int arr[TEST_SIZE] = {0};
+    int exepcted[TEST_SIZE] = {0};
+    int i = 0;
+    int random_number = 0; 
+    double time_test = 0 , time_exp = 0;
+
+    for(i = 0 ; i < TEST_SIZE ; i ++)
+    {
+        random_number = rand() % 100;
+        exepcted[i] = random_number;
+        arr[i] = random_number;
+    }
+
+    time_test = (double) clock() / CLOCKS_PER_SEC; 
+    MergeSort(arr, TEST_SIZE);
+    time_test = (((double) clock()) / CLOCKS_PER_SEC) - time_test; 
+    
+    time_exp = (double) clock() / CLOCKS_PER_SEC; 
+    qsort(exepcted, TEST_SIZE, sizeof(int), cmpfunc);
+    time_exp =  (((double) clock()) / CLOCKS_PER_SEC) - time_exp; 
+    
+    for(i = 0 ; i < TEST_SIZE ; i++)
+    {
+        if (exepcted[i] != arr[i])
+        {
+            PrintArr(arr, exepcted , TEST_SIZE , "Failed arr - Bubble Sort");
+            break;
+        }
+    }
+    printf("\n Merge Sort Succsess\n");
+}
 
 
 /******************************************************************************
