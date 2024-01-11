@@ -1,6 +1,6 @@
 /******************************************************************************
  *	Author:    Yuval
- *	Reviewer :
+ *	Reviewer : Chen
  *	Date:
  ******************************************************************************/
 
@@ -36,6 +36,7 @@ hash_t *HashTableCreate(hash_func_t hash_func, size_t table_size,
 						is_match_t is_match)
 {
     hash_t * new_hash = NULL;
+    long runner = 0; 
 
     assert(hash_func != NULL);
     assert(table_size != 0);
@@ -51,11 +52,27 @@ hash_t *HashTableCreate(hash_func_t hash_func, size_t table_size,
     new_hash->is_match = is_match;
 
     new_hash->table = (dll_t **)calloc(table_size, sizeof(dll_t *));
-
     if (NULL == new_hash->table)
     {
         free(new_hash);
         return NULL;
+    }
+
+    for(runner = 0 ; runner < (long)table_size; ++runner)
+    {
+        new_hash->table[runner] = DLLCreate();
+        
+        if (NULL == new_hash->table[runner])
+        {
+            for(runner -= 1; runner >= 0 ; --runner)
+            {
+                free(new_hash->table[runner]);
+            }
+            free(new_hash->table);
+            free(new_hash);
+
+            break;
+        }
     }
     return new_hash;
 }
@@ -85,16 +102,7 @@ status_t HashInsert(hash_t *hash, const void *data)
     table = hash->table;
     key = hash->hash_func((void *)data);
 
-    if(table[key] == NULL)
-    {
-        table[key] = DLLCreate();
-        if (NULL == table[key])
-        {
-            return FAIL;
-        }
-    }
-   
-    dll_iter =  DLLPushback(table[key], (void *)data);
+    dll_iter =  DLLInsert(table[key],DLLBegin(table[key]) ,(void *)data);
     if (NULL == dll_iter)
     {
         return FAIL;
@@ -116,12 +124,6 @@ void HashRemove(hash_t *hash, const void *data)
 
     DLLRemove(DLLFind(from, to, hash->is_match, (void *)data));
 
-    if(DLLIsEmpty(hash->table[key]) == TRUE)
-    {
-        DLLDestroy(hash->table[key]);
-        hash->table[key] = NULL;
-    }
-
 }
 
 void *HashFind(const hash_t *hash, const void *data)
@@ -138,6 +140,10 @@ void *HashFind(const hash_t *hash, const void *data)
         from = DLLBegin(hash->table[key]);
         to = DLLEnd(hash->table[key]);
         found_data = (DLLGet(DLLFind(from, to, hash->is_match, (void *)data)));
+        if(found_data == to)
+        {
+            found_data = NULL;
+        }
     }
     return found_data;
 }
@@ -166,12 +172,13 @@ int HashIsEmpty(const hash_t *hash)
 
     for(i = 0 ; i < hash->table_size; ++i)
     {
-        if (hash->table[i] != NULL)
+        counter = DLLSize(hash->table[i]);
+        if (counter != 0)
         {
-            counter += DLLSize(hash->table[i]);
+            break;
         }
     }
-    return counter; 
+    return (counter == 0); 
 }
 
 status_t HashForEach(hash_t *hash, action_t act_func, void *params)
@@ -186,15 +193,13 @@ status_t HashForEach(hash_t *hash, action_t act_func, void *params)
     for(i = 0 ; i < hash->table_size; ++i)
     {
         list = hash->table[i];
-        if (list != NULL)
-        {
         status = DLLForEach(DLLBegin(list),DLLEnd(list), act_func, params);
         if(status != SUCCESS)
         {
             return FAIL;
         }
-        }
     }
+    return SUCCESS;
 }
 
 

@@ -262,7 +262,7 @@ int DLLForEach(dll_iter_t from, dll_iter_t to, action_t act_func, void *params)
 	
 	while(TRUE != DLLIsEqual(node_ptr,to) && SUCCESS == status)
 	{
-		status = act_func(node_ptr, params);
+		status = act_func(node_ptr->data, params);
 		node_ptr = DLLNext(node_ptr);
 	}	
 	return (status); 

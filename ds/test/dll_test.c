@@ -351,10 +351,10 @@ void TestMultiFind()
 
 
 
-int Print(void * this_node, void *node_counter)
+int Print(void * data, void *node_counter)
 {
-	dll_iter_t  new_node = (dll_iter_t)this_node;
-	int value = *(int *)DLLGet(new_node);
+	
+	int value = *(int *)data;
 	*((int *)node_counter) += 1;
 	printf("Node%d:%d , ", *((int *)node_counter) ,value);
 	return 0;
