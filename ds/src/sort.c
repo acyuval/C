@@ -218,10 +218,17 @@ int RecursiveBinarySearch(int* sorted_arr, size_t arr_size, int to_find)
 
 int MergeSort(int *arr, size_t arr_size)
 {
-    int * arr_extra = (int *)malloc(sizeof(int) * arr_size);
+    int * arr_extra = (int *)calloc(arr_size, sizeof(int));
+    int mid = 0 ; 
+    if (NULL == arr_extra)
+    {
+        return FAIL;
+    }
 
-    arr_extra = StaticMergeSort(arr, 0 , arr_size, arr_extra);
+    StaticMergeSort(arr, 0 , arr_size-1, arr_extra);
 
+    free(arr_extra);
+    return SUCCESS;  
 
 }
 
@@ -231,29 +238,29 @@ int MergeSort(int *arr, size_t arr_size)
 
 static int *StaticMergeSort(int * arr, size_t start , size_t end , int * arr_extra)
 {
-    size_t mid = end - (start-end);
+    size_t mid = 0;
 
-    if (start == end)
+
+    if (start < end) 
     {
-        return arr;
+        mid = start + (end - start) / 2;
+
+        StaticMergeSort(arr, start, mid, arr_extra);
+        StaticMergeSort(arr, mid + 1, end, arr_extra);
+        MergeTwoHalf(arr, start, mid, end, arr_extra);
     }
-    
-    StaticMergeSort(arr,start, mid, arr_extra);
-    StaticMergeSort(arr,mid+1, end, arr_extra);
-    
-    arr = MergeTwoHalf(arr, start,mid ,end, arr_extra);
-    
-    return arr_extra;
+
+    return arr;
 
 }
 
 static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra)
 {
-    size_t first_index = start, last_index = mid, counter = 0;
-    
-    while (first_index < mid && last_index < end)
+    int first_index = start, last_index = mid+1, counter = start;
+    int i = 0;
+    while (first_index <= mid && last_index <= end)
     {
-        if(arr[first_index] < arr[last_index])
+        if(arr[first_index] <= arr[last_index])
         {
             arr_extra[counter] = arr[first_index];
             ++first_index;
@@ -266,26 +273,25 @@ static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra)
         ++counter;    
     }
 
-    while(first_index < mid)
+    while(first_index <= mid)
     {
         arr_extra[counter] = arr[first_index];
         ++counter;
         ++first_index;
     }
 
-    while(last_index < end)
+    while(last_index <= end)
     {
         arr_extra[counter] = arr[last_index];
         ++counter;
         ++last_index;
     }
-    
-    while(start != end)
-    {
-        arr[start] = arr_extra[start];
-        start++;
-    }
 
+    for (i = start; i <= end; ++i) 
+    {
+        arr[i] = arr_extra[i];
+    }
+    
     return arr;
 }
 
@@ -293,6 +299,7 @@ static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra)
 static int StaticRecursiveBS(int * sorted ,int* start, int* end, int to_find)
 {
     int * guess = start + (end - start)/2;
+    
     if (*guess == to_find)
     {
         return (guess - sorted);

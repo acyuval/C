@@ -134,7 +134,6 @@ void TestCountingSort()
 }
 
 
-
 void TestInsertionSort()
 {
     int arr[TEST_SIZE] = {0};
@@ -271,11 +270,15 @@ void TestMergeSort()
     {
         if (exepcted[i] != arr[i])
         {
-            PrintArr(arr, exepcted , TEST_SIZE , "Failed arr - Bubble Sort");
+            PrintArr(arr, exepcted , TEST_SIZE , "Failed - Merge sort");
             break;
         }
     }
-    printf("\n Merge Sort Succsess\n");
+    if (i == TEST_SIZE)
+    {
+        printf("\n Merge Sort Succsess\n");
+    }
+
 }
 
 
