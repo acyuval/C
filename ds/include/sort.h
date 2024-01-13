@@ -2,8 +2,8 @@
 #define __SORT_H__
 
 #include <stddef.h> /* size_t */
-
 typedef int (*compare_func)(const void *, const void *);
+
 
 /******************************************************************************
  *Description: Sorts the array using the bubble sort algorithm.

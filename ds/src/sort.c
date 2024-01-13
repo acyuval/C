@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "sort.h"
 
 #define LOW(a,b) ((a<b) ? a : b)
 #define SUCCESS (0)
@@ -25,9 +26,13 @@ static size_t FindMaxInArr(int * arr , size_t size);
 static void swap(int* xp, int* yp);
 static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra);
 int MergeSort(int *arr, size_t arr_size);
-
 static int *StaticMergeSort(int * arr, size_t start , size_t end , int * arr_extra);
 static int StaticRecursiveBS(int * sorted ,int* start, int* end, int to_find);
+static void CopyByteByte(char *dest, char * src, size_t ele_size);
+size_t StaticSwapPivot(void *base,size_t ele_size , size_t left_index, 
+                    size_t right_index, compare_func compare, char *arr_extra);
+void StaticQuickSort(void *base,size_t ele_size, size_t left_index,
+                    size_t right_index, char *arr_extra, compare_func compare);
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
@@ -219,7 +224,6 @@ int RecursiveBinarySearch(int* sorted_arr, size_t arr_size, int to_find)
 int MergeSort(int *arr, size_t arr_size)
 {
     int * arr_extra = (int *)calloc(arr_size, sizeof(int));
-    int mid = 0 ; 
     if (NULL == arr_extra)
     {
         return FAIL;
@@ -232,9 +236,103 @@ int MergeSort(int *arr, size_t arr_size)
 
 }
 
+
+
+void QuickSort(void *base, size_t nmemb, size_t size, compare_func compare)
+{
+    char * arr_extra = (char *)calloc(nmemb, size);
+    size_t right_index = 0;
+    
+    if (NULL == arr_extra)
+    {
+        return;
+    }
+
+    right_index = (nmemb-1)*size;
+
+    StaticQuickSort(base,size, 0, right_index, arr_extra, compare);
+
+    free(arr_extra);
+    return;  
+
+
+
+}
+
+
 /******************************************************************************
 *							STATIC FUNCTIONS								  * 
 ******************************************************************************/
+void StaticQuickSort(void *base, size_t ele_size, size_t left_index,
+                    size_t right_index, char *arr_extra, compare_func compare)
+{
+    size_t pivot_index = 0;
+
+    assert(base != NULL);
+    if(left_index <right_index)
+    {
+        pivot_index = StaticSwapPivot(base , ele_size , left_index, right_index,
+                                                                compare, arr_extra); 
+        if(pivot_index != 0)
+        {
+            StaticQuickSort(base, ele_size, left_index, pivot_index-ele_size, arr_extra, compare);
+        }
+        if(pivot_index != right_index)
+        {
+            StaticQuickSort(base, ele_size, pivot_index + ele_size, right_index, arr_extra, compare);
+        }
+    }
+
+}
+
+
+static void CopyByteByte(char *dest, char * src, size_t ele_size)
+{
+    size_t i = 0;
+
+    for(i = 0 ; i < ele_size ; ++i)
+    {
+        dest[i] = src[i];
+    }
+    return;
+}
+
+size_t StaticSwapPivot(void *base,size_t ele_size , size_t left_index, 
+                    size_t right_index, compare_func compare, char *arr_extra)
+ {
+    char * base_ptr = (char *)base+ left_index;
+    char * pivot = (char *)base + right_index;
+    size_t smaller_index = left_index;
+    size_t large_index = right_index; 
+
+    while(base_ptr != pivot)
+    {
+        if (compare((void *)pivot, (void *)base_ptr) > 0)
+        {
+            /* smaller than pivot */
+            CopyByteByte(arr_extra+smaller_index, base_ptr ,ele_size); 
+            smaller_index += ele_size;
+            base_ptr += ele_size;
+        }
+        else 
+        {
+            /* larger than pivot */
+            CopyByteByte(arr_extra+large_index, base_ptr ,ele_size);
+            large_index -= ele_size;
+            base_ptr += ele_size;
+        }
+    }
+
+    CopyByteByte(arr_extra+smaller_index, pivot,ele_size);
+    
+    base_ptr = (char *)base;
+    
+    CopyByteByte(base_ptr+left_index,arr_extra+left_index ,right_index - left_index + ele_size);
+
+    return smaller_index;
+ }
+
+
 
 static int *StaticMergeSort(int * arr, size_t start , size_t end , int * arr_extra)
 {
