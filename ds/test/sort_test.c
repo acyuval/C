@@ -40,7 +40,6 @@ void TestBinarySearch();
 
 int main()
 {
-	TestBinarySearch();
 
     TestQuicSort();
     TestMergeSort();
@@ -49,6 +48,8 @@ int main()
     TestSelectionSort();
     TestInsertionSort();
 	TestBubbleSort();
+	
+    TestBinarySearch();
 
     return (0);
 }
@@ -279,7 +280,8 @@ void TestMergeSort()
     }
     if (i == TEST_SIZE)
     {
-        printf("\n Merge Sort Succsess\n");
+        printf("\nMerge Sort Succsess ");
+        printf(" -- test time = %f, qsort = %f\n", time_test , time_exp);
     }
 
 }
@@ -319,7 +321,8 @@ void TestQuicSort()
     }
     if (i == TEST_SIZE)
     {
-        printf("\n Quick Sort Succsess\n");
+        printf("\nQuick Sort Succsess ");
+        printf(" -- test time = %f, qsort = %f\n", time_test , time_exp);
     }
 
 }
