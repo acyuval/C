@@ -37,7 +37,7 @@ void Test(int check)
 	}
 }
 
-int IntCmp(void * num1, void *num2)
+int IntCmp(void *num2, void * num1)
 {
     return (*(int *)num1 - *(int *)num2);
 }

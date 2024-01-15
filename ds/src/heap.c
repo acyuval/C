@@ -101,12 +101,13 @@ void HeapPop(heap_t *heap)
     HeapifyDown(heap, 0);
 }
 
-void HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms)
+void *HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms)
 {
     size_t found_index = 0;
     size_t nmemb = 0;
-    size_t *last = NULL;
-    size_t *found = NULL;
+    void **last = NULL;
+    void **found = NULL;
+    void * return_removed_data = NULL;
     assert(heap != NULL);
     assert(is_match_func != NULL);
 
@@ -114,10 +115,11 @@ void HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms)
     found_index = FindIndex(heap, pararms,is_match_func, nmemb);
     last = VectorGetAccess(heap->vector,nmemb-1);
     found = VectorGetAccess(heap->vector,found_index);
-
+    return_removed_data = *found;
     *found = *last; 
     VectorPopBack(heap->vector);
     HeapifyDown(heap, found_index);
+    return return_removed_data;
 }
 
 void *HeapPeek(const heap_t *heap)
@@ -180,7 +182,7 @@ static void HeapifyUp(heap_t *heap , size_t index)
     child = VectorGetAccess(heap->vector, index);
     parent = VectorGetAccess(heap->vector, parent_index);
     
-    while(index != 0 && heap->compare_func(*parent, *child) < 0)
+    while(index != 0 && heap->compare_func(*parent, *child) > 0)
     {
         index = parent_index;
         SwapData(parent, child);
@@ -208,7 +210,9 @@ static void HeapifyDown(heap_t *heap , size_t index)
     assert(NULL != heap);
 
     size = VectorSize(heap->vector);
+
     /* left/right child of given index is index*2 + 1 / index*2 + 2 */
+    
     while(index < size)
     {
         choose_child = VectorGetAccess(heap->vector, index);
@@ -217,7 +221,7 @@ static void HeapifyDown(heap_t *heap , size_t index)
         if (((index*2)+1) < size)
         {
             child_left = VectorGetAccess(heap->vector, (index*2)+1);
-            if (heap->compare_func(*child_left, *choose_child) > 0)
+            if (heap->compare_func(*child_left, *choose_child) < 0)
             {
                 choose_child = VectorGetAccess(heap->vector, (index*2)+1);
                 largest_index = (index*2)+1;
@@ -227,7 +231,7 @@ static void HeapifyDown(heap_t *heap , size_t index)
         if(((index*2)+2)  < size)
         {
             child_right = VectorGetAccess(heap->vector, (index*2)+2);
-            if (heap->compare_func(*child_right, *choose_child) > 0)
+            if (heap->compare_func(*child_right, *choose_child) < 0)
             {
                 choose_child =  VectorGetAccess(heap->vector, (index*2)+2);
                 largest_index = (index*2)+2; 

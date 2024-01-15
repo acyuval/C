@@ -7,10 +7,10 @@
 #include <assert.h> /* assert			  */
 #include <stdlib.h>
 #include <time.h>
-#include "pq.h"
+#include "heap_pq.h"
 #include "uid.h"
 #include "task.h"
-#include "scheduler.h"
+#include "heap_scheduler.h"
 
 /******************************************************************************
 *							TYPE DEFS / MACROS 								  * 
@@ -71,7 +71,10 @@ void TestSchedulerADDSizeIsEmpty()
 	SchedulerAdd(scheduler,&PrintMyName, (void *)"Einav", time(NULL) + 1, 2, NULL, 
 							NULL);
 	
-
+							
+	SchedulerAdd(scheduler,&SchedulerRemove, (void *)scheduler, time(NULL) + 4, 5, NULL, 
+							NULL);
+							
 	SchedulerAdd(scheduler,&StopTest, (void *)scheduler, time(NULL) + 4, 5, NULL, 
 							NULL);
 							
@@ -139,6 +142,13 @@ int StopTest(void * scheduler)
 }
 
 
+int RemoveTest(void * scheduler)
+{
+	scheduler = (scheduler_t *)scheduler;
+	SchedulerRemove(scheduler->);
+	return 0;
+
+}
 
 int SaveTimeInHeap(void * data)
 {

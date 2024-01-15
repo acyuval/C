@@ -11,7 +11,7 @@
 
 #include "uid.h"
 #include "task.h"
-#include "pq.h"
+#include "heap_pq.h"
 #include "scheduler.h"
 
 #define TRUE (1)
@@ -51,7 +51,7 @@ scheduler_t *SchedulerCreate(void)
 	}
 	
 	scheduler->is_running = 0;
-	scheduler->pq = PQCreate(&CompareFunc);
+	scheduler->pq = HeapPQCreate(&CompareFunc);
 	
 	if (NULL == scheduler->pq)
 	{
@@ -68,7 +68,7 @@ void SchedulerDestroy(scheduler_t *scheduler)
 	assert(NULL != scheduler);
 	
 	SchedulerClear(scheduler);
-	PQDestroy(scheduler->pq);
+	HeapPQDestroy(scheduler->pq);
 	free(scheduler);
 }
 
@@ -78,7 +78,7 @@ int SchedulerIsEmpty(const scheduler_t *scheduler)
 {
 	assert(scheduler != NULL);
 	
-	return (PQIsEmpty(scheduler->pq) && FALSE == scheduler->is_running);
+	return (HeapPQIsEmpty(scheduler->pq) && FALSE == scheduler->is_running);
 }
 
 
@@ -86,7 +86,7 @@ size_t SchedulerSize(const scheduler_t *scheduler)
 {
 	assert(scheduler != NULL);
 	
-	return (PQSize(scheduler->pq) + scheduler->is_running);
+	return (HeapPQSize(scheduler->pq) + scheduler->is_running);
 }
 
 
@@ -115,7 +115,7 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler,	op_func_t op_func,
 		return bad_uid;
 	}
 	
-	status = PQEnqueue(scheduler->pq, task);
+	status = HeapPQEnqueue(scheduler->pq, task);
 	
 	if (FAIL == status)
 	{
@@ -139,7 +139,7 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 		return SUCCESS;
 	}
 	
-	task = PQErase(scheduler->pq, &IsMatchFunc, &uid);
+	task = HeapPQErase(scheduler->pq, &IsMatchFunc, &uid);
 	
   	if (NULL == task)
 	{
@@ -159,9 +159,9 @@ int SchedulerRun(scheduler_t *scheduler)
 	
 	scheduler->is_running = 1;
 	
-	while (FALSE == PQIsEmpty(scheduler->pq) && STOP != scheduler->is_running)
+	while (FALSE == HeapPQIsEmpty(scheduler->pq) && STOP != scheduler->is_running)
 	{
-		task = (task_t *)PQPeek(scheduler->pq);
+		task = (task_t *)HeapPQPeek(scheduler->pq);
 		scheduler->cur_task = task;
 		time_to_run = TaskGetTimeToRun(task);
 		
@@ -170,7 +170,7 @@ int SchedulerRun(scheduler_t *scheduler)
 			sleep(1);
 		}
 		
-		PQDequeue(scheduler->pq);
+		HeapPQDequeue(scheduler->pq);
 		
 		status = TaskRun(task);
 		
@@ -183,7 +183,7 @@ int SchedulerRun(scheduler_t *scheduler)
 			}
 
 			TaskUpdateTimeToRun(task);	
-			status = PQEnqueue(scheduler->pq, task);
+			status = HeapPQEnqueue(scheduler->pq, task);
 			
 			
 			if (FAIL == status)
@@ -217,11 +217,14 @@ void SchedulerClear(scheduler_t *scheduler)
 	task_t * task = NULL;
 	assert(NULL != scheduler);
 	
-	scheduler->cur_task = NULL;
-		
-	while(FALSE == PQIsEmpty(scheduler->pq))
+	if (TRUE == TaskIsMatch(scheduler->cur_task , uid))
 	{
-		task = (task_t *)PQDequeue(scheduler->pq);
+		scheduler->cur_task = NULL;
+	}
+		
+	while(FALSE == HeapPQIsEmpty(scheduler->pq))
+	{
+		task = (task_t *)HeapPQDequeue(scheduler->pq);
 		TaskDestroy(task);
 	}
 }

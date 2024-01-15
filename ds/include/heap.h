@@ -15,7 +15,6 @@ typedef enum
 typedef struct heap heap_t;
 
 
-
 /******************************************************************************
  *Description: Creates a new heap.
  *Arguments: compare function to compare two elements.
@@ -24,6 +23,8 @@ typedef struct heap heap_t;
  *Space Complexity: O(1)
  *Notes: Returns NULL if memory allocation fails.
  *       Undefined behavior if compare_func is NULL.
+ *       compare_func(a,b): if result < 0: a above b
+ *                          if result >= 0: b above a
  ******************************************************************************/
 heap_t *HeapCreate(compare_func_t compare_func);
 
@@ -61,13 +62,14 @@ void HeapPop(heap_t *heap);
  *Description: Removes the specific data from the heap.
  *Arguments: Pointer to the heap, pointer to a matching function, pointer to
             the parameters for the function.
- *Return Value: None.
- *Time Complexity: O(log(n))
+ *Return Value: pointer to the removed data.
+ *Time Complexity: O(n)
  *Space Complexity: O(1)
  *Notes: Undefined behavoir if the heap pointer or the is_match function 
         pointer are NULL.
+        if data not found return NULL;
  ******************************************************************************/
-void HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms);
+void *HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *params);
 
 /******************************************************************************
  *Description: Returns the pointer to the data of the head of the heap.
