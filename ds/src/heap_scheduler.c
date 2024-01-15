@@ -47,19 +47,19 @@ scheduler_t *SchedulerCreate(void)
 	
 	if (NULL == scheduler)
 	{
-		return NULL;	
+		return (NULL);	
 	}
 	
 	scheduler->is_running = 0;
 	scheduler->pq = HeapPQCreate(&CompareFunc);
-	
+	scheduler->cur_task = bad_uid;
 	if (NULL == scheduler->pq)
 	{
 		free(scheduler);
-		return NULL;	
+		return (NULL);	
 	}
 	
-	return scheduler;
+	return (scheduler);
 }
 
 
@@ -106,13 +106,13 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler,	op_func_t op_func,
 		
 	if (NULL == task)
 	{
-		return bad_uid;
+		return (bad_uid);
 	}
 	
 	if(UIDIsEqual(TaskGetUid(task), bad_uid))
 	{
 		free(task);
-		return bad_uid;
+		return (bad_uid);
 	}
 	
 	status = HeapPQEnqueue(scheduler->pq, task);
@@ -120,7 +120,7 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler,	op_func_t op_func,
 	if (FAIL == status)
 	{
 		TaskDestroy(task);
-		return bad_uid;
+		return (bad_uid);
 	}
 	
 	return TaskGetUid(task);
@@ -136,18 +136,20 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 	if (TRUE == UIDIsEqual(scheduler->cur_task , uid))
 	{
 		scheduler->cur_task = bad_uid;
-		return SUCCESS;
+
+		return (SUCCESS);
 	}
 	
 	task = HeapPQErase(scheduler->pq, &IsMatchFunc, &uid);
 	
   	if (NULL == task)
 	{
-		return FAIL;	
+		return (FAIL);	
 	}
 	
 	TaskDestroy(task);
-	return SUCCESS;
+
+	return (SUCCESS);
 }
 
 int SchedulerRun(scheduler_t *scheduler)
@@ -159,7 +161,8 @@ int SchedulerRun(scheduler_t *scheduler)
 	
 	scheduler->is_running = 1;
 	
-	while (FALSE == HeapPQIsEmpty(scheduler->pq) && STOP != scheduler->is_running)
+	while (FALSE == HeapPQIsEmpty(scheduler->pq) && 
+											STOP != scheduler->is_running)
 	{
 		task = (task_t *)HeapPQPeek(scheduler->pq);
 		scheduler->cur_task = TaskGetUid(task);
@@ -188,7 +191,8 @@ int SchedulerRun(scheduler_t *scheduler)
 			if (FAIL == status)
 			{
 				TaskDestroy(task);
-				return FAIL;
+				
+				return (FAIL);
 			}
 		}
 		else
@@ -199,7 +203,7 @@ int SchedulerRun(scheduler_t *scheduler)
 
 	scheduler->is_running = 0;
 	
-	return  SchedulerIsEmpty(scheduler) ? SUCCESS : STOPPED;
+	return  (SchedulerIsEmpty(scheduler) ? SUCCESS : STOPPED);
 }
 
 
@@ -231,7 +235,7 @@ int CompareFunc(void *task1,void *task2)
 	assert(NULL != task1);
 	assert(NULL != task2);
 		
-	return difftime(TaskGetTimeToRun(task1), TaskGetTimeToRun(task2));
+	return (difftime(TaskGetTimeToRun(task1), TaskGetTimeToRun(task2)));
 }
 
 
@@ -241,9 +245,10 @@ int IsMatchFunc(void *task1,void *task2)
 	assert(NULL != task1);
 	assert(NULL != task2);
 	
-	return_value = TaskIsMatch((const task_t *)task1,TaskGetUid((task_t *)task2));
+	return_value = TaskIsMatch((const task_t *)task1, 
+												TaskGetUid((task_t *)task2));
 	
-	return return_value ? TRUE : FALSE;
+	return (return_value ? TRUE : FALSE);
 }
 
 /******************************************************************************

@@ -31,7 +31,8 @@ struct heap
 };
 
 
-static long FindIndex(heap_t *heap, void *data, is_match_func_t is_match, size_t nmemb);
+static long FindIndex(heap_t *heap, void *data, is_match_func_t is_match,
+                                                                 size_t nmemb);
 static void HeapifyUp(heap_t *heap , size_t index);
 void SwapData(void ** parent, void **child);
 static void HeapifyDown(heap_t *heap , size_t index);
@@ -63,6 +64,7 @@ heap_t *HeapCreate(compare_func_t compare_func)
 
     return heap;
 }
+
 void HeapDestroy(heap_t *heap)
 {
     assert(NULL != heap);
@@ -70,7 +72,6 @@ void HeapDestroy(heap_t *heap)
     VectorDestroy(heap->vector);
     free(heap);
 }
-
 
 status_t HeapPush(heap_t *heap, const void *data)
 {
@@ -81,9 +82,9 @@ status_t HeapPush(heap_t *heap, const void *data)
     status = VectorPushBack(heap->vector,&data);
     size = VectorSize(heap->vector);
 
-    HeapifyUp(heap , size-1);
+    HeapifyUp(heap , size - 1);
 
-    return status;
+    return (status);
 }
 
 void HeapPop(heap_t *heap)
@@ -101,7 +102,7 @@ void HeapPop(heap_t *heap)
     first = VectorGetAccess(heap->vector, 0);        
     *first = *last;
     VectorPopBack(heap->vector);
-    
+
     HeapifyDown(heap, 0);
 }
 
@@ -111,13 +112,15 @@ void *HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms)
     size_t nmemb = 0;
     void **last = NULL;
     void **found = NULL;
-    void * return_removed_data = NULL;
+    void *return_removed_data = NULL;
+
     assert(heap != NULL);
     assert(is_match_func != NULL);
 
     nmemb = VectorSize(heap->vector);
     found_index = FindIndex(heap, pararms,is_match_func, nmemb);
-    if (found_index != -1)
+    
+    if (FAIL != found_index)
     {
         last = VectorGetAccess(heap->vector,nmemb-1);
         found = VectorGetAccess(heap->vector,found_index);
@@ -126,7 +129,8 @@ void *HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms)
         VectorPopBack(heap->vector);
         HeapifyDown(heap, found_index);
     }
-    return return_removed_data;
+
+    return (return_removed_data);
 }
 
 void *HeapPeek(const heap_t *heap)
@@ -153,7 +157,8 @@ int HeapIsEmpty(const heap_t *heap)
  *							STATIC FUNCTIONS								  *
  ******************************************************************************/
 
-static long FindIndex(heap_t *heap, void *data, is_match_func_t is_match, size_t nmemb)
+static long FindIndex(heap_t *heap, void *data, is_match_func_t is_match, 
+                                                                size_t nmemb)
 {
 
     long runner = 0; 
@@ -225,23 +230,23 @@ static void HeapifyDown(heap_t *heap , size_t index)
         choose_child = VectorGetAccess(heap->vector, index);
         parent = choose_child;
 
-        if (((index*2)+1) < size)
+        if (((index * 2) + 1) < size)
         {
-            child_left = VectorGetAccess(heap->vector, (index*2)+1);
+            child_left = VectorGetAccess(heap->vector, (index * 2) + 1);
             if (heap->compare_func(*child_left, *choose_child) < 0)
             {
-                choose_child = VectorGetAccess(heap->vector, (index*2)+1);
-                largest_index = (index*2)+1;
+                choose_child = VectorGetAccess(heap->vector, (index * 2) + 1);
+                largest_index = (index * 2) +1;
             }
         }
 
-        if(((index*2)+2)  < size)
+        if(((index * 2) + 2)  < size)
         {
-            child_right = VectorGetAccess(heap->vector, (index*2)+2);
+            child_right = VectorGetAccess(heap->vector, (index * 2) + 2);
             if (heap->compare_func(*child_right, *choose_child) < 0)
             {
-                choose_child =  VectorGetAccess(heap->vector, (index*2)+2);
-                largest_index = (index*2)+2; 
+                choose_child =  VectorGetAccess(heap->vector, (index * 2) + 2);
+                largest_index = (index * 2) + 2; 
             }
         }
 

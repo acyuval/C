@@ -171,7 +171,7 @@ int Match(void * node_data, void *params)
 ******************************************************************************/
 
 
-int comparefunc(void *params, void * node_data)
+int comparefunc(void * node_data, void *params)
 {
 	if ((*(int *)node_data - *(int *)params) == 0)
 	{

@@ -32,7 +32,7 @@ pq_t *HeapPQCreate(pq_compare_t compare_func)
 	
 	if(NULL == pq)
 	{
-		return NULL;
+		return (NULL);
 	}
 	
 	pq->heap = HeapCreate(compare_func);
@@ -40,7 +40,7 @@ pq_t *HeapPQCreate(pq_compare_t compare_func)
 	if(NULL == pq->heap)
 	{
 		free(pq);
-		return NULL;
+		return (NULL);
 	}
 	return (pq);
 }
@@ -58,21 +58,21 @@ void HeapPQDestroy(pq_t *pq)
 int HeapPQIsEmpty(const pq_t *pq)
 {
 	assert(pq != NULL);
-	return HeapIsEmpty(pq->heap);
+	return (HeapIsEmpty(pq->heap));
 }
 
 
 size_t HeapPQSize(const pq_t *pq)
 {
 	assert(pq != NULL);
-	return HeapSize(pq->heap);
+	return (HeapSize(pq->heap));
 }
 
 int HeapPQEnqueue(pq_t *pq, void *data)
 {
 	assert(pq != NULL);
 
-	return HeapPush(pq->heap, data);
+	return (HeapPush(pq->heap, data));
 }
 
 void *HeapPQDequeue(pq_t *pq)
@@ -84,7 +84,7 @@ void *HeapPQDequeue(pq_t *pq)
 	
 	return_data = HeapPQPeek(pq);
 	HeapPop(pq->heap);
-	return return_data;
+	return (return_data);
 }	
 
 void *HeapPQPeek(const pq_t *pq)
@@ -109,7 +109,7 @@ void *HeapPQErase(pq_t *pq, pq_is_match_t is_match_func, void *params)
 	assert(pq != NULL);
 	assert(is_match_func != NULL);
 	
-	return HeapRemove(pq->heap, is_match_func, params);
+	return (HeapRemove(pq->heap, is_match_func, params));
 }
 /******************************************************************************
 *							STATIC FUNCTIONS								  * 
