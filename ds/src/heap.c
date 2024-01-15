@@ -31,7 +31,7 @@ struct heap
 };
 
 
-static size_t FindIndex(heap_t *heap, void *data, is_match_func_t is_match, size_t nmemb);
+static long FindIndex(heap_t *heap, void *data, is_match_func_t is_match, size_t nmemb);
 static void HeapifyUp(heap_t *heap , size_t index);
 void SwapData(void ** parent, void **child);
 static void HeapifyDown(heap_t *heap , size_t index);
@@ -92,10 +92,14 @@ void HeapPop(heap_t *heap)
     void **first = NULL;
     assert(NULL != heap);
     
+    if (VectorSize(heap->vector) == 0)
+    {
+        return;
+    }
+
     last = VectorGetAccess(heap->vector, VectorSize(heap->vector)-1);
     first = VectorGetAccess(heap->vector, 0);        
     *first = *last;
-    
     VectorPopBack(heap->vector);
     
     HeapifyDown(heap, 0);
@@ -103,7 +107,7 @@ void HeapPop(heap_t *heap)
 
 void *HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms)
 {
-    size_t found_index = 0;
+    long found_index = 0;
     size_t nmemb = 0;
     void **last = NULL;
     void **found = NULL;
@@ -113,12 +117,15 @@ void *HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms)
 
     nmemb = VectorSize(heap->vector);
     found_index = FindIndex(heap, pararms,is_match_func, nmemb);
-    last = VectorGetAccess(heap->vector,nmemb-1);
-    found = VectorGetAccess(heap->vector,found_index);
-    return_removed_data = *found;
-    *found = *last; 
-    VectorPopBack(heap->vector);
-    HeapifyDown(heap, found_index);
+    if (found_index != -1)
+    {
+        last = VectorGetAccess(heap->vector,nmemb-1);
+        found = VectorGetAccess(heap->vector,found_index);
+        return_removed_data = *found;
+        *found = *last; 
+        VectorPopBack(heap->vector);
+        HeapifyDown(heap, found_index);
+    }
     return return_removed_data;
 }
 
@@ -146,14 +153,14 @@ int HeapIsEmpty(const heap_t *heap)
  *							STATIC FUNCTIONS								  *
  ******************************************************************************/
 
-static size_t FindIndex(heap_t *heap, void *data, is_match_func_t is_match, size_t nmemb)
+static long FindIndex(heap_t *heap, void *data, is_match_func_t is_match, size_t nmemb)
 {
 
-    size_t runner = 0; 
+    long runner = 0; 
     void **this = NULL;
     assert(NULL != heap);
 
-    for(runner = 0 ; runner < nmemb ; ++runner)
+    for(runner = 0 ; runner < (long)nmemb ; ++runner)
     {
         this = VectorGetAccess(heap->vector, runner);
 

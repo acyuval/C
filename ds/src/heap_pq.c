@@ -70,15 +70,9 @@ size_t HeapPQSize(const pq_t *pq)
 
 int HeapPQEnqueue(pq_t *pq, void *data)
 {
-	int status = 0;
-	size_t size = 0;
 	assert(pq != NULL);
-	size = HeapSize(pq->heap);
-	HeapPush(pq->heap, data);
-	
-	status = HeapSize(pq->heap) - size;
-	
-	return status ? SUCCESS: FAIL;
+
+	return HeapPush(pq->heap, data);
 }
 
 void *HeapPQDequeue(pq_t *pq)
@@ -106,22 +100,16 @@ void HeapPQClear(pq_t *pq)
 	assert(pq != NULL);
 	while(FALSE == HeapPQIsEmpty(pq))
 	{
-		HeapPop(pq->heap);
+		HeapPQDequeue(pq);
 	}
 }
 
 void *HeapPQErase(pq_t *pq, pq_is_match_t is_match_func, void *params)
 {
-
-	void * return_data = NULL;
-	
 	assert(pq != NULL);
 	assert(is_match_func != NULL);
 	
-
-	return_data = HeapRemove(pq->heap, is_match_func, params);
-
-	return return_data;
+	return HeapRemove(pq->heap, is_match_func, params);
 }
 /******************************************************************************
 *							STATIC FUNCTIONS								  * 

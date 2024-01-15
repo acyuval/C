@@ -71,25 +71,24 @@ void TestHeapPush()
 void TestHeapPop()
 {
     heap_t *heap = HeapCreate(IntCmp);
-    int arr[5] = {1, 2, 3, 5, 4};
+    int arr[6] = {1, 2, 3, 5, 4,20};
     size_t i = 0;
     
     printf("\ntesting HeapPop\n");
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 6; ++i)
     {
         HeapPush(heap, &arr[i]);
     }
     
+    Test(20 == *(int *)HeapPeek(heap));
+    HeapPop(heap);
+    Test(5 == *(int *)HeapPeek(heap));
     HeapPop(heap);
     Test(4 == *(int *)HeapPeek(heap));
     HeapPop(heap);
     Test(3 == *(int *)HeapPeek(heap));
-    HeapPop(heap);
-    Test(2 == *(int *)HeapPeek(heap));
-    HeapPop(heap);
-    Test(1 == *(int *)HeapPeek(heap));
-
+    
     HeapDestroy(heap);
 }
 

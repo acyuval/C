@@ -101,7 +101,7 @@ int VectorPushBack(vector_t *vector, const void *data)
 
 int VectorPopBack(vector_t *vector)
 {
-	int ret_val = 0; 
+	int status = SUCCESS; 
 
 	assert(NULL != vector);
 	assert(vector->size > 0);
@@ -109,14 +109,13 @@ int VectorPopBack(vector_t *vector)
 	
 	if (vector->size == (vector->capacity)/GROWTH_FACTOR)
 	{
-		ret_val = VectorShrink(vector);
-		if(FAIL == ret_val)
+		if (vector->size != 0)
 		{
-			return ret_val;
-		}		
+			status = VectorShrink(vector);
+		}
 	}
 	
-	return SUCCESS;
+	return status;
 }
 
 

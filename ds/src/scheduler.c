@@ -30,7 +30,7 @@ struct scheduler
 {
 	pq_t *pq;
 	int is_running;
-	task_t * cur_task;
+	ilrd_uid_t cur_task;
 };
 		
 
@@ -133,9 +133,9 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 	task_t *task = NULL;
 	assert(scheduler != NULL);
 	
-	if (TRUE == TaskIsMatch(scheduler->cur_task , uid))
+	if (TRUE == UIDIsEqual(scheduler->cur_task , uid))
 	{
-		scheduler->cur_task = NULL;
+		scheduler->cur_task = bad_uid;
 		return SUCCESS;
 	}
 	
@@ -162,10 +162,10 @@ int SchedulerRun(scheduler_t *scheduler)
 	while (FALSE == PQIsEmpty(scheduler->pq) && STOP != scheduler->is_running)
 	{
 		task = (task_t *)PQPeek(scheduler->pq);
-		scheduler->cur_task = task;
+		scheduler->cur_task = TaskGetUid(task);
 		time_to_run = TaskGetTimeToRun(task);
 		
-		while (time_to_run - time(NULL))
+		while (time_to_run > time(NULL))
 		{
 			sleep(1);
 		}
@@ -176,7 +176,7 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		if (REPEAT == status)
 		{
-			if(NULL == scheduler->cur_task)
+			if(UIDIsEqual(bad_uid,scheduler->cur_task))
 			{
 				TaskDestroy(task);
 				continue;			
@@ -216,8 +216,8 @@ void SchedulerClear(scheduler_t *scheduler)
 {
 	task_t * task = NULL;
 	assert(NULL != scheduler);
-	
-	scheduler->cur_task = NULL;
+
+	scheduler->cur_task = bad_uid;
 		
 	while(FALSE == PQIsEmpty(scheduler->pq))
 	{

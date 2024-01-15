@@ -118,7 +118,7 @@ int TaskIsMatch(const task_t *task,const ilrd_uid_t uid)
 void TaskUpdateTimeToRun(task_t *task)
 {
 	assert(NULL != task);
-	task->time_to_run = time(NULL) + task->interval;
+	task->time_to_run += task->interval;
 }
 
 

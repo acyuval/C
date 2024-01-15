@@ -30,7 +30,7 @@ struct scheduler
 {
 	pq_t *pq;
 	int is_running;
-	task_t * cur_task;
+	ilrd_uid_t cur_task;
 };
 		
 
@@ -133,9 +133,9 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 	task_t *task = NULL;
 	assert(scheduler != NULL);
 	
-	if (TRUE == TaskIsMatch(scheduler->cur_task , uid))
+	if (TRUE == UIDIsEqual(scheduler->cur_task , uid))
 	{
-		scheduler->cur_task = NULL;
+		scheduler->cur_task = bad_uid;
 		return SUCCESS;
 	}
 	
@@ -162,10 +162,10 @@ int SchedulerRun(scheduler_t *scheduler)
 	while (FALSE == HeapPQIsEmpty(scheduler->pq) && STOP != scheduler->is_running)
 	{
 		task = (task_t *)HeapPQPeek(scheduler->pq);
-		scheduler->cur_task = task;
+		scheduler->cur_task = TaskGetUid(task);
 		time_to_run = TaskGetTimeToRun(task);
 		
-		while (time_to_run - time(NULL))
+		while (time_to_run > time(NULL))
 		{
 			sleep(1);
 		}
@@ -176,7 +176,7 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		if (REPEAT == status)
 		{
-			if(NULL == scheduler->cur_task)
+			if(UIDIsEqual(bad_uid,scheduler->cur_task))
 			{
 				TaskDestroy(task);
 				continue;			
@@ -185,14 +185,12 @@ int SchedulerRun(scheduler_t *scheduler)
 			TaskUpdateTimeToRun(task);	
 			status = HeapPQEnqueue(scheduler->pq, task);
 			
-			
 			if (FAIL == status)
 			{
 				TaskDestroy(task);
 				return FAIL;
 			}
 		}
-		
 		else
 		{
 			TaskDestroy(task);
@@ -216,11 +214,8 @@ void SchedulerClear(scheduler_t *scheduler)
 {
 	task_t * task = NULL;
 	assert(NULL != scheduler);
-	
-	if (TRUE == TaskIsMatch(scheduler->cur_task , uid))
-	{
-		scheduler->cur_task = NULL;
-	}
+
+	scheduler->cur_task = bad_uid;
 		
 	while(FALSE == HeapPQIsEmpty(scheduler->pq))
 	{
@@ -233,13 +228,10 @@ void SchedulerClear(scheduler_t *scheduler)
 
 int CompareFunc(void *task1,void *task2)
 {
-	int return_value = 0;
 	assert(NULL != task1);
 	assert(NULL != task2);
-	
-	return_value = TaskIsBefore((const task_t *)task1,(const task_t *) task2);
-	
-	return return_value ? FAIL : SUCCESS;
+		
+	return difftime(TaskGetTimeToRun(task1), TaskGetTimeToRun(task2));
 }
 
 

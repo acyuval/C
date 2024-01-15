@@ -291,17 +291,17 @@ void TestSchedulerStop()
 {
 	scheduler_t *scheduler = SchedulerCreate();
 	ilrd_uid_t repeating_uid = {0};
-
+	time_t now = time(NULL);
 	TEST_START("SchedulerStop");
 
 	TEST_ASSERT(TRUE == SchedulerIsEmpty(scheduler));
 	TEST_ASSERT(0 == SchedulerSize(scheduler));
 
 	repeating_uid = SchedulerAdd(scheduler, TestFuncRepeating, "Repeating",
-								 time(NULL) + 1, 1, NULL, NULL);
-	SchedulerAdd(scheduler, TestStop, scheduler, time(NULL) + 5, 0, NULL, NULL);
+								 now + 1, 1, NULL, NULL);
+	SchedulerAdd(scheduler, TestStop, scheduler, now + 5, 0, NULL, NULL);
 	SchedulerAdd(scheduler, TestFunc, "Last Task exectuted after ScheduleStop",
-				 time(NULL) + 6, 1, NULL, NULL);
+				 now + 6, 1, NULL, NULL);
 	TEST_ASSERT(FALSE == SchedulerIsEmpty(scheduler));
 	TEST_ASSERT(3 == SchedulerSize(scheduler));
 
