@@ -88,11 +88,10 @@ status_t HeapPush(heap_t *heap, const void *data)
 
 void HeapPop(heap_t *heap)
 {
-    size_t last_index = 0;
     void **last = NULL;
     void **first = NULL;
     assert(NULL != heap);
-
+    
     last = VectorGetAccess(heap->vector, VectorSize(heap->vector)-1);
     first = VectorGetAccess(heap->vector, 0);        
     *first = *last;
@@ -118,6 +117,7 @@ void HeapRemove(heap_t *heap, is_match_func_t is_match_func, void *pararms)
 
     *found = *last; 
     VectorPopBack(heap->vector);
+    HeapifyDown(heap, found_index);
 }
 
 void *HeapPeek(const heap_t *heap)
@@ -180,7 +180,7 @@ static void HeapifyUp(heap_t *heap , size_t index)
     child = VectorGetAccess(heap->vector, index);
     parent = VectorGetAccess(heap->vector, parent_index);
     
-    while(index > 0 && heap->compare_func(*parent, *child) < 0)
+    while(index != 0 && heap->compare_func(*parent, *child) < 0)
     {
         index = parent_index;
         SwapData(parent, child);
@@ -208,25 +208,32 @@ static void HeapifyDown(heap_t *heap , size_t index)
     assert(NULL != heap);
 
     size = VectorSize(heap->vector);
-
+    /* left/right child of given index is index*2 + 1 / index*2 + 2 */
     while(index < size)
     {
-        child_left = VectorGetAccess(heap->vector, index+1);
-        child_right = VectorGetAccess(heap->vector, index+2);
         choose_child = VectorGetAccess(heap->vector, index);
-        parent = VectorGetAccess(heap->vector, index);
+        parent = choose_child;
 
-        if ((index+1) < size && heap->compare_func(*child_left, *choose_child) > 0)
+        if (((index*2)+1) < size)
         {
-            choose_child = VectorGetAccess(heap->vector, index+1);
-            largest_index = index+1;
+            child_left = VectorGetAccess(heap->vector, (index*2)+1);
+            if (heap->compare_func(*child_left, *choose_child) > 0)
+            {
+                choose_child = VectorGetAccess(heap->vector, (index*2)+1);
+                largest_index = (index*2)+1;
+            }
         }
 
-        if((index+1)  < size && heap->compare_func(*child_right, *choose_child) > 0)
+        if(((index*2)+2)  < size)
         {
-            *choose_child =  VectorGetAccess(heap->vector, index+2);
-            largest_index = index+2; 
+            child_right = VectorGetAccess(heap->vector, (index*2)+2);
+            if (heap->compare_func(*child_right, *choose_child) > 0)
+            {
+                choose_child =  VectorGetAccess(heap->vector, (index*2)+2);
+                largest_index = (index*2)+2; 
+            }
         }
+
         if (index == largest_index)
         {
             return;
