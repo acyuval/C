@@ -215,7 +215,7 @@ static void HeapifyDown(heap_t *heap , size_t index)
     void **child_right = NULL;
     void **choose_child = NULL;
     void **parent = NULL;
-
+    size_t child_index = 0;
     size_t size = 0;
     size_t largest_index = 0;  
 
@@ -229,24 +229,25 @@ static void HeapifyDown(heap_t *heap , size_t index)
     {
         choose_child = VectorGetAccess(heap->vector, index);
         parent = choose_child;
-
-        if (((index * 2) + 1) < size)
+        child_index = (index * 2) + 1;
+        
+        if ((child_index) < size)
         {
-            child_left = VectorGetAccess(heap->vector, (index * 2) + 1);
+            child_left = VectorGetAccess(heap->vector, child_index);
             if (heap->compare_func(*child_left, *choose_child) < 0)
             {
-                choose_child = VectorGetAccess(heap->vector, (index * 2) + 1);
-                largest_index = (index * 2) +1;
+                choose_child = VectorGetAccess(heap->vector, child_index);
+                largest_index = child_index;
             }
         }
 
-        if(((index * 2) + 2)  < size)
+        if((child_index + 1)  < size)
         {
-            child_right = VectorGetAccess(heap->vector, (index * 2) + 2);
+            child_right = VectorGetAccess(heap->vector, child_index+1);
             if (heap->compare_func(*child_right, *choose_child) < 0)
             {
-                choose_child =  VectorGetAccess(heap->vector, (index * 2) + 2);
-                largest_index = (index * 2) + 2; 
+                choose_child =  VectorGetAccess(heap->vector, child_index+1);
+                largest_index = child_index+1; 
             }
         }
 
