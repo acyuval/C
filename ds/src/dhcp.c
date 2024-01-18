@@ -8,16 +8,16 @@
 #include <stdlib.h> /* malloc */
 #include <stdio.h>
 #include <math.h>
-
-#include "../include/dhcp.h"
-
-#include "../include/utiles.h"
+#include <arpa/inet.h>
+#include "dhcp.h"
+#include "utiles.h"
 
 #define MAX(a, b) ((b > a) ? b : a)
 
 #define FALSE (0)
 #define TRUE (1)
-
+#define WITH_ALLOC (1)
+#define NO_ALLOC (0)
 
 /******************************************************************************
  *							 DECLRATION								  *
@@ -46,7 +46,17 @@ struct node
     int is_available;
 };
 
-
+ip_t GetHostMask(size_t host_size);
+node_t *CreateNewNode(node_t *parent);
+int AllocInvalidAddress(dhcp_t *dhcp);
+status_t SlideBYIp(node_t **iter ,size_t max_level, ip_t request_ip, int flag);
+status_t FindNextAvailable(node_t **iter, size_t *cur_level , size_t max_level);
+status_t CreateAndSlide(node_t *iter , size_t *cur_level, size_t max_level);
+void ClimpUpAndBuildIp(node_t * iter, ip_t *return_ip);
+void ClimpUpAndMakeAvilable(node_t * iter);
+child_t CameFrom(node_t * prev ,node_t * cur );
+size_t CheckNochildAvilable(node_t *iter);
+size_t isChildsAvilable(node_t *iter);
 
 /******************************************************************************
  *							 FUNCTIONS 										  *
@@ -59,7 +69,7 @@ dhcp_t *DHCPCreate(const size_t host_size, const ip_t network)
     int status = 0;
     dhcp_t * dhcp = NULL;
     assert(host_size > 2 && host_size < 28);
-    assert(NULL != network);
+    assert(0 != network);
     
     dhcp = (dhcp_t *)malloc(sizeof(dhcp_t));
     if (dhcp == NULL)
@@ -67,7 +77,7 @@ dhcp_t *DHCPCreate(const size_t host_size, const ip_t network)
         return NULL;
     }
 
-    dhcp->root = (node_t *)malloc(sizeof(node_t));
+    dhcp->root = CreateNewNode(NULL);
     if (dhcp->root == NULL)
     {
         free(dhcp);
@@ -75,114 +85,165 @@ dhcp_t *DHCPCreate(const size_t host_size, const ip_t network)
     }
     dhcp->network = network;
     dhcp->host_size = host_size;
+    
     status = AllocInvalidAddress(dhcp);
+    if (status == ALLOCATION_ERROR)
+    {
+        DHCPDestroy(dhcp);
+        free(dhcp);
+        return NULL;
+    }
     
     return dhcp;
 }
 
 void DHCPDestroy(dhcp_t *dhcp)
 {
+    
+    node_t *iter = dhcp->root;
+    node_t *child = NULL;
+
+    while(iter != NULL)
+    {
+        if(iter->nodes[ZERO] != NULL)
+        {
+            iter = iter->nodes[ZERO];
+            continue;
+        }
+        else if(iter->nodes[ONE] != NULL)
+        {
+            iter = iter->nodes[ONE];
+            continue;
+        }
+        else 
+        {
+            child = iter;
+            iter = iter->nodes[PARENT];
+            free(child);
+
+            if (iter != NULL)
+            {
+                iter->nodes[CameFrom(iter, child)] = NULL;
+            }
+        }
+    }
+    free(dhcp);
 
 }
 
 status_t DHCPAllocIP(dhcp_t *dhcp, ip_t *returned_ip, ip_t request_ip)
 {
-    ip_t mask = 1;
-    ip_t child = 0;
-    node_t *iter = dhcp->root;
-    size_t cur_level = 0; 
+    node_t *iter = NULL;
+    size_t i = 0 ;
+    size_t no_of_possible_ips = 1 << dhcp->host_size;
+
+    status_t status = NO_AVAILABLE;
+    ip_t mask = ~0;
     *returned_ip = 0;
-    int status = 0;
 
-    status = SlideBYIp(&iter,&cur_level,dhcp->host_size,request_ip);
-    if (SUCCESS == status && iter == NULL)
+    while(status != SUCCESS)
     {
-        iter = CreateAndSlide(iter->nodes[PARENT] , cur_level, dhcp->host_size);       
-    }
-    if(NO_AVAILABLE == status)
-    {
-        iter = FindNextAvailable(iter, cur_level, dhcp->host_size);
-        if (iter == NULL)
+        iter = dhcp->root;
+        status = SlideBYIp(&iter,dhcp->host_size,request_ip +i, WITH_ALLOC);
+        ++i;
+
+        if (i > no_of_possible_ips)
         {
-            iter = CreateAndSlide(iter->nodes[PARENT] , cur_level, dhcp->host_size);
-
+            return NO_AVAILABLE;
         }
     }
-
+        
+    mask = mask << dhcp->host_size;
+    *returned_ip = request_ip & mask;  
+    *returned_ip = *returned_ip >> dhcp->host_size;
+    
     ClimpUpAndBuildIp(iter, returned_ip);
+
+    if(*returned_ip == request_ip)
+    {
+        return SUCCESS;
+    }
+    else
+    {
+        return NOT_REQUESTED;
+    }
 }
 
 void DHCPFreeIP(dhcp_t *dhcp, ip_t ip)
 {
-    node_t ** iter = NULL;
+    node_t * iter = NULL;
 
-    *iter = dhcp->root; 
-    SlideBYIp(iter, 0, dhcp->host_size, ip);
+    iter = dhcp->root; 
+    SlideBYIp(&iter,dhcp->host_size, ip, NO_ALLOC);
 
-    ClimpUpAndMakeAvilable(*iter);
+    ClimpUpAndMakeAvilable(iter);
 }
 
-/******************************************************************************
- *Description: Converts a given IP address to a string.
- *Arguments: Pointer to a pre-allocated memory buffer to store the string, an
-             IP address to convert to string.
- *Return Value: Pointer to the buffer.
- *Time Complexity: O(n)
- *Space Complexity: O(1)
- *Notes: Undefined behavior if not enough memory is allocated to the buffer, or
-         buffer is NULL.
- ******************************************************************************/
 char *DHCPIPToStr(char *buffer, const ip_t ip)
 {
     int runner = 0; 
-    ip_t mask = ~0;
-    size_t portion = 0;
-    mask >= 28;
-
+    unsigned char portion[4] = {0};
+    ip_t mask = ip;
     for (runner = 0 ; runner < 4 ; ++runner)
     {   
-        portion = (ip | mask);
-        buffer[runner] = portion;
-        mask <= 8;
+        portion[runner] = (unsigned char)mask; 
+        mask = mask >> 8;
     }
+    sprintf(buffer, "%d.%d.%d.%d", portion[3],portion[2],portion[1],portion[0]);
+    return buffer;
 }
 
-/******************************************************************************
- *Description: Converts a string to an IP address.
- *Arguments: Pointer to the string contains the IP address
- *Return Value: IP address.
- *Time Complexity: O(n)
- *Space Complexity: O(1)
- *Notes: Undefined behavior if ip_str is NULL.
- ******************************************************************************/
-ip_t DHCPStrToIP(const char *ip_str);
 
-/******************************************************************************
- *Description: Calculate and resturn the amount of available IP addresses.
- *Arguments: Pointer to the DHCP.
- *Return Value: The amount of available IP addresses.
- *Time Complexity: O(n)
- *Space Complexity: O(1)
- *Notes: Undefined behavior if DHCP pointer is NULL.
- ******************************************************************************/
-size_t DHCPCountFree(const dhcp_t *dhcp);
+ip_t DHCPStrToIP(const char* ip_str) 
+{
+    struct in_addr ip_addr;  
 
+    if (inet_pton(AF_INET, ip_str, &ip_addr) != 1)  
+    {  
+        return 0; 
+    }  
 
+    return ntohl(ip_addr.s_addr); 
+}            
 
+size_t DHCPCountFree(const dhcp_t *dhcp)
+{
+
+    child_t dir = ZERO;
+    size_t level = dhcp->host_size -1 ;
+    size_t counter = 0; 
+    size_t max_ip = 1 << dhcp->host_size;   
+    node_t *prev = dhcp->root;
+    node_t *cur =prev->nodes[ZERO]; 
+
+    while (cur->nodes[PARENT] != NULL || CameFrom(cur, prev) != ONE)
+    {
+        dir = CameFrom(cur, prev);
+        if (cur->is_available == 0)
+        {
+            counter += (1 << level);
+            dir = PARENT;
+        }
+        else
+        {
+            dir = (dir + 1) % 3;
+            while(cur->nodes[dir] == NULL)
+            {
+                dir = (dir + 1) % 3; 
+            }
+        }
+
+        (dir == PARENT) ? ++level: --level;
+        prev = cur;
+        cur = cur->nodes[dir];
+    }
+    return max_ip - counter;
+}
 
 
 /******************************************************************************
  *							Static FUNCTIONS 								  *
  ******************************************************************************/
-
-ip_t GetHostMask(size_t host_size)
-{
-    ip_t mask = ~0;
-    mask >= host_size;
-
-    return mask;
-}
-
 
 node_t *CreateNewNode(node_t *parent)
 {
@@ -194,102 +255,58 @@ node_t *CreateNewNode(node_t *parent)
     new_node->nodes[ZERO] = NULL;
     new_node->nodes[ONE] = NULL;
     new_node->nodes[PARENT] = parent;
-    new_node->is_available = 1;
+    new_node->is_available = TRUE;
 
     return new_node;
 }
 
 int AllocInvalidAddress(dhcp_t *dhcp)
 {
-    size_t runner = 0;
-    size_t side = ZERO;
-    node_t *this_node = dhcp->root;
-    node_t *iter = NULL;
+    ip_t all_zero = 0;
+    ip_t all_one = ~0;
+    ip_t buffer = 0;
+    DHCPAllocIP(dhcp,&buffer, all_zero);
+    DHCPAllocIP(dhcp,&buffer, all_one);
 
-    while(side < 2)
-    {
-        for(runner = 0 ; runner < dhcp->host_size ; ++runner)
-        {
-            this_node->nodes[side] = CreateNewNode(this_node);
-            if (NULL == this_node->nodes[side])
-            {
-                return FALSE;
-            }
-            this_node = this_node->nodes[side];
-        }
-        this_node->is_available = 1;
-        side = ONE;
-    }
     return SUCCESS;
 }
 
 
-status_t SlideBYIp(node_t **iter, size_t cur_level ,size_t max_level, ip_t request_ip)
-{
-    size_t cur_level = 0;
+status_t SlideBYIp(node_t **iter ,size_t max_level, ip_t request_ip, int flag)
+{   
     ip_t mask = 1;
-    ip_t child = 0;
+    ip_t side = 0;
+    size_t cur_level = 0;
     for (cur_level = 0 ; cur_level < max_level ; ++cur_level)
     {
-        child = mask&request_ip;
-        *iter = (*iter)->nodes[child];
-        if (NULL == iter)
+        side = ((mask&request_ip) > 0)? 1:0;
+        
+        if(NULL == (*iter)->nodes[side])
         {
-            return SUCCESS;       
+            (*iter)->nodes[side] = CreateNewNode(*iter);
         }
-        else if ((*iter)->is_available == FALSE)
+        else if((*iter)->nodes[side]->is_available == FALSE && flag == 1)
         {
-            return NO_AVAILABLE;
+            return NOT_REQUESTED;
         }
-        mask <= 1;
+
+        mask <<= 1;
+        (*iter) = (*iter)->nodes[side];
     }
+    (*iter)->is_available = 0;
+
     return SUCCESS;
 }
 
 
-status_t FindNextAvailable(node_t **iter, size_t cur_level , size_t max_level)
-{ 
-    node_t *cur = *iter;
-    node_t *prev = (*iter)->nodes[PARENT];
-    child_t prev2cur_realation = 0;
-
-    while (cur_level < max_level || cur->is_available == 0)
-    {
-        prev2cur_realation = ChildCameFrom(cur, prev);
-        prev = cur;
-        
-        if(cur == NULL)
-        {
-            return ;
-        }
-        if(cur->is_available = 0)
-        {
-            prev2cur_realation = 1;
-        }
-        
-        cur = cur->nodes[(prev2cur_realation+1)%3];
-        
-        if (prev2cur_realation == ONE)
-        {
-            --cur_level;
-        }
-        else 
-        {
-            ++cur_level;
-        }
-    }
-
-    return SUCCESS;   
-}
 
 
-/*
-
-node_t *FindNextAvailable(node_t *iter, size_t cur_level , size_t max_level)
+/* 
+node_t *FindNextAvailable(node_t *iter, size_t max_level)
 { 
     child_t side = ONE; 
     node_t * new_node = (node_t *)malloc(sizeof(node_t));
-
+    size_t cur_level = 0;
     
     while(ChildCameFrom(iter) == ONE && iter->nodes[ONE] != NULL && 
                                         iter->nodes[ONE]->is_available == 0)
@@ -322,14 +339,11 @@ node_t *FindNextAvailable(node_t *iter, size_t cur_level , size_t max_level)
     }
 }
 
-*/
 status_t CreateAndSlide(node_t *iter , size_t *cur_level, size_t max_level)
 {
-    node_t * new_node = NULL;
 
-    for(; *cur_level < max_level ; ++(*cur_level))
+    for(; *cur_level < max_level-1 ; ++(*cur_level))
     {
-
         iter->nodes[ZERO] = CreateNewNode(iter);
 
         if (NULL == iter->nodes[ZERO])
@@ -343,34 +357,31 @@ status_t CreateAndSlide(node_t *iter , size_t *cur_level, size_t max_level)
 
     return SUCCESS;
 }
-
+ */
 
 
 void ClimpUpAndBuildIp(node_t * iter, ip_t *return_ip)
 {
-    ip_t mask = 1;
-
     while (iter->nodes[PARENT] != NULL)
     {
-        if (ChildCameFrom(iter) == ONE)
+        *return_ip = *return_ip << 1; 
+
+        if (CameFrom(iter->nodes[PARENT] , iter) == ONE)
         {
-            *return_ip |= mask;
+            *return_ip |= 1;
         }
         iter = iter->nodes[PARENT];
-        mask <= 1;
 
-        if (CheckNochildAvilable(iter) == 0)
+        if (isChildsAvilable(iter) == FALSE)
         {
-            iter->is_available = 0; 
+            iter->is_available = FALSE; 
         }
-        
     }
+    
 }
 
 void ClimpUpAndMakeAvilable(node_t * iter)
 {
-    ip_t mask = 1;
-
     while (iter->nodes[PARENT] != NULL)
     {
         iter->is_available = 1; 
@@ -379,14 +390,13 @@ void ClimpUpAndMakeAvilable(node_t * iter)
 }
 
 
-child_t CameFrom(node_t * prev ,node_t * cur )
+child_t CameFrom(node_t * parent ,node_t * child )
 {
-
-    if((prev->nodes[ZERO] == cur))
+    if((parent->nodes[ZERO] == child))
     {
         return ZERO;
     }
-    else if ((prev->nodes[ONE] == cur))
+    else if ((parent->nodes[ONE] == child))
     {
         return ONE;
     }
@@ -394,11 +404,19 @@ child_t CameFrom(node_t * prev ,node_t * cur )
     {
         return PARENT;
     }
+
 }
 
 
-size_t CheckNochildAvilable(node_t *iter)
+size_t isChildsAvilable(node_t *iter)
 {
-    return (iter->nodes[ZERO]->is_available + iter->nodes[ZERO]->is_available); 
     
+    if (iter->nodes[ZERO] == NULL || iter->nodes[ONE] == NULL)
+    {
+        return TRUE;
+    }
+    else 
+    {
+        return (iter->nodes[ONE]->is_available || iter->nodes[ZERO]->is_available);  
+    }
 }

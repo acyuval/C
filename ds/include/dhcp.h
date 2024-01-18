@@ -10,7 +10,7 @@ typedef uint32_t ip_t;
 
 typedef enum
 {
-	SUCCESS = 0,
+    SUCCESS = 0,
     NO_AVAILABLE,
     NOT_REQUESTED,
     ALLOCATION_ERROR

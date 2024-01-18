@@ -1,191 +1,218 @@
-#include <assert.h> /*assert*/
-#include <stdio.h> /*printf*/
-#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "utiles.h"
-#include "hash.h"
+#include "../include/dhcp.h"
 
-#define DIC_SIZE (104384)
+typedef struct node node_t;
 
-
-
-
-
-/******************************************************************************
- *							 DECLRATION								  *
- ******************************************************************************/
-
-hash_t * CreateHashDic();
-static void TestHelper(int booll , char * calling_function, int test_no);
-size_t Hash(void *data);
-void simpleTests();
-int is_match(void * iter_data, void * to_match);
-void Scan(hash_t * hash);
-void FreeBuffers(char ** buffers);
-int act_func(void * arg1 ,void * arg2);
-/******************************************************************************
- *							 FUNCTIONS 										  *
- ******************************************************************************/
-int main(void)
+typedef enum
 {
+    ZERO,
+    ONE,
+    PARENT,
+    NUM_OF_NODES
+}child_t;
 
-	char * buffers[DIC_SIZE] = {NULL};
-	hash_t * hash = CreateHashDic(buffers);
-	simpleTests();
-	Scan(hash);
-	FreeBuffers(buffers);
-	HashDestroy(hash);
+struct dhcp
+{
+	node_t *root;
+    size_t host_size;
+    ip_t network;
+};
 
-	return(0);
+struct node
+{
+    node_t *nodes[NUM_OF_NODES];
+    int is_available;
+};
+
+
+void TestDHCPCreate();
+void TestDHCPAllocIP();
+void TestDHCPStrToIP();
+void TestDHCPIPToStr();
+void TestDHCPFreeIP();
+void TestDHCPCountFree();
+
+
+int main()
+{
+    TestDHCPCreate();
+
+    TestDHCPAllocIP();
+    TestDHCPFreeIP();
+    TestDHCPIPToStr();
+    TestDHCPStrToIP();
+    TestDHCPCountFree();
+    return (0);
 }
 
-
-void simpleTests()
+void Test(int check)
 {
-	size_t i = 0; 
-	int counter = 0;
-	char word[3][10] = {"hello", "world", "bye"};
-
-	hash_t *hash = HashTableCreate(Hash, 200000 , is_match);
-	TestHelper(TRUE == HashIsEmpty(hash), "Test is empty", 1);
-	for(i = 0 ; i < 3 ; ++i)
+	if (0 == check)
 	{
-		HashInsert(hash, &word[i]);
-	}
-
-	TestHelper(FALSE == HashIsEmpty(hash), "Test is empty", 1);
-	TestHelper(3 == HashSize(hash), "Test size", 1);
-	
-	HashForEach(hash, act_func, &counter);
-
-	HashRemove(hash , (void *)word[2]);
-	TestHelper(2 == HashSize(hash), "Test size", 2);
-	counter = 0;
-	HashForEach(hash, act_func, &counter);
-
-	HashDestroy(hash);
-
-}
-
-void FreeBuffers(char ** buffers)
-{
-	size_t i = 0; 
-	for(i = 0 ; i <= DIC_SIZE ; ++i)
-	{
-		free(buffers[i]);
-	}
-}
-
-
-
-
-
-hash_t * CreateHashDic(char ** buffers)
-{
-	FILE * file = fopen("/usr/share/dict/american-english" , "r");
-	int i = 0;
-	void * return_Val = &i;
-
-	size_t counter = 0; 
-	char * this_buf = NULL;
-	hash_t *hash = HashTableCreate(Hash, 200000 , is_match);
-
-	if(NULL == file)
-	{
-		printf("\ncould not open file\n");
+		printf("--------failure\n");
 	}
 	
-
-	while(return_Val != NULL && counter < (DIC_SIZE+1))
-	{
-		buffers[counter] = (char *)malloc(20);
-		return_Val = fgets(buffers[counter], 20, file);
-		++counter;
-		
-	}
-
-	i = 0; 
-	while(i < DIC_SIZE)
-	{
-		this_buf = buffers[i];
-		this_buf[strlen(this_buf)-1] = '\0';
-		HashInsert(hash, this_buf);
-		i++;
-	}
-	fclose(file);
-
-
-	return hash;
-
-}
-
-int is_match(void * iter_data, void * to_match)
-{
-	return (strcmp((char *)iter_data, (char *)to_match) == 0);
-}
-
-
-size_t Hash(void *data)
-{
-    size_t h = 24361; /* you can play with this to get varying result */
-    size_t bucket_amount = 200000; /* change this to whatever fits you */
-    char *str = (char *)data;
-    
-    for (; '\0' != *str; ++str) 
-    {
-        h ^= *str;
-        h *= 0x5bd1e995;
-        h ^= h >> 15;
-    }
-    return h % bucket_amount;
-}
-
-void Scan(hash_t * hash)
-{
-	char get[20] = "";
-	char * res = NULL;
-
-	printf("\nput word : \n");
-	while(strcmp(get, "quit"))
-	{
-		scanf("%s", get);
-		res = (char *)HashFind(hash, &get);
-		if (res != NULL)
-		{
-			printf("%s is a word!\n", res);
-		}
-		else
-		{
-			printf("Not in the dic\n");
-		}
-	}
-}
-
-
-int act_func(void * arg1 ,void * arg2)
-{
-    
-	printf("%d- %s\n", *(int *)arg2 , (char *)arg1);
-	
-	*(int *)arg2 += 1;
-
-	return 0;
-
-}
-
-
-
-
-
-static void TestHelper(int booll , char * calling_function, int test_no)
-{
-	if(booll)
-	{
-		printf("%s -> \t\tNO.%d sucsess!\n\n",calling_function, test_no);
-	}
 	else
 	{
-		printf("failed in %s, No. %d\n",calling_function ,test_no);
+		printf("success\n");
 	}
+}
+
+void TestDHCPCreate()
+{
+    dhcp_t *dhcp = DHCPCreate(8, DHCPStrToIP("192.2.2.34"));
+    size_t i = 0;
+    node_t *runner = dhcp->root;
+
+    printf("\ntesting Create\n");
+
+    Test(dhcp->host_size == 8);
+
+    for (i = 0; i < 8; ++i)
+    {
+        runner = runner->nodes[ZERO];
+    }
+
+    Test(0 == runner->is_available);
+
+    runner = dhcp->root;
+    for (i = 0; i < 8; ++i)
+    {
+        runner = runner->nodes[ONE];
+    }
+
+    Test(0 == runner->is_available);
+
+    DHCPDestroy(dhcp);
+}
+
+void TestDHCPAllocIP()
+{
+    dhcp_t *dhcp = DHCPCreate(8, DHCPStrToIP("192.2.2.34"));
+    status_t status = 0;
+    ip_t result = 0;
+    char buffer[16] = {0};
+
+    printf("\ntesting AllocIP\n");
+
+    status = DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12"));
+    Test(SUCCESS == status);
+    Test(0 == strcmp("192.2.2.12", DHCPIPToStr(buffer, result)));
+
+    status = DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12"));
+    Test(NOT_REQUESTED == status);
+    Test(0 == strcmp("192.2.2.13", DHCPIPToStr(buffer, result)));
+
+    status = DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12"));
+    Test(NOT_REQUESTED == status);
+    Test(0 == strcmp("192.2.2.14", DHCPIPToStr(buffer, result)));
+
+    status = DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.255"));
+    Test(NOT_REQUESTED == status);
+    Test(0 == strcmp("192.2.2.1", DHCPIPToStr(buffer, result)));
+
+    status = DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.254"));
+    Test(SUCCESS == status);
+    Test(0 == strcmp("192.2.2.254", DHCPIPToStr(buffer, result)));
+
+    status = DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.0"));
+    Test(NOT_REQUESTED == status);
+    Test(0 == strcmp("192.2.2.2", DHCPIPToStr(buffer, result)));
+
+    status = DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.254"));
+    Test(NOT_REQUESTED == status);
+    Test(0 == strcmp("192.2.2.3", DHCPIPToStr(buffer, result)));
+
+    DHCPDestroy(dhcp);
+}
+
+void TestDHCPFreeIP()
+{
+    dhcp_t *dhcp = DHCPCreate(8, DHCPStrToIP("192.2.2.34"));
+    ip_t result = 0;
+    char buffer[16] = {0};
+
+    printf("\ntesting FreeIP\n");
+
+    DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12"));
+    DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12"));
+    DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12"));
+
+    DHCPFreeIP(dhcp, DHCPStrToIP("192.2.2.13"));
+
+    Test(NOT_REQUESTED == DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12")));
+    Test(0 == strcmp("192.2.2.13", DHCPIPToStr(buffer, result)));
+    Test(NOT_REQUESTED == DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12")));
+    Test(0 == strcmp("192.2.2.15", DHCPIPToStr(buffer, result)));
+
+    DHCPFreeIP(dhcp, DHCPStrToIP("192.2.2.12"));
+
+    Test(SUCCESS == DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.12")));
+    Test(0 == strcmp("192.2.2.12", DHCPIPToStr(buffer, result)));
+
+    DHCPDestroy(dhcp);   
+}
+
+void TestDHCPIPToStr()
+{
+    ip_t ip_addr1 = 3221357090;
+    ip_t ip_addr2 = 2585362217;
+
+    char ip1[16] = {0};
+    char ip2[20] = {0};
+
+    printf("\ntesting IPToStr\n");
+
+    DHCPIPToStr(ip1, ip_addr1);
+    DHCPIPToStr(ip2, ip_addr2);
+
+    Test(0 == strcmp(ip1, "192.2.2.34"));
+    Test(0 == strcmp(ip2, "154.25.127.41"));
+}
+
+void TestDHCPStrToIP()
+{
+    char ip1[] = "192.2.2.34";
+    char ip2[] = "154.25.127.41";
+
+    ip_t ip_addr1 = 0;
+    ip_t ip_addr2 = 0;
+
+    printf("\ntesting StrToIP\n");
+    
+    ip_addr1 = DHCPStrToIP(ip1);
+    ip_addr2 = DHCPStrToIP(ip2);
+
+    Test(3221357090 == ip_addr1);
+    Test(2585362217 == ip_addr2);
+
+}
+
+void TestDHCPCountFree()
+{
+    dhcp_t *dhcp = DHCPCreate(4, DHCPStrToIP("192.2.2.64"));
+    ip_t result = 0;
+    size_t i = 0;
+
+    printf("\ntesting CountFree\n");
+
+    Test(14 == DHCPCountFree(dhcp));
+
+    for (i = 0; i < 10; ++i)
+    {
+        DHCPAllocIP(dhcp, &result, DHCPStrToIP("192.2.2.64") + i);
+    }
+
+    Test(4 == DHCPCountFree(dhcp));
+
+    DHCPFreeIP(dhcp, DHCPStrToIP("192.2.2.66"));
+    DHCPFreeIP(dhcp, DHCPStrToIP("192.2.2.70"));
+
+    Test(6 == DHCPCountFree(dhcp));
+
+    DHCPDestroy(dhcp);
+
+printf("\n");
 }
