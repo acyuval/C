@@ -171,7 +171,7 @@ static void TestHelper(int booll , char * calling_function, int test_no)
 {
 	if(booll)
 	{
-		printf("%s -> \t\tNO.%d sucsess!\n\n",calling_function, test_no);
+		printf("%s -> \t\tNO.%d success!\n\n",calling_function, test_no);
 	}
 	else
 	{
