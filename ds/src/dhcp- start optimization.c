@@ -1,6 +1,6 @@
 /******************************************************************************
  *	Author:    Yuval
- *	Reviewer :
+ *	Reviewer : Dor
  *	Date:
  ******************************************************************************/
 
@@ -47,16 +47,14 @@ struct node
 };
 
 ip_t GetHostMask(size_t host_size);
-node_t *CreateNewNode(node_t *parent);
-status_t AllocInvalidAddress(dhcp_t *dhcp);
-status_t SlideBYIp(node_t **iter ,size_t max_level, ip_t request_ip, int flag);
-status_t FindNextAvailable(node_t **iter, size_t *cur_level , size_t max_level);
-status_t CreateAndSlide(node_t *iter , size_t *cur_level, size_t max_level);
-void ClimpUpAndBuildIp(node_t * iter, ip_t *return_ip);
-void ClimpUpAndMakeAvilable(node_t * iter);
-child_t CameFrom(node_t * prev ,node_t * cur );
-size_t CheckNochildAvilable(node_t *iter);
-size_t isChildsAvilable(node_t *iter);
+static node_t *CreateNewNode(node_t *parent);
+static status_t AllocInvalidAddress(dhcp_t *dhcp);
+static status_t SlideBYIp(node_t **iter ,size_t max_level, ip_t request_ip, int flag, ip_t *new_ip);
+static void ClimpUpAndBuildIp(node_t * iter, ip_t *return_ip);
+static void ClimpUpAndMakeAvilable(node_t * iter);
+static child_t CameFrom(node_t * prev ,node_t * cur );
+static size_t isChildsAvilable(node_t *iter);
+static ip_t CalculateNewIP(size_t cur_level , size_t max_level, ip_t ip);
 
 /******************************************************************************
  *							 FUNCTIONS 										  *
@@ -133,30 +131,34 @@ status_t DHCPAllocIP(dhcp_t *dhcp, ip_t *returned_ip, ip_t request_ip)
 {
     node_t *iter = NULL;
     size_t i = 0 ;
-
+    ip_t first_request_ip = request_ip;
+    ip_t *ip_ptr = &request_ip;
     status_t status = NO_AVAILABLE;
     ip_t mask = ~0;
     *returned_ip = 0;
-
+    *ip_ptr = request_ip;
+    
     if (FALSE == dhcp->root->is_available)
     {
         return NO_AVAILABLE;
     }
+
     while(status != SUCCESS)
     {
         iter = dhcp->root;
-        status = SlideBYIp(&iter,dhcp->host_size,request_ip +i, WITH_ALLOC);
+        status = SlideBYIp(&iter,dhcp->host_size,request_ip, WITH_ALLOC, ip_ptr);
+        
         if (status == ALLOCATION_ERROR)
         {
             return ALLOCATION_ERROR;
         }
-        ++i;
     }
-        
-    mask = mask << dhcp->host_size;
+
+    *returned_ip = request_ip; 
+/*     mask = mask << dhcp->host_size;
     *returned_ip = request_ip & mask;  
     *returned_ip = *returned_ip >> dhcp->host_size;
-    
+     */
     ClimpUpAndBuildIp(iter, returned_ip);
 
     if(*returned_ip == request_ip)
@@ -174,7 +176,7 @@ void DHCPFreeIP(dhcp_t *dhcp, ip_t ip)
     node_t * iter = NULL;
 
     iter = dhcp->root; 
-    SlideBYIp(&iter,dhcp->host_size, ip, NO_ALLOC);
+    SlideBYIp(&iter,dhcp->host_size, ip, NO_ALLOC , NULL);
 
     ClimpUpAndMakeAvilable(iter);
 }
@@ -244,7 +246,7 @@ size_t DHCPCountFree(const dhcp_t *dhcp)
  *							Static FUNCTIONS 								  *
  ******************************************************************************/
 
-node_t *CreateNewNode(node_t *parent)
+static node_t *CreateNewNode(node_t *parent)
 {
     node_t * new_node = (node_t *)malloc(sizeof(node_t));
     if (NULL == new_node)
@@ -259,7 +261,7 @@ node_t *CreateNewNode(node_t *parent)
     return new_node;
 }
 
-status_t AllocInvalidAddress(dhcp_t *dhcp)
+static status_t AllocInvalidAddress(dhcp_t *dhcp)
 {
     ip_t all_zero = 0;
     ip_t all_one = ~0;
@@ -276,7 +278,7 @@ status_t AllocInvalidAddress(dhcp_t *dhcp)
     return status;
 }
 
-status_t SlideBYIp(node_t **iter ,size_t max_level, ip_t request_ip, int flag)
+static status_t SlideBYIp(node_t **iter ,size_t max_level, ip_t request_ip, int flag, ip_t *ip_ptr)
 {   
     ip_t mask = 1;
     child_t side = 0;
@@ -295,6 +297,7 @@ status_t SlideBYIp(node_t **iter ,size_t max_level, ip_t request_ip, int flag)
         }
         else if((*iter)->nodes[side]->is_available == FALSE && flag == WITH_ALLOC)
         {
+            *ip_ptr = CalculateNewIP(cur_level, max_level, request_ip);
             return NOT_REQUESTED;
         }
 
@@ -366,16 +369,16 @@ status_t CreateAndSlide(node_t *iter , size_t *cur_level, size_t max_level)
  */
 
 
-void ClimpUpAndBuildIp(node_t * iter, ip_t *return_ip)
+static void ClimpUpAndBuildIp(node_t * iter, ip_t *return_ip)
 {
     while (iter->nodes[PARENT] != NULL)
     {
-        *return_ip = *return_ip << 1; 
+/*         *return_ip = *return_ip << 1; 
 
         if (CameFrom(iter->nodes[PARENT] , iter) == ONE)
         {
             *return_ip |= 1;
-        }
+        } */
         iter = iter->nodes[PARENT];
 
         if (isChildsAvilable(iter) == FALSE)
@@ -386,7 +389,24 @@ void ClimpUpAndBuildIp(node_t * iter, ip_t *return_ip)
     
 }
 
-void ClimpUpAndMakeAvilable(node_t * iter)
+
+static ip_t CalculateNewIP(size_t cur_level , size_t max_level, ip_t ip)
+{
+    ip_t new_ip = ip;
+    size_t net_bits = (sizeof(ip_t)- max_level);
+    new_ip = new_ip >> cur_level;
+    new_ip += 1 << cur_level;
+
+    if (((new_ip << net_bits) >> net_bits) > ((ip_t)1 << max_level))
+    {
+        new_ip = (new_ip >> max_level) << max_level;
+    }
+    
+    return new_ip;
+
+}
+
+static void ClimpUpAndMakeAvilable(node_t * iter)
 {
     while (iter->nodes[PARENT] != NULL)
     {
@@ -395,7 +415,7 @@ void ClimpUpAndMakeAvilable(node_t * iter)
     }
 }
 
-child_t CameFrom(node_t * parent ,node_t * child )
+static child_t CameFrom(node_t * parent ,node_t * child )
 {
     if((parent->nodes[ZERO] == child))
     {
@@ -411,7 +431,7 @@ child_t CameFrom(node_t * parent ,node_t * child )
     }
 }
 
-size_t isChildsAvilable(node_t *iter)
+static size_t isChildsAvilable(node_t *iter)
 {
     if (iter->nodes[ZERO] == NULL || iter->nodes[ONE] == NULL)
     {
@@ -422,3 +442,5 @@ size_t isChildsAvilable(node_t *iter)
         return (iter->nodes[ONE]->is_available || iter->nodes[ZERO]->is_available);  
     }
 }
+
+

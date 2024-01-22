@@ -36,24 +36,24 @@ bitarray_t BitArrayResetAll(bitarray_t b_arr)
 
 bitarray_t BitArraySetBit(bitarray_t b_arr, size_t index, int bool_val)
 {
-	bitarray_t mask = 0 ;
+	bitarray_t mask = 1;
 	
 	assert(index < BIT_ARRAY_SIZE);
 	assert(bool_val == 1 || bool_val == 0);
 	
-	mask = (1 << (index));
-	
-	return bool_val ? (b_arr = b_arr | mask) : (b_arr = b_arr & (~mask)); 
+	mask = (mask << index);
+	bool_val ? (b_arr = b_arr | mask) : (b_arr = b_arr & (~mask));
+	return  b_arr;
 }
 
 int BitArrayGetVal(bitarray_t b_arr, size_t index)
 {
 	
-	bitarray_t mask = 0;
+	bitarray_t mask = 1;
 	
 	assert(index < BIT_ARRAY_SIZE);
 	
-	mask = 1 << (index);
+	mask = mask << (index);
 	
 	return (b_arr & mask) ? 1 : 0; 
 }
