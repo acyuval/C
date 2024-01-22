@@ -36,7 +36,7 @@ void TestKnightTour()
 	int path[65] = {0};
 	status_t status = 0 ;
 	int i = 0;
-	status = KnightTour(path, 0);
+	status = KnightTour(path, 5);
 
 	printf("\nstatus is %d \n", status);
 
