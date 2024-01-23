@@ -19,8 +19,7 @@
 #define TOPOS(i,j) ((i*BOARD_SIZE + j))
 #define GETI(pos) (pos / BOARD_SIZE)
 #define GETJ(pos) (pos % BOARD_SIZE)
-#define I (0)
-#define J (1)
+
 /******************************************************************************
  *							 DECLRATION								  *
  ******************************************************************************/
@@ -33,8 +32,8 @@ typedef struct moves
 }moves;
 
 static status_t StaticKnightTour(int *path, bitarray_t map, int pos_i, int pos_j, time_t time, moves *table[]);
-void UpdateLUT(moves **table, bitarray_t map, int pos_i, int pos_j);
-int CompareByCounter(const void * arg1,const void * arg2);
+static void UpdateLUT(moves **table, bitarray_t map, int pos_i, int pos_j);
+static int CompareByCounter(const void * arg1,const void * arg2);
 
 /******************************************************************************
  *							 FUNCTIONS 										  *
@@ -73,13 +72,12 @@ status_t KnightTour(int *path, int start_position)
 }
  
 
-
 /******************************************************************************
  *							Static FUNCTIONS 								  *
  ******************************************************************************/
 
 
-int isVaildPosition(int pos_i, int pos_j, bitarray_t b_arr)
+static int isVaildPosition(int pos_i, int pos_j, bitarray_t b_arr)
 {
 
     if (pos_i > (BOARD_SIZE -1)|| pos_i < 0 || pos_j < 0 || pos_j > (BOARD_SIZE-1))
@@ -111,7 +109,7 @@ static status_t StaticKnightTour(int *path, bitarray_t map, int pos_i,
 
     map = BitArraySetBit(map, TOPOS(pos_i,pos_j) ,1);
 
-    /* check for == instead */
+
     if (map == full_map)
     {
         *path = TOPOS(pos_i, pos_j);
@@ -138,7 +136,7 @@ static status_t StaticKnightTour(int *path, bitarray_t map, int pos_i,
     return SUCCESS;
 }
 
-void UpdateLUT(moves **table, bitarray_t map, int pos_i, int pos_j)
+static void UpdateLUT(moves **table, bitarray_t map, int pos_i, int pos_j)
 {
     int moves_runner = 0;
     int in_move_runner = 0;
@@ -176,8 +174,8 @@ void UpdateLUT(moves **table, bitarray_t map, int pos_i, int pos_j)
     qsort(*table, NUM_OF_MOVES , sizeof(moves), CompareByCounter); 
 }
 
-/* name, maybe switch to compare */
-int CompareByCounter(const void * arg1,const void * arg2)
+
+static int CompareByCounter(const void * arg1,const void * arg2)
 {
     moves * m1 = (moves *)arg1;
     moves * m2 = (moves *)arg2;
