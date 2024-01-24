@@ -12,9 +12,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define MAGIC_NUMBER (0xBADCAFFE)
-#define WORD_SIZE (sizeof(size_t))
-#define VSA_SIZE (sizeof(struct vsa))
 #define TRUE (1)
 #define FALSE (0)
 #define SUCCESS (0)
@@ -26,6 +23,8 @@ int RunWithFork();
 int RunWithSystem();
 void ParseFlags(char *buffer, char **arg_list);
 void ErrorHandle(int exit_status);
+void GetCommand(char * buffer);
+
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
@@ -53,13 +52,14 @@ int main(int argc,char **argv)
 	}
 	else 
 	{
-		printf("\n invalid!\n");
+		printf("\ninvalid!\n");
 		exit(1);
 	}
 	
 	return 0;
 
 }
+
 
 /******************************************************************************
 *							STATIC FUNCTIONS 								  * 
@@ -73,32 +73,31 @@ int RunWithFork()
 	
 	while(1)
 	{
-		printf("\n<command> ");
-		
-		fgets(buffer, BUFSIZ , stdin);
 
-		if(strcmp(buffer, "exit\n") == SUCCESS)
+		GetCommand(buffer);
+
+
+		if(strcmp(buffer, "exit") == SUCCESS)
 		{
-			return 0;
+			return SUCCESS;
 		}
-
 		else
 		{
 			child_pid = fork();
 			if (child_pid > 0)  		/* parent block */
 			{
 				wait(&child_status);
-				ErrorHandle(child_status);
+				ErrorHandle(WEXITSTATUS(child_status));
 			}
 			else if (child_pid == 0)	/* child block */
 			{	
 				ParseFlags(buffer, arg_list);
 				execvp(arg_list[0],arg_list);
-				exit(5);
+				exit(FAIL);
 			}
 			else 
 			{
-				return(-1);
+				return(FAIL);
 			}
 		}
 	}
@@ -125,7 +124,7 @@ void ErrorHandle(int exit_status)
 	case 0:
 		printf("(exit normally!)\n");
 		break;	
-	case 1280:
+	case 255:
 		printf("(couldnt run command)\n");
 		break;	
 	default:
@@ -137,14 +136,14 @@ void ErrorHandle(int exit_status)
 
 int RunWithSystem()
 {
-	char buffer[100] = {0};
+	char buffer[BUFSIZ] = {0};
 	int status = 0;
 	while(1)
 	{
-		scanf("%s", buffer);
+		GetCommand(buffer);
 		if(strcmp(buffer, "exit") == SUCCESS)
 		{
-			exit(0);
+			exit(SUCCESS);
 		}
 		else
 		{
@@ -152,7 +151,13 @@ int RunWithSystem()
 			ErrorHandle(status);
 		}
 	}
-	return 0;
+	return SUCCESS;
 }
 
 
+void GetCommand(char * buffer)
+{
+	printf("\n<command> ");	
+	fgets(buffer, BUFSIZ , stdin);
+	buffer[strcspn(buffer,"\n")] = '\0';
+}
