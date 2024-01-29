@@ -33,9 +33,8 @@ int main(int argc , char ** argv)
 	pid_t arg_pid = (pid_t)atoi(argv[1]);
 
 	signal_sruct.sa_handler = SigHandler;
-	signal_sruct.sa_flags = SA_SIGINFO;
 	
-	sigaction(SIGUSR1, &signal_sruct, NULL);
+	sigaction(SIGUSR2, &signal_sruct, NULL);
 
 
 	while(1)

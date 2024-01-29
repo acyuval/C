@@ -4,7 +4,6 @@
 *	Date:      
 ******************************************************************************/
 #define _POSIX_C_SOURCE 199309L
-#define _POSIX_SOURCE
 #include <assert.h> /* assert			  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -50,13 +49,17 @@ int pong()
 	int child_status = 0;
 	
 	struct sigaction singal= {0};
-	singal.sa_handler = SigHandler;
+	
+	singal.sa_flags = SA_SIGINFO;
+	singal.sa_sigaction = SigHandler;
+	
 	sigaction(SIGUSR1, &singal, NULL);
-
+	
 	while(1)
 	{
-		printf("1:%d", sender_pid);
-		kill(sender_pid, SIGUSR1);
+		printf("\n1:%d\n", sender_pid);
+		pause();
+		kill(sender_pid, SIGUSR2);
 	}
 
 	return 0;
