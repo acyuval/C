@@ -33,7 +33,7 @@ union semun
 };
 
 static int SemaphoreInit(char *sem_name);
-static int ChangeByNum(int type , int sem_id , char * buffer);
+static int SemOp(int type , int sem_id , char * buffer);
 static int GetVAl(int sem_id);
 static int GetNumFromBuffer(char * buffer);
 static int isUndo(char *buffer);
@@ -51,49 +51,39 @@ int main(int argc,char **argv)
 	if(argc == 1)
 	{
 		printf("(missing semaphore name)\n");
-		return -1;
+		return FAIL;
 	}
 	else
 	{
 		sem_id = SemaphoreInit(sem_name);
-	
-		while(1)
+
+		while(status == SUCCESS)
 		{
-			printf("\n(D)(I)(V)(X)\n");
+			printf("(D)(I)(V)(X)\n");
 			fgets(buffer, BUFSIZ, stdin);
 
 			command = buffer[0];
-			
-			if (command == 'X')
-			{
-				return SUCCESS;
-			}
-
+		
 			switch (command)
 			{
 			case 'D': 
-				status = ChangeByNum(sem_id, DECREMENT , buffer);
-				break;
-			case 'V':
-				printf("\nvalue of semaphore is %d\n" , GetVAl(sem_id));
+				status = SemOp(sem_id, DECREMENT , buffer);
 				break;
 			case 'I':
-				status = ChangeByNum(sem_id, INCREMENT, buffer);
+				status = SemOp(sem_id, INCREMENT, buffer);
 				break;
+			case 'V':
+				printf("value of semaphore is %d\n" , GetVAl(sem_id));
+				break;
+			case 'X':
+				return SUCCESS;
 			default:
-				printf("\n(D)(I)(V)(X)\n");
-				command = getchar();
 				break;
 			}
 		}
 	}
 
-	if(status == FAIL)
-	{
-		printf("couldnt change semaphore id %d", sem_id);
-	}
-
-	return 0;
+	return status;
 }
 
 
@@ -114,6 +104,10 @@ static int SemaphoreInit(char *sem_name)
 	strcat(path ,sem_name);
 
 	file = fopen(path, "a");
+	if (file == NULL)
+	{
+		return FAIL;
+	}
 	fclose(file);
 	
 	key = ftok(path, 2024);
@@ -125,6 +119,7 @@ static int SemaphoreInit(char *sem_name)
 		return semget(key, 1, 0666);
 	}
 
+	printf("New semaphore created; \n");
 	values[0] = 1;
 	argument.array = values;
 	status = semctl(sem_id, 0, SETALL, argument);
@@ -136,20 +131,14 @@ static int SemaphoreInit(char *sem_name)
 	return sem_id;
 }
 
-static int ChangeByNum(int sem_id ,int type ,char * buffer)
+static int SemOp(int sem_id ,int type ,char * buffer)
 {
 	int num = 0; 
 	struct sembuf sops = {0};
 	
 	num = GetNumFromBuffer(buffer);
-	if (num == 0)
-	{
-		return FAIL;
-	}
-	if (type == DECREMENT)
-	{
-		num *= -1;  
-	}
+
+	num = (type == DECREMENT)? num * -1: num;  
 
 	sops.sem_op = num;
 	sops.sem_flg = (isUndo(buffer) == TRUE)? SEM_UNDO: 0;
@@ -161,7 +150,6 @@ static int ChangeByNum(int sem_id ,int type ,char * buffer)
 
 static int GetVAl(int sem_id)
 {
-	
 	return semctl(sem_id, 0, GETVAL); 
 }
 
@@ -173,29 +161,7 @@ static int GetNumFromBuffer(char * buffer)
 
 static int isUndo(char *buffer)
 {
-	char * token = strtok(buffer," []\n\t");
-	while (token != NULL)
-	{
-		token = strtok(NULL,"[]");
-		if (token != NULL && SUCCESS == strcmp(token, "undo"))
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
+	return (strstr(buffer, "[undo]") != NULL);
 }
 
 
-
-/* char GetCommand()
-{
-	int command = 0; 
-		
-	while (command != 'D' || command != 'I'|| command != 'V')
-	{
-		printf("\n(D)\(I)\(V)\n");
-		command = getchar();
-	}
-	
-	return (char)command; 
-} */
