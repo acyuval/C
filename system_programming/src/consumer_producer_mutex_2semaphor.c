@@ -1,0 +1,128 @@
+/******************************************************************************
+ *	Author:    Yuval
+ *	Reviewer : 
+ *	Date:
+ ******************************************************************************/
+
+#include <assert.h> /* assert			  */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <ctype.h>
+#include <pthread.h>
+#include <stdatomic.h>
+#include <semaphore.h>
+
+#include "Cbuffer.h"
+
+#define TRUE (1)
+#define FALSE (0)
+#define SUCCESS (0)
+#define FAIL (-1)
+#define READER (1)
+#define WRITER (-1)
+#define BUFFER_SIZE (100)
+
+#define NUM_THREADS (2)
+/******************************************************************************
+ *							 DECLRATION								 		  *
+ ******************************************************************************/
+
+buffer_t *buffer = NULL;
+int arr[BUFFER_SIZE];
+pthread_mutex_t mutex = {0};
+sem_t sem_to_read = {0};
+sem_t sem_to_write = {0};
+size_t index = 0 ;
+int counter = 0; 
+void *consumer(void *params);
+void *producer(void *params);
+int Start();
+/******************************************************************************
+ *							 FUNCTIONS 										  *
+ ******************************************************************************/
+int main()
+{
+    Start();
+    return 0;
+}
+
+int Start()
+{
+    int status = 0;
+    pthread_t producer_id[NUM_THREADS] = {0};
+    pthread_t consumer_id[NUM_THREADS] = {0};
+    int i = 0;
+
+    buffer = BufferCreate(BUFFER_SIZE*sizeof(int));
+    
+    sem_init(&sem_to_write, 0 , 50);
+    sem_init(&sem_to_read, 0 , 0);
+    pthread_mutex_init(&mutex, NULL);
+    
+
+    for (i = 0; i < BUFFER_SIZE; ++i)
+    {
+        arr[i] = i;
+    }
+
+    for (i = 0; i < NUM_THREADS; ++i)
+    {
+        status = pthread_create(&consumer_id[i], NULL, consumer, NULL);
+        if (status != SUCCESS)
+        {
+            return FAIL;
+        }
+        status = pthread_create(&producer_id[i], NULL, producer, NULL);
+        if (status != SUCCESS)
+        {
+            return FAIL;
+        }
+    }
+
+    for (i = 0; i < NUM_THREADS; ++i)
+    {
+        pthread_join(producer_id[i], NULL);
+        pthread_join(consumer_id[i], NULL);
+    }
+
+    return SUCCESS;
+}
+
+void *consumer(void *params)
+{
+    size_t sum = 0;
+    int i = 0 ;
+    int dest = 0;
+    (void)params;
+    while (1)
+    {
+        sem_wait(&sem_to_read);
+        pthread_mutex_lock(&mutex);
+        BufferRead(&dest, buffer,sizeof(int));
+        printf("consume : %d\n", dest);
+        sem_post(&sem_to_write);
+        pthread_mutex_unlock(&mutex); 
+        for (i = 0 ; i < 100000000; ++i);
+    }
+}
+void *producer(void *params)
+{
+    while (1)
+    {
+        sem_wait(&sem_to_write);
+        pthread_mutex_lock(&mutex);
+        BufferWrite(&counter, buffer , sizeof(int));
+        ++counter;
+        sem_post(&sem_to_read);
+        pthread_mutex_unlock(&mutex);
+    }
+    
+}
+/******************************************************************************
+ *							STATIC FUNCTIONS 								  *
+ ******************************************************************************/

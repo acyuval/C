@@ -17,7 +17,7 @@
 #define FAIL (-1)
 #define k100 (10)
 #define BIG_NUMBER (1000000000)
-#define RANGE (BIG_NUMBER/k100)
+#define RANGE (BIG_NUMBER/k100) 
 
 /******************************************************************************
 *							 DECLRATION								 		  * 

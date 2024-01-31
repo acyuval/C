@@ -21,23 +21,21 @@
 #define FALSE (0)
 #define SUCCESS (0)
 #define FAIL (-1)
-#define READER (1)
-#define WRITER (-1)
-#define BUFFER_SIZE (100)
 
+#define BUFFER_SIZE (10000)
+#define NUM_TEST (1000)
 /******************************************************************************
 *							 DECLRATION								 		  * 
 ******************************************************************************/
 struct params
 {
     int * arr;
-    int * R_ptr;
-    int * W_ptr;
     int size;
 };
 
 
-atomic_int mode = WRITER;
+atomic_int writer_flag = 0;
+atomic_int reader_flag = 1;
 void *writer(void * params);
 int StartReadWrite();
 void *reader(void * params);
@@ -58,8 +56,7 @@ int StartReadWrite()
     pthread_t reader_id = 0;
     struct params param = {0};
     param.arr = arr;
-    param.R_ptr = arr;
-    param.W_ptr = arr;
+
     param.size = BUFFER_SIZE;
 
     status = pthread_create(&writer_id, NULL, reader, (void *)&param);
@@ -82,21 +79,23 @@ int StartReadWrite()
 
 void *reader(void * params)
 {
-    int counter = 0;
+    size_t sum = 0;
+    int counter = 1;
+    int i = 0;
+    int times = NUM_TEST;
     struct params * param = (struct params * )params;
-    while(counter < 100)
+    while(counter < NUM_TEST)
     {
-        while (mode != READER)
+        sum = 0;
+        while (__sync_lock_test_and_set(&reader_flag, 1) == TRUE);
+        for(i = 0 ; i < param->size ; ++i)
         {
+            sum += param->arr[i];
+
         }
-        printf("%d-", *param->R_ptr);
-        ++param->R_ptr;
-        if(param->arr + param->size == param->R_ptr)
-        {
-            param->R_ptr = param->arr;
-        }
+        printf("      sum is %ld \n" ,sum);
         counter++;
-        mode = WRITER;
+        __sync_lock_release(&writer_flag);
     }
 }
 
@@ -104,24 +103,18 @@ void *writer(void * params)
 {
     int counter = 0;
     int max_int = ~0;
-
+    int i = 0;
     struct params * param = (struct params *)params;
-    while(counter < 100)
+    while(counter < NUM_TEST)
     {
-        while (mode != WRITER)
+        while (__sync_lock_test_and_set(&writer_flag, 1) == TRUE);
+        
+        for(i = 0 ; i < param->size ; ++i)
         {
+            param->arr[i] = counter;
         }
-
-        *param->W_ptr = counter;
         ++counter;
-        counter = (counter == max_int)? 0 : counter ; 
-        ++(param->W_ptr);
-
-        if(param->arr + param->size == param->W_ptr)
-        {
-            param->W_ptr = param->arr;
-        }
-        mode = READER;
+        __sync_lock_release(&reader_flag);
     }
 }
 /******************************************************************************
