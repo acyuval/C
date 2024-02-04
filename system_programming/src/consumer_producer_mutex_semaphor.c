@@ -97,11 +97,11 @@ void *consumer(void *params)
     while (1)
     {
         sem_wait(&sem);
+        pthread_mutex_lock(&mutex);
         printf("dll size:%ld\n", DLLSize(dll));
         sum = *(int *)DLLPopfront(dll);
         printf("res: %ld\n", sum); 
-
-
+        pthread_mutex_unlock(&mutex);
     }
 
 }
@@ -122,8 +122,8 @@ void *producer(void *params)
         DLLPushback(dll,(void *)&arr[index]);
         ++index;
         for (i = 0 ; i < 100000000; ++i); 
-        sem_post(&sem);
         pthread_mutex_unlock(&mutex);
+        sem_post(&sem);
     }
 }
 /******************************************************************************

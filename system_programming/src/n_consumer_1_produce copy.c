@@ -21,14 +21,16 @@
 
 #define BUFFER_SIZE (100)
 
-#define NUM_THREADS (4)
+#define NUM_THREADS (10 )
 /******************************************************************************
  *							 DECLRATION								 		  *
  ******************************************************************************/
 pthread_t consumer_id[NUM_THREADS] = {0};
 pthread_mutex_t mutex = {0};
+pthread_cond_t cond = {0};
 sem_t sem = {0};
-char msg[23] = "what is the reason for";
+int arr[10] = {0};
+char msg[25] = "what is the reason for";
 int counter = 0; 
 void *consumer(void *params);
 void *producer(void *params);
@@ -51,6 +53,8 @@ int Start()
 
     sem_init(&sem, 0 , 0);
     pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond,NULL);
+
     for (i = 0; i < NUM_THREADS; ++i)
     {
         status = pthread_create(&consumer_id[i], NULL, consumer, NULL);
@@ -66,6 +70,11 @@ int Start()
     {
         return FAIL;
     }
+        
+    for (i = 0; i < NUM_THREADS; ++i)
+    {
+        pthread_join(consumer_id[i], NULL);
+    }
 
     pthread_join(producer_id, NULL);
 
@@ -76,27 +85,56 @@ void *consumer(void *params)
 {
     int i = 0 ;
     int dest = 0;
+    int sem_val= 0;
     (void)params;
-    pthread_mutex_lock(&mutex);
-    sem_wait(&sem);
-    printf("consumer : %s\n", msg); 
-    pthread_mutex_unlock(&mutex);
+    while (1)
+    {
+
+        sem_wait(&sem);
+        sem_getvalue(&sem, &sem_val);
+
+        pthread_mutex_lock(&mutex);
+        printf("consumer: %s by id:%ld\n", msg, pthread_self());
+        for(i = 0 ; i < 10; ++i)
+        {
+            printf("%d-", arr[i]); 
+        }
+
+        if (sem_val == 0)
+        {
+            pthread_cond_broadcast(&cond); 
+        }
+        else
+        {
+            pthread_cond_wait(&cond, &mutex);
+        }   
+        for(i = 0; i < 10000000; ++i);
+        pthread_mutex_unlock(&mutex);
+    }
 }
 
 void *producer(void *params)
 {
     int i = 0;
+    int j = 0;
     (void)params;
-    while(i < NUM_THREADS)
+    strcpy(msg, "actually this is the str");
+    while(1)
     {
-        strcpy(msg, "actually this is the str");
+        for(j = 0 ; j < 10 ; ++j)
+        {
+            arr[j] = i;
+        }
+
         sem_post(&sem);
+        pthread_cond_wait(&cond, &mutex);
         i++;
+        if (i == 100)
+        {
+            break;
+        }
     }
-    for (i = 0; i < NUM_THREADS; ++i)
-    {
-        pthread_join(consumer_id[i], NULL);
-    }
+
 }
 /******************************************************************************
  *							STATIC FUNCTIONS 								  *

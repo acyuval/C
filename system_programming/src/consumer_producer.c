@@ -100,38 +100,32 @@ void *consumer(void *params)
     struct params *param = (struct params *)params;
     size_t sum = 0;
     size_t sum_of_sum = 0;
-    while (param->flag == 1)
+    while (1)
     {
         while (DLLIsEmpty(param->dll) == TRUE)
         {
-        }
-
-        pthread_mutex_lock(param->mutex);
-
-        if (DLLIsEmpty(param->dll) == TRUE)
-        {
             pthread_mutex_unlock(param->mutex);
-            continue;
+            sleep(0);
+            pthread_mutex_lock(param->mutex);
         }
 
-        while (DLLIsEmpty(param->dll) == FALSE)
-        {
-            sum += *(int *)DLLPopfront(param->dll);
-        }
-        printf("sum of sum: %ld \n", sum);
+        sum = *(int *)DLLPopfront(param->dll);
+        printf("val : %ld , %ld \n", sum, pthread_self());
         pthread_mutex_unlock(param->mutex);
-    }
+    } 
 }
 
 void *producer(void *params)
 {
     struct params *param = (struct params *)params;
 
-    while ((param->index) < BUFFER_SIZE)
+    while (1)
     {
         pthread_mutex_lock(param->mutex);
         if((param->index) >= BUFFER_SIZE)
         {
+            param->index = 0;
+            pthread_mutex_unlock(param->mutex);
             break;
         }
         DLLInsert(param->dll, DLLEnd(param->dll), (void *)&param->arr[param->index]);
@@ -139,7 +133,6 @@ void *producer(void *params)
 
         pthread_mutex_unlock(param->mutex);
     }
-    param->flag = 0;
 }
 /******************************************************************************
  *							STATIC FUNCTIONS 								  *

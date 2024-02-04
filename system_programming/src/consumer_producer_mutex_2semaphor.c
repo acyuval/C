@@ -105,8 +105,8 @@ void *consumer(void *params)
         pthread_mutex_lock(&mutex);
         BufferRead(&dest, buffer,sizeof(int));
         printf("consume : %d\n", dest);
-        sem_post(&sem_to_write);
         pthread_mutex_unlock(&mutex); 
+        sem_post(&sem_to_write);
         for (i = 0 ; i < 100000000; ++i);
     }
 }
@@ -118,8 +118,8 @@ void *producer(void *params)
         pthread_mutex_lock(&mutex);
         BufferWrite(&counter, buffer , sizeof(int));
         ++counter;
-        sem_post(&sem_to_read);
         pthread_mutex_unlock(&mutex);
+        sem_post(&sem_to_read);
     }
     
 }
