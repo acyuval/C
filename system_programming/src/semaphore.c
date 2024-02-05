@@ -59,7 +59,6 @@ int main(int argc,char **argv)
 
 		while(status == SUCCESS)
 		{
-			printf("(D)(I)(V)(X)\n");
 			fgets(buffer, BUFSIZ, stdin);
 
 			command = buffer[0];
@@ -118,9 +117,8 @@ static int SemaphoreInit(char *sem_name)
 	{
 		return semget(key, 1, 0666);
 	}
-
-	printf("New semaphore created; \n");
-	values[0] = 1;
+ 
+	values[0] = 0;
 	argument.array = values;
 	status = semctl(sem_id, 0, SETALL, argument);
 	if(status == FAIL)

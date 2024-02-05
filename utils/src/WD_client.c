@@ -19,8 +19,8 @@
 #include <stdatomic.h> 
 #include <signal.h>
 
-
-#include "scheduler.h"
+#include "utils.h"
+#include "WD_utils.h"
 
 
 /******************************************************************************
@@ -28,12 +28,6 @@
 ******************************************************************************/
 pid_t WD_pid = 0;
 pthread_t thread_pid = 0;
-atomic_int sig_counter = 0; 
-int task_flag = 0; 
-
-
-#define T_check_flag (1);
-#define T_signal (1);
 
 /******************************************************************************
 *							 FUNCTIONS 										  * 
@@ -41,68 +35,57 @@ int task_flag = 0;
 
 int WatchdogStart(char **args)
 {
-    int status = 0;
+    int status = 0; 
 
-    WD_pid = CheckWDPID(args);
-    
-    if (WD_pid == 0)
+    status = pthread_create(&thread_pid, NULL, WD_Start_thread, *(void **)args);
+    if (status != SUCCESS)
     {
-        WD_pid = CreateWD(args);
+        return FAIL; 
     }
-
-    status = pthread_create(&thread_pid, NULL, Scheduler_manager, (void *)&param);
+    return SUCCESS;
 }
 
-
-pid_t CheckWDPID(char **env)
+void WatchdogStop()
 {
-
-    while(*env != NULL)
-    {
-        if (strncmp(*env, 6 ,"WD_PID"))
-        {
-            return atoi(*env+6);
-        }
-        ++env;
-    }
-    return 0;
+    stop_all();
 }
 
-pid_t CreateWD(char **args)
-{
-    pid_t child = 0; 
-
-    child = fork();
-    if(child == 0)
-    {
-        execvp(args[0],args);
-    }
-    else 
-    {
-        return child;
-    }
-}
-
-
-void * Scheduler_manager(void *args)
-{
-    scheduler_t * scheduler  = SchedulerCreate();
-    if (scheduler == NULL)
-    {
-        return NULL;
-    }
-
-    AddTasks(scheduler);
-
-    SetSigActions();
-
-    if (task_flag == 1)
-    {
-        SchedulerRun(scheduler);
-    }
-
-}
 
 /******************************************************************************
 *							STATIC FUNCTIONS 								  * 
 ******************************************************************************/
+
+
+static void * WD_Start_thread(void * params)
+{
+    int status = 0; 
+
+    char *args[3] = NULL;
+
+    WD_pid = CheckWDPID();
+    
+    if (WD_pid == 0)
+    {
+        args[1] = "WD.out";
+        args[2] = params;
+
+        WD_pid = RunExe(args);
+        if (WD_pid == FAIL)
+        {
+            return NULL;
+        }
+    }
+
+    status = pthread_create(&thread_pid, NULL, Scheduler_manager, &params);
+    if (status != SUCCESS)
+    {
+        return; 
+    }
+
+    pthread_join(thread_pid, (void **)&status);
+    if(status == NULL)
+    {
+        return FAIL;
+    }
+}
+
