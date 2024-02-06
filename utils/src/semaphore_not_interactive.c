@@ -32,6 +32,7 @@ union semun
 	struct seminfo *__buf;
 };
 
+static int sem_delete(int sem_id ,int type ,char * buffer);
 static int SemaphoreInit(char *sem_name);
 static int SemOp(int type , int sem_id , char * buffer);
 static int GetVAl(int sem_id);
@@ -75,6 +76,9 @@ int main(int argc,char **argv)
 			break;
 		case 'V':
 			printf("value of semaphore is %d\n" , GetVAl(sem_id));
+			break;
+		case 'R':
+			sem_delete(sem_id, 0, buffer);
 			break;
 		case 'X':
 			return SUCCESS;
@@ -163,5 +167,16 @@ static int isUndo(char *buffer)
 {
 	return (strstr(buffer, "[undo]") != NULL);
 }
+
+
+static int sem_delete(int sem_id ,int type ,char * buffer)
+{
+	union semun arg = {0};
+	(void)type;
+	(void)buffer;
+	semctl(sem_id, 1, IPC_RMID, arg);
+	return SUCCESS;
+}
+
 
 

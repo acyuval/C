@@ -38,7 +38,6 @@ pid_t external_pid = 0;
 pid_t WD_pid = 0;
 atomic_int sig_counter = 0; 
 atomic_int stop_flag = 0; 
-int num_of_rev = 5;
 
 typedef struct params
 {
@@ -96,7 +95,6 @@ void * Scheduler_manager(void *params)
         WD_pid = external_pid; 
     }    
 
-    printf("i am: %d i send to exteranal: %d\n", getpid(), external_pid );
     SetSigActions();    
     
     AddTasks(scheduler, &task_params);
@@ -184,7 +182,7 @@ int SendSignalTask(void * params)
     (void)params;
     kill(external_pid, SIGUSR1);
     sig_counter += 1;
-    printf("sig recived from %d\n", sender_pid);
+    printf("last sig recived from %d\n", sender_pid);
     return REPEAT;
 }
 
@@ -204,6 +202,7 @@ int CheckAndReviveTask(void * params)
         {
             write(1,"by the user\n", 13);
         }
+
         args[0] = s1->watch_exe;
         args[1] = s1->my_exe;
         sig_counter = 0;
@@ -261,15 +260,21 @@ void SignalHandler1(int sig, siginfo_t *info, void *context)
     (void)sig;
     (void)context;
     sender_pid = info->si_pid;
-    sig_counter = 0;
+    if(sender_pid == external_pid)
+    {
+        sig_counter = 0;
+    }
 }
 
 void SignalHandler2(int sig, siginfo_t *info, void *context)
 {
     (void)sig;
     (void)context;
-    sender_pid = info->si_pid;
-    stop_flag = 1; 
+    (void)info;
+    if(sender_pid == external_pid)
+    {
+        stop_flag = 1; 
+    }
 }
 
 
@@ -304,8 +309,7 @@ static int OpSem(int value, int type)
 void CleanUP(scheduler_t * scheduler)
 {
     SchedulerStop(scheduler);
-    SchedulerDestroy(scheduler);
-
+    OpSem(0, DELETE);
 }
 
 int stop_all()

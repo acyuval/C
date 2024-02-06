@@ -6,7 +6,7 @@
 #include <stdio.h>  /* printf()  	  */
 #include <assert.h> /* assert			  */
 #include <stdlib.h>
-
+#include <time.h>
 #include "WD_client.h"
 
 /******************************************************************************
@@ -43,15 +43,16 @@ void TestWD()
 	char path[20] = "./a.out";
 	char * ptr = path;
 	char ** args = &ptr;
-	int i = 0 ;
-	printf("path : %s\n" , path);
-	WatchdogStart(args);
-	while(1)
+	time_t start = 0;
+	time_t cur_time = 0;
+	WatchdogStart(args);	
+	start = time(NULL);
+	cur_time = time(NULL);
+	while(cur_time > start + 10000)
 	{
+		cur_time = time(NULL);
 	}
-	
 	WatchdogStop();
-	
 }
 
 
