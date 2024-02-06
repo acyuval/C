@@ -71,7 +71,7 @@ static void * WD_Start_thread(void * params)
     
     if (env_pid == 0)
     {
-        args[1] = "WD.out";
+        args[1] = "./WD.out";
         args[2] = params;
 
         env_pid = RunExe(args);
@@ -92,7 +92,7 @@ static void * WD_Start_thread(void * params)
     {
         return NULL;
     }
-    
+
     return NULL;
 }
 

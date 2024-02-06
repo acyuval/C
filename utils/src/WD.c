@@ -29,12 +29,13 @@ int main(int argc, char ** argv)
 {
     int * status = 0; 
     
+    write(1,"i_am_Dog\n", 10);
+    
     SetEnvWDPID(getpid());
-    printf("WATCHDOG START");
 
     if(argc == 1)
     {
-        printf("agrc = 1");
+        write(1,"agrc = 1\n", 9);
     }
 
     status = Scheduler_manager(&argv[2]);

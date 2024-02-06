@@ -69,14 +69,17 @@ void * Scheduler_manager(void *params)
     if (DoILikeBalls() == TRUE)
     {
         /* i am the watch dog */
-        external_pid = getppid();
+        write(1,"i_am_watch\n", 11);
+        external_pid = getppid(); 
     }
     else 
     {
+        write(1,"i_am_user\n", 10);
         external_pid = GetEnvWDPID();
         WD_pid = external_pid; 
     }    
 
+    printf("i am: %d i send to exteranal: %d\n", getpid(), external_pid );
     SetSigActions();    
     
     AddTasks(scheduler, s1->exe_name);
@@ -157,7 +160,7 @@ int SetSigActions()
 int SendSignalTask(void * params)
 {
     (void)params;
-    printf("SendSignalTask : %d\n", external_pid);
+    printf("SendSignalTask to : %d\n", external_pid);
     kill(external_pid, SIGUSR1);
     sig_counter += 1;
     return REPEAT;
@@ -166,10 +169,10 @@ int SendSignalTask(void * params)
 int CheckAndReviveTask(void * params)
 {
     s_params * s1 = (s_params *)params;
-    printf("CheckAndReviveTask\n");
+    write(1,"CheckAndReviveTask\n", 18);
     if(sig_counter > missed_signal_tolerance)
     {
-        external_pid = RunExe(&s1->exe_name);
+        RunExe(&s1->exe_name);
     }
     return REPEAT;
 }
@@ -177,7 +180,7 @@ int CheckAndReviveTask(void * params)
 int CheckFlagTask(void * params)
 {
     s_params * s1 = (s_params *)params;
-    printf("CheckFlagTask\n");
+    write(1,"CheckFlagTask\n", 14);
     if(stop_flag == 1)
     {
         kill(external_pid, SIGUSR2);
@@ -189,13 +192,15 @@ int CheckFlagTask(void * params)
 pid_t RunExe(char ** args)
 {
     pid_t child = 0; 
-    printf("run fork pid child: %d\n", child);
     child = fork();
+    
     if(child == 0)
     {
-        execvp(args[0],args);
+        execvp(args[1],args);
         printf("couldnt open\n");
     }
+
+    external_pid = child;
     
     return child;
 }
@@ -205,6 +210,7 @@ void SetEnvWDPID(pid_t pid)
     char this_pid[20] = {0};
     sprintf(this_pid, "%d", pid);
     setenv("WD_pid", this_pid, TRUE); 
+    system("env |grep WD_pid");
 }
 
 
@@ -220,13 +226,15 @@ pid_t GetEnvWDPID()
 
 void SignalHandler1()
 {
-    write(1,"sig_handl1", 10);
+    write(1,"sig_handl1\n", 11);
+    printf("my pid %d\n", getpid());
     sig_counter = 0;
 }
 
 void SignalHandler2()
 {
-    write(1,"sig_handl2", 10);
+    write(1,"sig_handl2\n", 11);
+
     stop_flag = 1; 
 }
 
@@ -235,7 +243,7 @@ static int OpSem(int value, int type)
 {
     char command[10] = {0};
     char value_as_str[10]; 
-
+    write(1,"sem_op\n", 7);
     sprintf(value_as_str, "%d", value);
     if (type == DECREASE)
     {
