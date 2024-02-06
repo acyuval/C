@@ -65,14 +65,14 @@ static void * WD_Start_thread(void * params)
 {
     int status = 0; 
     pid_t env_pid = 0;
-    char *args[3] = {NULL};
 
-    env_pid = GetEnvWDPID();
+    char *args[3] = {NULL};
     
+    env_pid = GetEnvWDPID();
     if (env_pid == 0)
     {
-        args[1] = "./WD.out";
-        args[2] = params;
+        args[0] = "./WD.out";
+        args[1] = params;
 
         env_pid = RunExe(args);
         if (env_pid == FAIL)
@@ -81,6 +81,7 @@ static void * WD_Start_thread(void * params)
         }
         SetEnvWDPID(env_pid);
     }
+
 
     status = pthread_create(&thread_pid, NULL, Scheduler_manager, &params);
     if (status != SUCCESS)

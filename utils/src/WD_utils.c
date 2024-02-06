@@ -33,7 +33,7 @@
 #define T_check_counter (1)
 #define missed_signal_tolerance (5)
 
-
+pid_t sender_pid = 0;
 pid_t external_pid = 0;
 pid_t WD_pid = 0;
 atomic_int sig_counter = 0; 
@@ -42,7 +42,8 @@ atomic_int stop_flag = 0;
 
 typedef struct params
 {
-    char * exe_name;
+    char * my_exe;
+    char * watch_exe;
     scheduler_t * scheduler; 
 }s_params;
 
@@ -50,16 +51,22 @@ typedef struct params
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
-static int AddTasks(scheduler_t * scheduler, char * exe_name);
+static int AddTasks(scheduler_t * scheduler, s_params *task_params);
 static int DoILikeBalls();
 static int OpSem(int value, int type);
 void CleanUP(scheduler_t * scheduler);
 
+void SignalHandler1(int sig, siginfo_t *info, void *context);
+void SignalHandler2(int sig, siginfo_t *info, void *context);
+
+
+
 void * Scheduler_manager(void *params)
 {
-    s_params * s1 = (s_params *)params;
     scheduler_t * scheduler  = NULL;
 
+    s_params task_params = {0};
+    
     scheduler  = SchedulerCreate();
     if (scheduler == NULL)
     {
@@ -70,11 +77,16 @@ void * Scheduler_manager(void *params)
     {
         /* i am the watch dog */
         write(1,"i_am_watch\n", 11);
-        external_pid = getppid(); 
+        task_params.my_exe = "./WD.out";
+        task_params.watch_exe = (char *)params;
+        external_pid = getppid();
+    
     }
     else 
     {
         write(1,"i_am_user\n", 10);
+        task_params.my_exe = (char *)params;
+        task_params.watch_exe = "./WD.out";
         external_pid = GetEnvWDPID();
         WD_pid = external_pid; 
     }    
@@ -82,7 +94,7 @@ void * Scheduler_manager(void *params)
     printf("i am: %d i send to exteranal: %d\n", getpid(), external_pid );
     SetSigActions();    
     
-    AddTasks(scheduler, s1->exe_name);
+    AddTasks(scheduler, &task_params);
 
 
     OpSem(1, INCREASE);
@@ -97,7 +109,7 @@ void * Scheduler_manager(void *params)
 }
 
 
-static int AddTasks(scheduler_t * scheduler, char * exe_name)
+static int AddTasks(scheduler_t * scheduler, s_params *task_params)
 {
     
     ilrd_uid_t uid = {0};
@@ -105,12 +117,8 @@ static int AddTasks(scheduler_t * scheduler, char * exe_name)
     
     op_func_t task_arr[NUM_OF_TASK] =       {SendSignalTask,    CheckAndReviveTask, CheckFlagTask};
     time_t interval_time[NUM_OF_TASK] =     {T_signal,          T_check_counter,    T_check_flag};
-    s_params task_param[NUM_OF_TASK] =      {NULL};
     time_t time_to_start[NUM_OF_TASK] =     {0};
     
-    task_param[2].scheduler = scheduler;
-    task_param[1].exe_name = exe_name;
-
     for(runner = 0 ; runner <NUM_OF_TASK ; ++runner)
     {
         time_to_start[runner] = time(NULL) + runner;
@@ -118,7 +126,7 @@ static int AddTasks(scheduler_t * scheduler, char * exe_name)
 
     for(runner = 0; runner < NUM_OF_TASK; ++runner)
     {
-        uid = SchedulerAdd(scheduler, task_arr[runner], &task_param[runner],
+        uid = SchedulerAdd(scheduler, task_arr[runner], task_params,
                            time_to_start[runner],interval_time[runner], NULL, NULL);
         
         if(UIDIsEqual(uid,bad_uid) == TRUE)
@@ -139,18 +147,19 @@ int SetSigActions()
 {
     struct sigaction signals_struct= {0};
 	int status = 0; 
-
-	signals_struct.sa_handler = SignalHandler1;
+	signals_struct.sa_flags = SA_SIGINFO;
+	signals_struct.sa_sigaction = SignalHandler1;
+    
     status = sigaction(SIGUSR1, &signals_struct, NULL);
     if(status != SUCCESS)
     {
         return FAIL;
     }
     
-    signals_struct.sa_handler = SignalHandler2;
+    signals_struct.sa_sigaction = SignalHandler2;
     status = sigaction(SIGUSR2, &signals_struct, NULL);
     if(status != SUCCESS)
-    {   
+    {    
         return FAIL;
     }
 
@@ -162,6 +171,7 @@ int SendSignalTask(void * params)
     (void)params;
     printf("SendSignalTask to : %d from %d\n", external_pid, getpid());
     kill(external_pid, SIGUSR1);
+    printf("sig recived from %d \n", sender_pid);
     sig_counter += 1;
     return REPEAT;
 }
@@ -169,10 +179,24 @@ int SendSignalTask(void * params)
 int CheckAndReviveTask(void * params)
 {
     s_params * s1 = (s_params *)params;
+    char *args[3] = {NULL};
+
     if(sig_counter > missed_signal_tolerance)
     {
         write(1,"i WAS revive\n", 13);
-        RunExe(&s1->exe_name);
+        if(DoILikeBalls() == TRUE)
+        {
+            write(1,"by the DOG\n", 12);
+            printf("by exe: %s \n to exe: %s\n", s1->my_exe, s1->watch_exe);
+        }
+        else 
+        {
+            write(1,"by the user\n", 13);
+            printf("by exe: %s \n to exe: %s\n", s1->my_exe, s1->watch_exe);
+        }
+        args[0] = s1->watch_exe;
+        args[1] = s1->my_exe;
+        RunExe(args);
     }
     return REPEAT;
 }
@@ -196,7 +220,8 @@ pid_t RunExe(char ** args)
     
     if(child == 0)
     {
-        execvp(args[1],args);
+        printf("open %s with param : %s\n", args[0], args[1]);
+        execvp(args[0],args);
         printf("couldnt open\n");
     }
 
@@ -222,20 +247,26 @@ pid_t GetEnvWDPID()
     return 0;
 }
 
-void SignalHandler1()
+void SignalHandler1(int sig, siginfo_t *info, void *context)
 {
+    (void)sig;
+    (void)context;
+    sender_pid = info->si_pid;
     sig_counter = 0;
 }
 
-void SignalHandler2()
+void SignalHandler2(int sig, siginfo_t *info, void *context)
 {
+    (void)sig;
+    (void)context;
+    sender_pid = info->si_pid;
     stop_flag = 1; 
 }
 
 
 static int OpSem(int value, int type)
 {
-    char command[22] = {0};
+    char command[30] = {0};
     char value_as_str[10]; 
 
     strcat(command, "./WD_sem.out WD ");
@@ -255,7 +286,7 @@ static int OpSem(int value, int type)
         strcat(command , "I"); 
         strcat(command, value_as_str); 
     }
-
+    strcat(command, " [undo]");
     system(command);
 
     return SUCCESS;

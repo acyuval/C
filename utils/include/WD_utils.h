@@ -11,11 +11,8 @@ int CheckAndReviveTask(void *);
 
 int CheckFlagTask(void *);
 
-void SignalHandler1();
 
 pid_t RunExe(char ** args);
-
-void SignalHandler2();
 
 void * Scheduler_manager(void *params);
 

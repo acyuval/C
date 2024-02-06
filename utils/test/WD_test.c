@@ -40,9 +40,10 @@ int main()
 
 void TestWD()
 {
-	char path[20] = "WD_test.out";
+	char path[20] = "./WD_test.out";
 	char * ptr = path;
 	char ** args = &ptr;
+	printf("path : %s\n" , path);
 	WatchdogStart(args);
 	while(1)
 	{
