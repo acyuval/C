@@ -1,13 +1,6 @@
 #ifndef __WATCHDOG_UTILS_H__
 #define __WATCHDOG_UTILS_H__
 
-
-
-
-#define WATCHDOG (1)
-#define USER (2)
-
-
 int SetSigActions();
 
 pid_t GetEnvWDPID();
@@ -27,5 +20,7 @@ void SignalHandler2();
 void * Scheduler_manager(void *params);
 
 
+
+int stop_all();
 
 #endif /* __WATCHDOG_UTILS_H__ */

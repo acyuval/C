@@ -26,8 +26,12 @@
 /******************************************************************************
 *							 DECLARATION								 		  * 
 ******************************************************************************/
-pid_t WD_pid = 0;
+static void * WD_Start_thread(void * params);
+
+
+
 pthread_t thread_pid = 0;
+
 
 /******************************************************************************
 *							 FUNCTIONS 										  * 
@@ -48,6 +52,7 @@ int WatchdogStart(char **args)
 void WatchdogStop()
 {
     stop_all();
+    pthread_join(thread_pid,NULL);
 }
 
 
@@ -59,18 +64,18 @@ void WatchdogStop()
 static void * WD_Start_thread(void * params)
 {
     int status = 0; 
+    pid_t env_pid = 0;
+    char *args[3] = {NULL};
 
-    char *args[3] = NULL;
-
-    WD_pid = CheckWDPID();
+    env_pid = GetEnvWDPID();
     
-    if (WD_pid == 0)
+    if (env_pid == 0)
     {
         args[1] = "WD.out";
         args[2] = params;
 
-        WD_pid = RunExe(args);
-        if (WD_pid == FAIL)
+        env_pid = RunExe(args);
+        if (env_pid == FAIL)
         {
             return NULL;
         }
@@ -79,13 +84,13 @@ static void * WD_Start_thread(void * params)
     status = pthread_create(&thread_pid, NULL, Scheduler_manager, &params);
     if (status != SUCCESS)
     {
-        return; 
+        return NULL; 
     }
 
     pthread_join(thread_pid, (void **)&status);
-    if(status == NULL)
+    if(status != SUCCESS)
     {
-        return FAIL;
+        return NULL;
     }
 }
 
