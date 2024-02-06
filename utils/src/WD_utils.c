@@ -3,7 +3,7 @@
 *	Reviewer : 
 *	Date:      
 ******************************************************************************/
-#define _POSIX_SOURCE
+#define _POSIX_C_SOURCE 200112L 
 
 #include <assert.h> /* assert			  */
 #include <stdlib.h>
@@ -52,14 +52,14 @@ typedef struct params
 ******************************************************************************/
 static int AddTasks(scheduler_t * scheduler, char * exe_name);
 static int DoILikeBalls();
-
+static int OpSem(int value, int type);
 void CleanUP(scheduler_t * scheduler);
 
 void * Scheduler_manager(void *params)
 {
     s_params * s1 = (s_params *)params;
     scheduler_t * scheduler  = NULL;
-    
+
     scheduler  = SchedulerCreate();
     if (scheduler == NULL)
     {
@@ -81,6 +81,7 @@ void * Scheduler_manager(void *params)
     
     AddTasks(scheduler, s1->exe_name);
 
+
     OpSem(1, INCREASE);
     
     OpSem(2, DECREASE);         /* wait for both process */
@@ -88,6 +89,8 @@ void * Scheduler_manager(void *params)
     OpSem(2, INCREASE);
 
     SchedulerRun(scheduler);
+    
+    return NULL;
 }
 
 
@@ -147,46 +150,53 @@ int SetSigActions()
     {   
         return FAIL;
     }
+
+    return SUCCESS;
 }
 
 int SendSignalTask(void * params)
 {
     (void)params;
+    printf("SendSignalTask : %d\n", external_pid);
     kill(external_pid, SIGUSR1);
     sig_counter += 1;
+    return REPEAT;
 }
 
 int CheckAndReviveTask(void * params)
 {
     s_params * s1 = (s_params *)params;
-
+    printf("CheckAndReviveTask\n");
     if(sig_counter > missed_signal_tolerance)
     {
-        RunExe(&s1->exe_name);
+        external_pid = RunExe(&s1->exe_name);
     }
+    return REPEAT;
 }
 
 int CheckFlagTask(void * params)
 {
     s_params * s1 = (s_params *)params;
+    printf("CheckFlagTask\n");
     if(stop_flag == 1)
     {
         kill(external_pid, SIGUSR2);
         CleanUP(s1->scheduler);
     }
-    return T_check_flag;
+    return REPEAT;
 }
 
 pid_t RunExe(char ** args)
 {
     pid_t child = 0; 
+    printf("run fork pid child: %d\n", child);
     child = fork();
     if(child == 0)
     {
         execvp(args[0],args);
-        printf("couldnt open");
+        printf("couldnt open\n");
     }
-
+    
     return child;
 }
 
@@ -194,7 +204,7 @@ void SetEnvWDPID(pid_t pid)
 {
     char this_pid[20] = {0};
     sprintf(this_pid, "%d", pid);
-    setenv("WD_pid", this_pid); 
+    setenv("WD_pid", this_pid, TRUE); 
 }
 
 
@@ -210,20 +220,18 @@ pid_t GetEnvWDPID()
 
 void SignalHandler1()
 {
+    write(1,"sig_handl1", 10);
     sig_counter = 0;
 }
 
 void SignalHandler2()
 {
+    write(1,"sig_handl2", 10);
     stop_flag = 1; 
 }
 
-int InitSem(int start_val)
-{
-    system("WD_sem.out WD");
-}
 
-int OpSem(int value, int type)
+static int OpSem(int value, int type)
 {
     char command[10] = {0};
     char value_as_str[10]; 
@@ -245,7 +253,9 @@ int OpSem(int value, int type)
         strcat(command, value_as_str); 
     }
 
-    system("WD_sem.out WD");
+    system("./WD_sem.out WD ");
+
+    return SUCCESS;
 }
 
 void CleanUP(scheduler_t * scheduler)
@@ -258,6 +268,7 @@ void CleanUP(scheduler_t * scheduler)
 int stop_all()
 {
     kill(external_pid, SIGUSR2);
+    return SUCCESS;
 }
 
 /******************************************************************************

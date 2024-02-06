@@ -164,7 +164,8 @@ int SchedulerRun(scheduler_t *scheduler)
 		task = (task_t *)PQPeek(scheduler->pq);
 		scheduler->cur_task = TaskGetUid(task);
 		time_to_run = TaskGetTimeToRun(task);
-		
+
+
 		while (time_to_run > time(NULL))
 		{
 			sleep(1);
@@ -184,7 +185,6 @@ int SchedulerRun(scheduler_t *scheduler)
 
 			TaskUpdateTimeToRun(task);	
 			status = PQEnqueue(scheduler->pq, task);
-			
 			
 			if (FAIL == status)
 			{

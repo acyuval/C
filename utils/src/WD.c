@@ -25,12 +25,18 @@
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
-main(int argc, char ** argv, char ** envp)
+int main(int argc, char ** argv)
 {
-    int status = 0; 
-     
-    SetEnvWDPID(getpid());
+    int * status = 0; 
     
+    SetEnvWDPID(getpid());
+    printf("WATCHDOG START");
+
+    if(argc == 1)
+    {
+        printf("agrc = 1");
+    }
+
     status = Scheduler_manager(&argv[2]);
     if(status != NULL)
     {

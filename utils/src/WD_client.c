@@ -3,7 +3,7 @@
 *	Reviewer : 
 *	Date:      
 ******************************************************************************/
-#define _POSIX_SOURCE
+
 
 #include <assert.h> /* assert			  */
 #include <stdlib.h>
@@ -92,5 +92,7 @@ static void * WD_Start_thread(void * params)
     {
         return NULL;
     }
+    
+    return NULL;
 }
 

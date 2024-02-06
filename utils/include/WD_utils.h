@@ -19,7 +19,7 @@ void SignalHandler2();
 
 void * Scheduler_manager(void *params);
 
-
+void SetEnvWDPID(pid_t pid);
 
 int stop_all();
 

@@ -44,7 +44,11 @@ void TestWD()
 	char * ptr = path;
 	char ** args = &ptr;
 	WatchdogStart(args);
-	sleep(100);
+	while(1)
+	{
+		sleep(1);
+	}
+	
 	WatchdogStop();
 	
 }
@@ -53,18 +57,4 @@ void TestWD()
 /******************************************************************************
 *							STATIC FUNCTIONS								  * 
 ******************************************************************************/
-
-
-static void TestHelper(int booll , char * calling_function, int test_no)
-{
-	if(booll)
-	{
-		printf("%s -> \t\tNO.%d sucsess!\n\n",calling_function, test_no);
-	}
-	else
-	{
-		printf("failed in %s, No. %d\n\n",calling_function ,test_no);
-	}
-}
-
 
