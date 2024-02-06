@@ -27,9 +27,9 @@
 /******************************************************************************
 *							 DECLARATION								 		  * 
 ******************************************************************************/
-#define NUM_OF_TASK (3)
+
 #define T_check_flag (1)
-#define T_signal (1)
+#define T_signal (2)
 #define T_check_counter (1)
 #define missed_signal_tolerance (5)
 
@@ -47,6 +47,13 @@ typedef struct params
     scheduler_t * scheduler;
 }s_params;
 
+enum tasks
+{
+    SEND_SIGNAL = 0,
+    Check_COUNTER = 1, 
+    Check_STOP = 2, 
+    NUM_OF_TASKS
+};
 
 /******************************************************************************
 *							 FUNCTIONS 										  * 
@@ -113,21 +120,29 @@ static int AddTasks(scheduler_t * scheduler, s_params *task_params)
     ilrd_uid_t uid = {0};
     int runner = 0;  
     
-    op_func_t task_arr[NUM_OF_TASK] =       {SendSignalTask,    CheckAndReviveTask, CheckFlagTask};
-    time_t interval_time[NUM_OF_TASK] =     {T_signal,          T_check_counter,    T_check_flag};
-    time_t time_to_start[NUM_OF_TASK] =     {0};
+    op_func_t task_arr[NUM_OF_TASKS] = {NULL};
+    time_t interval_time[NUM_OF_TASKS] = {0};
+    time_t start_time[NUM_OF_TASKS] =     {0};
     
-    for(runner = 0 ; runner <NUM_OF_TASK ; ++runner)
-    {
-        time_to_start[runner] = time(NULL) + (runner*2+1);
-    }
-
-    for(runner = 0; runner < NUM_OF_TASK; ++runner)
+    task_arr[SEND_SIGNAL] = SendSignalTask; 
+    task_arr[Check_COUNTER] = CheckAndReviveTask;
+    task_arr[Check_STOP] = CheckFlagTask;
+    
+    start_time[SEND_SIGNAL] = time(NULL) + 1;
+    start_time[Check_COUNTER] = time(NULL) + 3;
+    start_time[Check_STOP] = time(NULL) + 5;
+    
+    interval_time[SEND_SIGNAL] = 2; 
+    interval_time[Check_COUNTER] = 1;
+    interval_time[Check_STOP] = 1;
+    
+    
+    for(runner = 0; runner < NUM_OF_TASKS; ++runner)
     {
         uid = SchedulerAdd(scheduler, task_arr[runner], task_params,
-                           time_to_start[runner],interval_time[runner], NULL, NULL);
+                           start_time[runner],interval_time[runner], NULL, NULL);
         
-        if(UIDIsEqual(uid,bad_uid) == TRUE)
+        if(UIDIsEqual(uid,bad_uid) == TRUE) 
         {
             SchedulerDestroy(scheduler);
             return FAIL;
@@ -169,7 +184,7 @@ int SendSignalTask(void * params)
     (void)params;
     kill(external_pid, SIGUSR1);
     sig_counter += 1;
-    printf("sig recived from %d \n", sender_pid);
+    printf("sig recived from %d\n", sender_pid);
     return REPEAT;
 }
 
@@ -180,7 +195,7 @@ int CheckAndReviveTask(void * params)
 
     if(sig_counter > missed_signal_tolerance)
     {
-        write(1,"i WAS revive\n", 13);
+        write(1,"i WAS revive ", 13);
         if(DoILikeBalls() == TRUE)
         {   
             write(1,"by the DOG\n", 12);
