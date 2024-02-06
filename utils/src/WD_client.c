@@ -79,6 +79,7 @@ static void * WD_Start_thread(void * params)
         {
             return NULL;
         }
+        SetEnvWDPID(env_pid);
     }
 
     status = pthread_create(&thread_pid, NULL, Scheduler_manager, &params);

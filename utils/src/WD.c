@@ -29,8 +29,6 @@ int main(int argc, char ** argv)
 {
     int * status = 0; 
     
-    write(1,"i_am_Dog\n", 10);
-    
     SetEnvWDPID(getpid());
 
     if(argc == 1)

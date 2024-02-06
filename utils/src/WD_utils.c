@@ -160,7 +160,7 @@ int SetSigActions()
 int SendSignalTask(void * params)
 {
     (void)params;
-    printf("SendSignalTask to : %d\n", external_pid);
+    printf("SendSignalTask to : %d from %d\n", external_pid, getpid());
     kill(external_pid, SIGUSR1);
     sig_counter += 1;
     return REPEAT;
@@ -169,9 +169,9 @@ int SendSignalTask(void * params)
 int CheckAndReviveTask(void * params)
 {
     s_params * s1 = (s_params *)params;
-    write(1,"CheckAndReviveTask\n", 18);
     if(sig_counter > missed_signal_tolerance)
     {
+        write(1,"i WAS revive\n", 13);
         RunExe(&s1->exe_name);
     }
     return REPEAT;
@@ -180,7 +180,6 @@ int CheckAndReviveTask(void * params)
 int CheckFlagTask(void * params)
 {
     s_params * s1 = (s_params *)params;
-    write(1,"CheckFlagTask\n", 14);
     if(stop_flag == 1)
     {
         kill(external_pid, SIGUSR2);
@@ -193,6 +192,7 @@ pid_t RunExe(char ** args)
 {
     pid_t child = 0; 
     child = fork();
+    external_pid = child;
     
     if(child == 0)
     {
@@ -200,7 +200,6 @@ pid_t RunExe(char ** args)
         printf("couldnt open\n");
     }
 
-    external_pid = child;
     
     return child;
 }
@@ -210,7 +209,6 @@ void SetEnvWDPID(pid_t pid)
     char this_pid[20] = {0};
     sprintf(this_pid, "%d", pid);
     setenv("WD_pid", this_pid, TRUE); 
-    system("env |grep WD_pid");
 }
 
 
@@ -226,24 +224,21 @@ pid_t GetEnvWDPID()
 
 void SignalHandler1()
 {
-    write(1,"sig_handl1\n", 11);
-    printf("my pid %d\n", getpid());
     sig_counter = 0;
 }
 
 void SignalHandler2()
 {
-    write(1,"sig_handl2\n", 11);
-
     stop_flag = 1; 
 }
 
 
 static int OpSem(int value, int type)
 {
-    char command[10] = {0};
+    char command[22] = {0};
     char value_as_str[10]; 
-    write(1,"sem_op\n", 7);
+
+    strcat(command, "./WD_sem.out WD ");
     sprintf(value_as_str, "%d", value);
     if (type == DECREASE)
     {
@@ -261,7 +256,7 @@ static int OpSem(int value, int type)
         strcat(command, value_as_str); 
     }
 
-    system("./WD_sem.out WD ");
+    system(command);
 
     return SUCCESS;
 }
