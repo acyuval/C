@@ -28,7 +28,6 @@
 int main(int argc, char ** argv)
 {
     int * status = 0; 
-    
     SetEnvWDPID(getpid());
 
     if(argc == 1)
@@ -36,7 +35,7 @@ int main(int argc, char ** argv)
         write(1,"agrc = 1\n", 9);
     }
 
-    status = Scheduler_manager(&argv[2]);
+    status = Scheduler_manager(argv[1]);
     if(status != NULL)
     {
         return FAIL;

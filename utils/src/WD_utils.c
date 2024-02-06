@@ -38,13 +38,13 @@ pid_t external_pid = 0;
 pid_t WD_pid = 0;
 atomic_int sig_counter = 0; 
 atomic_int stop_flag = 0; 
-
+int num_of_rev = 5;
 
 typedef struct params
 {
     char * my_exe;
     char * watch_exe;
-    scheduler_t * scheduler; 
+    scheduler_t * scheduler;
 }s_params;
 
 
@@ -76,7 +76,6 @@ void * Scheduler_manager(void *params)
     if (DoILikeBalls() == TRUE)
     {
         /* i am the watch dog */
-        write(1,"i_am_watch\n", 11);
         task_params.my_exe = "./WD.out";
         task_params.watch_exe = (char *)params;
         external_pid = getppid();
@@ -84,7 +83,6 @@ void * Scheduler_manager(void *params)
     }
     else 
     {
-        write(1,"i_am_user\n", 10);
         task_params.my_exe = (char *)params;
         task_params.watch_exe = "./WD.out";
         external_pid = GetEnvWDPID();
@@ -104,7 +102,7 @@ void * Scheduler_manager(void *params)
     OpSem(2, INCREASE);
 
     SchedulerRun(scheduler);
-    
+    CleanUP(scheduler);
     return NULL;
 }
 
@@ -121,7 +119,7 @@ static int AddTasks(scheduler_t * scheduler, s_params *task_params)
     
     for(runner = 0 ; runner <NUM_OF_TASK ; ++runner)
     {
-        time_to_start[runner] = time(NULL) + runner;
+        time_to_start[runner] = time(NULL) + (runner*2+1);
     }
 
     for(runner = 0; runner < NUM_OF_TASK; ++runner)
@@ -169,10 +167,9 @@ int SetSigActions()
 int SendSignalTask(void * params)
 {
     (void)params;
-    printf("SendSignalTask to : %d from %d\n", external_pid, getpid());
     kill(external_pid, SIGUSR1);
-    printf("sig recived from %d \n", sender_pid);
     sig_counter += 1;
+    printf("sig recived from %d \n", sender_pid);
     return REPEAT;
 }
 
@@ -185,17 +182,16 @@ int CheckAndReviveTask(void * params)
     {
         write(1,"i WAS revive\n", 13);
         if(DoILikeBalls() == TRUE)
-        {
+        {   
             write(1,"by the DOG\n", 12);
-            printf("by exe: %s \n to exe: %s\n", s1->my_exe, s1->watch_exe);
         }
         else 
         {
             write(1,"by the user\n", 13);
-            printf("by exe: %s \n to exe: %s\n", s1->my_exe, s1->watch_exe);
         }
         args[0] = s1->watch_exe;
         args[1] = s1->my_exe;
+        sig_counter = 0;
         RunExe(args);
     }
     return REPEAT;
@@ -206,8 +202,8 @@ int CheckFlagTask(void * params)
     s_params * s1 = (s_params *)params;
     if(stop_flag == 1)
     {
+        SchedulerStop(s1->scheduler);
         kill(external_pid, SIGUSR2);
-        CleanUP(s1->scheduler);
     }
     return REPEAT;
 }
@@ -220,12 +216,10 @@ pid_t RunExe(char ** args)
     
     if(child == 0)
     {
-        printf("open %s with param : %s\n", args[0], args[1]);
         execvp(args[0],args);
-        printf("couldnt open\n");
+        printf("could'nt open\n");
     }
 
-    
     return child;
 }
 
@@ -273,20 +267,20 @@ static int OpSem(int value, int type)
     sprintf(value_as_str, "%d", value);
     if (type == DECREASE)
     {
-        strcat(command , "D");    
+        strcat(command , "D ");    
         strcat(command, value_as_str);    
     }
     else if (type == INCREASE)
     {
-        strcat(command , "I"); 
+        strcat(command , "I "); 
         strcat(command, value_as_str); 
     }
     else if (type == DELETE)
     {
-        strcat(command , "I"); 
+        strcat(command , "R "); 
         strcat(command, value_as_str); 
     }
-    strcat(command, " [undo]");
+
     system(command);
 
     return SUCCESS;

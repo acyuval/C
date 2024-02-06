@@ -40,8 +40,8 @@ pthread_t thread_pid = 0;
 int WatchdogStart(char **args)
 {
     int status = 0; 
-
-    status = pthread_create(&thread_pid, NULL, WD_Start_thread, *(void **)args);
+    char * name = *(void **)args;
+    status = pthread_create(&thread_pid, NULL, WD_Start_thread, name);
     if (status != SUCCESS)
     {
         return FAIL; 
@@ -72,7 +72,7 @@ static void * WD_Start_thread(void * params)
     if (env_pid == 0)
     {
         args[0] = "./WD.out";
-        args[1] = params;
+        args[1] = (char *)params;
 
         env_pid = RunExe(args);
         if (env_pid == FAIL)
@@ -83,7 +83,7 @@ static void * WD_Start_thread(void * params)
     }
 
 
-    status = pthread_create(&thread_pid, NULL, Scheduler_manager, &params);
+    status = pthread_create(&thread_pid, NULL, Scheduler_manager, params);
     if (status != SUCCESS)
     {
         return NULL; 
