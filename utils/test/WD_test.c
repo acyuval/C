@@ -46,13 +46,13 @@ void TestWD()
 	time_t start = 0;
 	time_t cur_time = 0;
 	WatchdogStart(args);	
-	start = time(NULL);
-	cur_time = time(NULL);
-	while(cur_time > start + 10000)
+	while(cur_time < 500)
 	{
-		cur_time = time(NULL);
+		sleep(2);
+		++cur_time;
 	}
 	WatchdogStop();
+
 }
 
 

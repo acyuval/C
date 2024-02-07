@@ -11,6 +11,9 @@
 #define INCREASE (1)
 #define DELETE (0)
 
+#define UNDO (1)
+
+
 
 #define MAX(a, b) ((b > a) ? b : a)
 

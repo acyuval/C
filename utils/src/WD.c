@@ -28,6 +28,7 @@
 int main(int argc, char ** argv)
 {
     int * status = 0; 
+    
     SetEnvWDPID(getpid());
 
     if(argc == 1)
@@ -38,9 +39,9 @@ int main(int argc, char ** argv)
     status = Scheduler_manager(argv[1]);
     if(status != NULL)
     {
+        printf("WD STOP \n");
         return FAIL;
     }
-
     return SUCCESS;
 }
 

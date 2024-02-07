@@ -30,7 +30,7 @@ static void * WD_Start_thread(void * params);
 
 
 
-pthread_t thread_pid = 0;
+pthread_t thread_pid[3] = {0};
 
 
 /******************************************************************************
@@ -41,7 +41,7 @@ int WatchdogStart(char **args)
 {
     int status = 0; 
     char * name = *(void **)args;
-    status = pthread_create(&thread_pid, NULL, WD_Start_thread, name);
+    status = pthread_create(&thread_pid[0], NULL, WD_Start_thread, name);
     if (status != SUCCESS)
     {
         return FAIL; 
@@ -52,7 +52,7 @@ int WatchdogStart(char **args)
 void WatchdogStop()
 {
     stop_all();
-    pthread_join(thread_pid,NULL);
+    pthread_join(thread_pid[0], NULL);
 }
 
 
@@ -83,18 +83,19 @@ static void * WD_Start_thread(void * params)
     }
 
 
-    status = pthread_create(&thread_pid, NULL, Scheduler_manager, params);
+    status = pthread_create(&thread_pid[1], NULL, Scheduler_manager, params);
     if (status != SUCCESS)
     {
         return NULL; 
     }
-
-    pthread_join(thread_pid, (void **)&status);
+    
+    pthread_join(thread_pid[1], NULL);
+    
     if(status != SUCCESS)
     {
-        return NULL;
+        printf("error\n");
+        pthread_exit(NULL);
     }
-
-    return NULL;
+    pthread_exit(NULL);
 }
 
