@@ -163,7 +163,6 @@ void SignalHandler1(int sig, siginfo_t *info, void *context)
 
     if(sender_pid != external_pid)
     {
-        printf("other pid");
         return;
     }
     sig_counter = 0;
@@ -334,7 +333,7 @@ static int CheckAndReviveTask(void * params)
         args[1] = s1->my_exe;
         sig_counter = 0;
         RunExe(args);
-        OpSem(1, DECREASE, 0);
+        OpSem(3, DECREASE, 0);
         OpSem(2, INCREASE, 0); 
     }
     return REPEAT;
