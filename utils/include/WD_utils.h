@@ -4,13 +4,12 @@
 
 pid_t GetEnvWDPID();
 
-
 pid_t RunExe(char ** args);
 
-void * Scheduler_manager(void *params);
+void * SchedulerManager(void *params);
 
 void SetEnvWDPID(pid_t pid);
 
-int stop_all();
+int StopAll();
 
 #endif /* __WATCHDOG_UTILS_H__ */

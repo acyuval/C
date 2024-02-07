@@ -5,15 +5,11 @@
 ******************************************************************************/
 #define _POSIX_C_SOURCE 200112L 
 
-#include <assert.h> /* assert			  */
+#include <assert.h> /* assert */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
-#include <sys/ipc.h>
-#include <ctype.h>
 #include <pthread.h> 
 #include <stdatomic.h> 
 #include <signal.h>
@@ -28,9 +24,7 @@
 *							 DECLARATION								 		  * 
 ******************************************************************************/
 
-#define T_check_flag (1)
-#define T_signal (2)
-#define T_check_counter (1)
+
 #define missed_signal_tolerance (5)
 
 pid_t sender_pid = 0;
@@ -69,7 +63,7 @@ void SignalHandler1(int sig, siginfo_t *info, void *context);
 void SignalHandler2(int sig, siginfo_t *info, void *context);
 
 static void CleanUP(scheduler_t * scheduler);
-static int AddTasks(scheduler_t * scheduler, s_params *task_params);
+static int AddTasks(s_params *task_params);
 static int DoILikeBalls();
 static int OpSem(int value, int type, int undo);
 static void ShowYourself();
@@ -79,7 +73,7 @@ static int CheckAndReviveTask(void *);
 static int CheckFlagTask(void *);
 
 
-void * Scheduler_manager(void *params)
+void * SchedulerManager(void *params)
 {
     scheduler_t * scheduler  = NULL;
 
@@ -108,7 +102,7 @@ void * Scheduler_manager(void *params)
     }    
     SetSigActions();    
     
-    AddTasks(scheduler, &task_params);
+    AddTasks(&task_params);
 
     OpSem(1, INCREASE, 0);
     OpSem(2, DECREASE, 0);         /* wait for both process */
@@ -126,7 +120,6 @@ pid_t RunExe(char ** args)
     pid_t child = 0; 
     child = fork();
     external_pid = child;
-    
     if(child == 0)
     {
         execvp(args[0],args);
@@ -172,19 +165,21 @@ void SignalHandler2(int sig, siginfo_t *info, void *context)
 {
     (void)sig;
     (void)context;
-    (void)info;
-    if(sender_pid == external_pid)
+    if(sender_pid != info->si_pid)
     {
-        write(1, "stop sig received\n", 18);
-        stop_flag = TRUE; 
+        return;
     }
+
+    write(1, "stop sig received\n", 18);
+    stop_flag = TRUE; 
 }
 
-int stop_all()
+int StopAll()
 { 
     int status = 0;
     status = kill(external_pid, SIGUSR2); 
-    OpSem(0, DELETE, 0); 
+    status = OpSem(0, DELETE, 0); 
+    unsetenv("WD_pid");
     return status;
 }
 
@@ -198,7 +193,7 @@ static int CheckFlagTask(void * params)
     int status = 0; 
     if(stop_flag == TRUE)
     {
-        status = stop_all();
+        status = kill(external_pid, SIGUSR2); 
         SchedulerStop(s1->scheduler);
         if(status == SUCCESS)
         {
@@ -245,7 +240,7 @@ static int OpSem(int value, int type, int undo)
 
 
 
-static int AddTasks(scheduler_t * scheduler, s_params *task_params)
+static int AddTasks(s_params *task_params)
 {
     
     ilrd_uid_t uid = {0};
@@ -269,12 +264,12 @@ static int AddTasks(scheduler_t * scheduler, s_params *task_params)
     
     for(runner = 0; runner < NUM_OF_TASKS; ++runner)
     {
-        uid = SchedulerAdd(scheduler, task_arr[runner], task_params,
+        uid = SchedulerAdd(task_params->scheduler, task_arr[runner], task_params,
                            start_time[runner],interval_time[runner], NULL, NULL);
         
         if(UIDIsEqual(uid,bad_uid) == TRUE) 
         {
-            SchedulerDestroy(scheduler);
+            SchedulerDestroy(task_params->scheduler);
             return FAIL;
         }
     }
@@ -288,7 +283,7 @@ static int DoILikeBalls()
 
 static int SetSigActions()
 {
-    struct sigaction signals_struct= {0};
+    struct sigaction signals_struct = {0};
 
 	int status = 0; 
 	signals_struct.sa_flags = SA_SIGINFO;

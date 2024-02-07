@@ -5,16 +5,9 @@
 ******************************************************************************/
 
 
-#include <assert.h> /* assert			  */
+
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <ctype.h>
 #include <pthread.h> 
 #include <stdatomic.h> 
 #include <signal.h>
@@ -28,10 +21,7 @@
 ******************************************************************************/
 static void * WD_Start_thread(void * params);
 
-
-
-pthread_t thread_pid[3] = {0};
-
+pthread_t thread_pid[2] = {0};
 
 /******************************************************************************
 *							 FUNCTIONS 										  * 
@@ -51,8 +41,9 @@ int WatchdogStart(char **args)
 
 void WatchdogStop()
 {
-    stop_all();
+    StopAll();
     pthread_join(thread_pid[0], NULL);
+    
 }
 
 
@@ -83,7 +74,7 @@ static void * WD_Start_thread(void * params)
     }
 
 
-    status = pthread_create(&thread_pid[1], NULL, Scheduler_manager, params);
+    status = pthread_create(&thread_pid[1], NULL, SchedulerManager, params);
     if (status != SUCCESS)
     {
         return NULL; 
@@ -94,7 +85,6 @@ static void * WD_Start_thread(void * params)
     if(status != SUCCESS)
     {
         printf("error\n");
-        pthread_exit(NULL);
     }
     pthread_exit(NULL);
 }

@@ -43,13 +43,12 @@ void TestWD()
 	char path[20] = "./a.out";
 	char * ptr = path;
 	char ** args = &ptr;
-	time_t start = 0;
-	time_t cur_time = 0;
+	int counter = 0;
 	WatchdogStart(args);	
-	while(cur_time < 500)
+	while(counter < 500)
 	{
 		sleep(2);
-		++cur_time;
+		++counter;
 	}
 	WatchdogStop();
 
