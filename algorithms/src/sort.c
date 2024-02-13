@@ -24,8 +24,6 @@
 static int RadixCountSort(int *arr, int size, int exp);
 static size_t FindMaxInArr(int * arr , size_t size);
 static void swap(int* xp, int* yp);
-static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra);
-int MergeSort(int *arr, size_t arr_size);
 static int *StaticMergeSort(int * arr, size_t start , size_t end , int * arr_extra);
 static int StaticRecursiveBS(int * sorted ,int* start, int* end, int to_find);
 static void SwapByteByte(char *dest, char * src, size_t ele_size);
@@ -33,6 +31,7 @@ size_t StaticSwapPivot(void *base,size_t ele_size , size_t left_index,
                     size_t right_index, compare_func compare);
 void StaticQuickSort(void *base, size_t ele_size, size_t left_index,
                     size_t right_index, compare_func compare);
+static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra);
 /******************************************************************************
 *							 FUNCTIONS 										  * 
 ******************************************************************************/
@@ -329,6 +328,7 @@ static int *StaticMergeSort(int * arr, size_t start , size_t end , int * arr_ext
 
 }
 
+
 static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra)
 {
     int first_index = start, last_index = mid+1, counter =start;
@@ -369,7 +369,6 @@ static int *MergeTwoHalf(int *arr, int start,int mid , int end, int * arr_extra)
     
     return arr;
 }
-
 
 static int StaticRecursiveBS(int * sorted ,int* start, int* end, int to_find)
 {

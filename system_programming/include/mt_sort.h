@@ -22,7 +22,7 @@ Stability: Stable, as it maintains the relative order of elements with equal val
 Inplace: No, it requires additional space for counting.
 IsParallel: Yes, the counting process is distributed across multiple threads.
 */
-int MTCountingSort(unsigned char *arr, size_t size, size_t num_of_threads);
+int MTCountingSort(char *arr, size_t size, size_t num_of_threads);
 
 
 #endif /*__MT_COUNTING_SORT__*/

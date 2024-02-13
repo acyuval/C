@@ -1,6 +1,6 @@
 /******************************************************************************
 *	Author:    Yuval 
-*	Reviewer : Chen
+*	Reviewer : 
 *	Date:      
 ******************************************************************************/
 #include <stdio.h>  /* printf()  	  */
@@ -13,7 +13,7 @@
 
 #define TEST_SIZE (5)
 #define NUM_CHAR (1760952)
-#define NUM_OF_DIC (4)
+#define NUM_OF_DIC (55)
 /******************************************************************************
 *							TYPE DEFS / MACROS 								  * 
 ******************************************************************************/
@@ -21,7 +21,7 @@
 
 
 /******************************************************************************
-*							FUNCTION DECLRATION								  * 
+*							FUNCTION DECALRATION								  * 
 ******************************************************************************/
 
 static void TestHelper(int booll , char * calling_function, int test_no); 
@@ -63,7 +63,7 @@ void TestMTSort()
 
 	for(this_test = 0 ; this_test < TEST_SIZE ; ++this_test)
 	{
-		threads_amount = 2 * (this_test+1);
+		threads_amount = (this_test+1);
 		start = clock();
 		MTCountingSort(buffer, counter, threads_amount);
 		end = clock();
@@ -79,12 +79,10 @@ void TestMTSort()
 		{
 			printf("num of thread %d at time %f \n", threads_amount, ((double)(end-start))/CLOCKS_PER_SEC);
 		}
-
 	}
 
+	free(buffer);
 	puts("");
-
-
 }
 
 
