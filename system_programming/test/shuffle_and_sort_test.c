@@ -3,6 +3,7 @@
 *	Reviewer : 
 *	Date:      
 ******************************************************************************/
+
 #include <stdio.h>  /* printf()  	  */
 #include <assert.h> /* assert			  */
 #include <stdlib.h>
@@ -11,8 +12,8 @@
 #include <time.h>
 #include "shuffle_and_sort.h"
 
-#define TEST_SIZE (8)
-#define NUM_OF_DIC (4)
+#define TEST_SIZE (1)
+#define NUM_OF_DIC (50)
 /******************************************************************************
 *							TYPE DEFS / MACROS 								  * 
 ******************************************************************************/
@@ -35,7 +36,7 @@ int comparator2(const void * arg1,const void * arg2);
 	
 int main()
 {
-	srand(time(NULL));
+	
 	TestMTSort();
 	return (0);
 }
@@ -60,7 +61,7 @@ void TestMTSort()
 	char **word_buffer = NULL;
 	clock_t start = 0;
 	clock_t end = 0;
-	
+
 	char_buffer = CreateDic(&char_counter, &words_counter, &word_buffer);
 
 	full_words_arr = calloc(NUM_OF_DIC * words_counter,sizeof(size_t));
@@ -80,6 +81,7 @@ void TestMTSort()
 	threads_amount = 1;
  	for(this_test = 0 ; this_test < TEST_SIZE*2 ; this_test+=2)
 	{
+		srand(time(NULL));
 		start = clock();
 		SortAndMerge(full_words_arr, words_counter*NUM_OF_DIC, threads_amount);
 		end = clock();
@@ -98,7 +100,6 @@ void TestMTSort()
 		qsort(full_words_arr, words_counter*NUM_OF_DIC, sizeof(size_t) , compare);
 		threads_amount = (this_test+2);
 	}
-
 	
 	free(char_buffer);
 	free(full_words_arr);
