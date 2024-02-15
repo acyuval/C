@@ -13,3 +13,10 @@ alias debug='cgdb ./a.out'
 
 alias goto='bash ~/git/.gdbfunc.sh && cgdb ./a.out -ex=r && source break_points'
 
+
+#cpp
+alias ge='g++ -std=c++98 -pedantic-errors -Wall -Wextra -g'
+alias ge9='g++ -std=c++98 -pedantic-errors -Wall -Wextra -o3'
+alias cpp98='g++ -std=c++98'
+alias cpp11d='g++ -std=c++11 -g'
+alias cpp11='g++ -std=c++11'

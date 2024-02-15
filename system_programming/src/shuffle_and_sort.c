@@ -37,7 +37,7 @@ typedef struct params
 }params;
 
 void MergeHalfs(char **arr, size_t start,size_t mid ,size_t end);
-void Swap(char ** a , char ** b);
+void swap(char ** a , char ** b);
 void *SortByThread(void * args);
 int comparator(const void * arg1,const void * arg2);
 
@@ -104,7 +104,7 @@ void *SortByThread(void * args)
 
 
 
-void Swap(char ** a , char ** b)
+void swap(char ** a , char ** b)
 {   
     char ** temp = a; 
     *a = *b;
