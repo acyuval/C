@@ -17,7 +17,15 @@ class ball: public moving_entity
     void update() override;
     void draw (sf::RenderWindow& window) override;
 
+    sf::FloatRect get_bounding_box() const noexcept override;
 
+    sf::Vector2f get_centre() const noexcept override;
+
+    float x() const noexcept override;
+    float y() const noexcept override;
+    void move_up() noexcept override;
+    void move_left() noexcept override;
+    void move_right() noexcept override;
     
 };
 
