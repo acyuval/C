@@ -10,24 +10,51 @@
 #include <cstring>
 #include <iterator>
 #include <vector>
-#include <set> 
-
+#include <map> 
+#include "ass.h" 
 using namespace std;
 /******************************************************************************
- *							 DECLARATION								 		  *
+ *							 DECLARATION								 		  *Developer: Toggle Keyboard Shortcuts Troubleshooting
  ******************************************************************************/
-extern "C" 
+
+class New_exe :public exception 
 {
-    #include "ass.h" 
-}
+    public:
+    const char* what() const noexcept override
+    {
+        cout << "new exception" << endl;
+    } 
+};
+
+
+
+
 
 int main() 
 {
-    set <int> my_set{1,2,3,4,5,6,7,8,9,10}; 
-    vector <int> vec;
-    copy()
+    vector <int> new_vec(10); 
 
-    ShowSet((my_set_p), my_set.size());
+    for(size_t i = 0 ; i < 12 ; i++)
+    {
+        try
+        {
+            
+            try
+            {
+                new_vec.at(i);
+            }
+            catch(const exception& e)
+            {
+
+                throw New_exe();
+            }
+        }
+        catch(const exception& new_e)
+        {
+            new_e.what();
+        }
+    }
+
     return 0;
 }
 /******************************************************************************

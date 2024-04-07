@@ -3,9 +3,8 @@
  *	Reviewer : 
  *	Date:
  ******************************************************************************/
-#ifndef __ASS12_H__
-#define __ASS12_H__
+#ifndef __ASS10_H__
+#define __ASS10_H__
 
-void ShowSet(const int * arr, size_t size);
 
-#endif /*__ASS12_H__*/
+#endif /*__ASS10_H__*/

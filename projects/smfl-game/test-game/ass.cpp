@@ -4,36 +4,47 @@
  *	Date:
  ******************************************************************************/
 #include <vector>
-#include <algorithm>
 #include <iostream>
-#include <string> // For strcpy() and strlen()
-#include <cstring>
+#include <string> 
+#include <sstream> 
+#include <algorithm>
 #include <iterator>
-#include <vector>
-#include <set> 
-
-using namespace std;
+#include <map>
+#include <set>
+#include "ass.h"
+#include <SFML/Graphics.hpp>
 /******************************************************************************
  *							 DECLARATION								 		  *
  ******************************************************************************/
-extern "C" 
-{
-    #include "ass.h" 
-}
+using namespace std;
 
-int main() 
-{
-    set <int> my_set{1,2,3,4,5,6,7,8,9,10}; 
-    vector <int> vec;
-    copy()
 
-    ShowSet((my_set_p), my_set.size());
+int main()
+{
+    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    sf::CircleShape shape(100.f);
+    shape.setFillColor(sf::Color::Green);
+
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        window.clear();
+        window.draw(shape);
+        window.display();
+    }
+
     return 0;
 }
+
 /******************************************************************************
  *							 FUNCTIONS 										  *
  ******************************************************************************/
-
 
 /******************************************************************************
  *							STATIC FUNCTIONS 								  *

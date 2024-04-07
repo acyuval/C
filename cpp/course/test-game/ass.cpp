@@ -3,19 +3,43 @@
  *	Reviewer : 
  *	Date:
  ******************************************************************************/
-#include <stdio.h>
-
+#include <vector>
+#include <iostream>
+#include <string> 
+#include <sstream> 
+#include <algorithm>
+#include <iterator>
+#include <map>
+#include <set>
+#include "ass.h"
+#include <SFML/Graphics.hpp>
 /******************************************************************************
  *							 DECLARATION								 		  *
  ******************************************************************************/
+using namespace std;
 
-void ShowSet(int * arr, size_t size)
+
+int main()
 {
-    size_t i =0 ; 
-    for (i = 0 ; i < size ; ++i)
+    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    sf::CircleShape shape(100.f);
+    shape.setFillColor(sf::Color::Green);
+
+    while (window.isOpen())
     {
-        printf("num : %d \n", arr[i]);
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        window.clear();
+        window.draw(shape);
+        window.display();
     }
+
+    return 0;
 }
 
 /******************************************************************************

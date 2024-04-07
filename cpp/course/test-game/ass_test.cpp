@@ -3,24 +3,64 @@
  *	Reviewer : 
  *	Date:
  ******************************************************************************/
-#include <stdio.h>
-
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <string> // For strcpy() and strlen()
+#include <cstring>
+#include <iterator>
+#include <vector>
+#include <map> 
+#include "ass.h" 
+using namespace std;
 /******************************************************************************
  *							 DECLARATION								 		  *
  ******************************************************************************/
 
-void ShowSet(int * arr, size_t size)
+class New_exe :public exception 
 {
-    size_t i =0 ; 
-    for (i = 0 ; i < size ; ++i)
+    public:
+    const char* what() const noexcept override
     {
-        printf("num : %d \n", arr[i]);
-    }
-}
+        cout << "new exception" << endl;
+    } 
+};
 
+
+
+
+
+int main() 
+{
+    vector <int> new_vec(10); 
+
+    for(size_t i = 0 ; i < 12 ; i++)
+    {
+        try
+        {
+            
+            try
+            {
+                new_vec.at(i);
+            }
+            catch(const exception& e)
+            {
+
+                throw New_exe();
+            }
+        }
+        catch(const exception& new_e)
+        {
+            new_e.what();
+        }
+    }
+
+    return 0;
+}
 /******************************************************************************
  *							 FUNCTIONS 										  *
  ******************************************************************************/
+
 
 /******************************************************************************
  *							STATIC FUNCTIONS 								  *
