@@ -65,6 +65,10 @@ void paddle::move_up() noexcept
 {
     velocity.y = -constant::paddle_velocity;
 }
+void paddle::move_down() noexcept
+{
+    velocity.y = constant::paddle_velocity;
+}
 void paddle::move_left() noexcept
 {
     velocity.x = -constant::paddle_velocity;

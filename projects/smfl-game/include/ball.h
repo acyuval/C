@@ -24,6 +24,7 @@ class ball: public moving_entity
     float x() const noexcept override;
     float y() const noexcept override;
     void move_up() noexcept override;
+    void move_down() noexcept override;
     void move_left() noexcept override;
     void move_right() noexcept override;
     

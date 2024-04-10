@@ -37,8 +37,12 @@ void ball::update()
 
     if (x() <= 0 || x() >= constant::window_width - (constant::ball_radius * 2)) 
         velocity.x *= -1;
-    if (y() <= 0 || y() >= constant::window_height - (constant::ball_radius * 2)) 
+    if (y() <= 0) 
         velocity.y *= -1;    
+    if(y() >= constant::window_height - (constant::ball_radius * 2))
+    {
+        destroy();
+    }
 }
 
 void ball::draw(sf::RenderWindow& window)
@@ -69,6 +73,12 @@ void ball::move_up() noexcept
 {
     velocity.y = -constant::ball_velocity;
 }
+
+void ball::move_down() noexcept
+{
+    velocity.y = constant::ball_velocity;
+}
+
 void ball::move_left() noexcept
 {
     velocity.x = -constant::ball_velocity;
